@@ -1,4 +1,4 @@
-import type { ApprovalBoundary } from "./types.js";
+import type { ApprovalBoundary } from "./types";
 
 export interface ApprovedActionPolicy {
   readonly ownerId: string;

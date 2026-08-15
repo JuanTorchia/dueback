@@ -1,0 +1,95 @@
+import { describe, expect, it } from "vitest";
+import type { EvidenceCandidateContract } from "@dueback/contracts";
+import {
+  EvidenceService,
+  type EvidenceCase,
+  type EvidenceCaseStore,
+  type EvidenceRecord
+} from "../src/evidence-service";
+import type { NotificationRecord, NotificationStore } from "../src/notifications";
+import { makeDraft } from "./support";
+
+class Cases implements EvidenceCaseStore {
+  records: EvidenceRecord[] = [];
+  constructor(public item: EvidenceCase) {}
+  get(): Promise<EvidenceCase> {
+    return Promise.resolve(this.item);
+  }
+  record(input: {
+    caseId: string;
+    expectedVersion: number;
+    nextState: EvidenceCase["state"];
+    evidence: EvidenceRecord;
+  }): Promise<{ duplicate: boolean }> {
+    this.records.push(input.evidence);
+    this.item = { ...this.item, state: input.nextState, version: this.item.version + 1 };
+    return Promise.resolve({ duplicate: false });
+  }
+}
+
+class Notifications implements NotificationStore {
+  records = new Map<string, NotificationRecord>();
+  createIfAbsent(
+    record: NotificationRecord
+  ): Promise<{ record: NotificationRecord; duplicate: boolean }> {
+    const old = this.records.get(record.dedupeKey);
+    if (old) return Promise.resolve({ record: old, duplicate: true });
+    this.records.set(record.dedupeKey, record);
+    return Promise.resolve({ record, duplicate: false });
+  }
+}
+
+function candidate(level: EvidenceCandidateContract["level"]): EvidenceCandidateContract {
+  return {
+    evidenceId: `evidence_${level}`,
+    caseId: "case_12345678",
+    level,
+    amountMinor: 7900,
+    currency: "USD",
+    transactionRef: "ORDER-79",
+    issuedAt: "2026-08-15T12:00:00.000Z",
+    issuer: "merchant-sandbox",
+    signatureValid: true
+  };
+}
+
+describe("EvidenceService", () => {
+  it("keeps acknowledgement open and creates no completion notification", async () => {
+    const draft = makeDraft();
+    const cases = new Cases({
+      caseId: draft.caseId,
+      ownerId: draft.ownerId,
+      state: "WAITING_EXTERNAL",
+      version: 2,
+      plan: draft.plan
+    });
+    const notifications = new Notifications();
+    const result = await new EvidenceService(cases, notifications).reconcile(
+      candidate("REQUEST_ACKNOWLEDGED"),
+      "2026-08-15T12:00:05.000Z"
+    );
+    expect(result.status).toBe("INSUFFICIENT");
+    expect(cases.item.state).toBe("WAITING_EXTERNAL");
+    expect(notifications.records.size).toBe(0);
+  });
+
+  it("finishes at merchant-confirmed and deduplicates completion notification", async () => {
+    const draft = makeDraft();
+    const cases = new Cases({
+      caseId: draft.caseId,
+      ownerId: draft.ownerId,
+      state: "WAITING_EXTERNAL",
+      version: 2,
+      plan: draft.plan
+    });
+    const notifications = new Notifications();
+    const service = new EvidenceService(cases, notifications);
+    const result = await service.reconcile(
+      candidate("MERCHANT_CONFIRMED"),
+      "2026-08-15T12:00:05.000Z"
+    );
+    expect(result.status).toBe("VERIFIED");
+    expect(cases.item.state).toBe("DONE");
+    expect(notifications.records.size).toBe(1);
+  });
+});

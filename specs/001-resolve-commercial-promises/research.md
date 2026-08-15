@@ -2,7 +2,9 @@
 
 ## Decision 1 — Google agent framework
 
-**Decision**: Use Genkit with TypeScript and the Vertex AI plugin.
+**Decision**: Use Genkit with TypeScript and `@genkit-ai/google-genai` configured through its
+`vertexAI()` initializer. The older main `@genkit-ai/vertexai` Gemini export is deprecated and will
+not be used.
 
 **Rationale**: DueBack needs typed multimodal extraction, tools, prompt/evaluation versioning, and
 tracing inside a web product. Genkit supplies these capabilities without adding a second language.

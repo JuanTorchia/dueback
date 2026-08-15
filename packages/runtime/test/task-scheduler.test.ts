@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { CloudTasksClient } from "@google-cloud/tasks";
-import { TaskScheduler } from "../src/task-scheduler.js";
+import { TaskScheduler } from "../src/task-scheduler";
 
 describe("TaskScheduler", () => {
   it("uses a stable task name and treats ALREADY_EXISTS as deduplication", async () => {

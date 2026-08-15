@@ -13,7 +13,7 @@
 **Purpose**: Establish one pinned, reproducible TypeScript workspace without product behavior.
 
 - [x] T001 Initialize the pnpm workspace and pin Node/pnpm versions in `package.json`, `pnpm-workspace.yaml`, and `.nvmrc`
-- [ ] T002 Create the planned app/package/test directory skeleton with package manifests under `apps/`, `packages/`, and `tests/`
+- [x] T002 Create the planned app/package/test directory skeleton with package manifests under `apps/`, `packages/`, and `tests/`
 - [x] T003 [P] Configure strict shared TypeScript settings in `tsconfig.base.json` and package-level `tsconfig.json` files
 - [x] T004 [P] Configure ESLint, Prettier, Vitest, and root quality scripts in `eslint.config.mjs`, `.prettierrc.json`, `vitest.config.ts`, and `package.json`
 - [x] T005 [P] Add secret-safe local configuration templates and ignore rules in `.env.example` and `.gitignore`
@@ -40,7 +40,7 @@
 - [x] T019 [P] Create the Firestore indexes and local emulator configuration in `infra/firestore/firestore.indexes.json` and `firebase.json`
 - [x] T020 Implement the closed action broker interface with approval and idempotency enforcement in `packages/runtime/src/action-broker.ts`
 - [x] T021 Implement bounded Cloud Tasks scheduling, retry, and deduplication in `packages/runtime/src/task-scheduler.ts`
-- [ ] T022 Add foundational contract tests for reducer/persistence/broker invariants in `tests/contract/domain-invariants.test.ts`
+- [x] T022 Add foundational contract tests for reducer/persistence/broker invariants in `tests/contract/domain-invariants.test.ts`
 
 **Checkpoint**: Domain authority, false-DONE protection, persistence, and idempotency pass without a UI or model.
 
@@ -52,21 +52,21 @@
 
 ### Tests for User Story 1
 
-- [ ] T023 [P] [US1] Add schema fixtures for valid, Spanish, contradictory, duplicate, and hostile promise inputs in `packages/test-fixtures/src/promises.ts`
-- [ ] T024 [P] [US1] Write extraction contract tests for typed fields, provenance, uncertainty, and refusal to infer authority in `packages/genkit-flows/test/extract-promise.test.ts`
-- [ ] T025 [P] [US1] Write API contract tests for intake, draft revision, simulation, and version-bound approval in `tests/contract/intake-plan-api.test.ts`
+- [x] T023 [P] [US1] Add schema fixtures for valid, Spanish, contradictory, duplicate, and hostile promise inputs in `packages/test-fixtures/src/promises.ts`
+- [x] T024 [P] [US1] Write extraction contract tests for typed fields, provenance, uncertainty, and refusal to infer authority in `packages/genkit-flows/test/extract-promise.test.ts`
+- [x] T025 [P] [US1] Write API contract tests for intake, draft revision, simulation, and version-bound approval in `tests/contract/intake-plan-api.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T026 [US1] Implement the Gemini 3.5+ Genkit promise-extraction flow with schema validation and no tools in `packages/genkit-flows/src/extract-promise.ts`
-- [ ] T027 [US1] Implement content-detected PDF/JPEG/PNG/text validation, hashing, metadata removal, 10 MB/20-page/20-MP/50k-character/three-artifact limits, and private references in `packages/channel-adapters/src/upload.ts`
-- [ ] T028 [US1] Implement intake deduplication and draft creation service in `packages/runtime/src/intake-service.ts`
-- [ ] T029 [P] [US1] Build the mobile-first intake page and upload states in `apps/web/app/intake/page.tsx` and `apps/web/components/intake-form.tsx`
-- [ ] T030 [US1] Implement intake endpoints from the OpenAPI contract in `apps/web/app/api/intake/route.ts`
-- [ ] T031 [US1] Build the provenance-linked, plain-language plan review UI in `apps/web/app/cases/[caseId]/review/page.tsx`
-- [ ] T032 [US1] Implement simulate, revise, reject, and approve commands in `apps/web/app/api/cases/[caseId]/plan/route.ts`
-- [ ] T033 [US1] Add Firebase anonymous activation, case ownership, owner/version/hash-bound approval, expiry, stale-version rejection, and CSRF-safe mutations in `apps/web/lib/authz.ts`
-- [ ] T034 [US1] Add integration tests for pre-approval non-action, approval invalidation, expired/reused approval, and cross-owner read/control denial in `tests/integration/capture-approve.test.ts`
+- [x] T026 [US1] Implement the Gemini 3.5+ Genkit promise-extraction flow with schema validation and no tools in `packages/genkit-flows/src/extract-promise.ts`
+- [x] T027 [US1] Implement content-detected PDF/JPEG/PNG/text validation, hashing, metadata removal, 10 MB/20-page/20-MP/50k-character/three-artifact limits, and private references in `packages/channel-adapters/src/upload.ts`
+- [x] T028 [US1] Implement intake deduplication and draft creation service in `packages/runtime/src/intake-service.ts`
+- [x] T029 [P] [US1] Build the mobile-first intake page and upload states in `apps/web/app/intake/page.tsx` and `apps/web/components/intake-form.tsx`
+- [x] T030 [US1] Implement intake endpoints from the OpenAPI contract in `apps/web/app/api/intake/route.ts`
+- [x] T031 [US1] Build the provenance-linked, plain-language plan review UI in `apps/web/app/cases/[caseId]/review/page.tsx`
+- [x] T032 [US1] Implement simulate, revise, reject, and approve commands in `apps/web/app/api/cases/[caseId]/plan/route.ts`
+- [x] T033 [US1] Add Firebase anonymous activation, case ownership, owner/version/hash-bound approval, expiry, stale-version rejection, and CSRF-safe mutations in `apps/web/lib/authz.ts`
+- [x] T034 [US1] Add integration tests for pre-approval non-action, approval invalidation, expired/reused approval, and cross-owner read/control denial in `tests/integration/capture-approve.test.ts`
 
 **Checkpoint**: The user can safely delegate one promise, but no autonomous follow-through is claimed yet.
 
@@ -78,20 +78,20 @@
 
 ### Tests for User Story 2
 
-- [ ] T035 [P] [US2] Create deterministic merchant scenarios for acknowledgement, retry, mismatch, signed completion, replay, and latency in `apps/merchant-sandbox/src/scenarios.ts`
-- [ ] T036 [P] [US2] Write action-broker and merchant API contract tests including idempotency in `tests/contract/merchant-action.test.ts`
-- [ ] T037 [P] [US2] Write callback signature, freshness, replay, wrong-case, and wrong-reference tests in `tests/adversarial/callbacks.test.ts`
-- [ ] T038 [P] [US2] Write crash/restart and duplicate-task integration tests in `tests/integration/durable-follow-through.test.ts`
+- [x] T035 [P] [US2] Create deterministic merchant scenarios for acknowledgement, retry, mismatch, signed completion, replay, and latency in `apps/merchant-sandbox/src/scenarios.ts`
+- [x] T036 [P] [US2] Write action-broker and merchant API contract tests including idempotency in `tests/contract/merchant-action.test.ts`
+- [x] T037 [P] [US2] Write callback signature, freshness, replay, wrong-case, and wrong-reference tests in `tests/adversarial/callbacks.test.ts`
+- [x] T038 [P] [US2] Write crash/restart and duplicate-task integration tests in `tests/integration/durable-follow-through.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T039 [US2] Implement the separately runnable Merchant Sandbox API, signed callbacks, and request ledger in `apps/merchant-sandbox/src/server.ts`
-- [ ] T040 [US2] Build a judge-visible controlled-service status page and labeling in `apps/merchant-sandbox/src/status-page.ts`
-- [ ] T041 [US2] Implement the closed merchant adapter and receipt mapping in `packages/channel-adapters/src/merchant-sandbox.ts`
-- [ ] T042 [US2] Implement due-time evaluation and authorized follow-up orchestration in `packages/runtime/src/case-runner.ts`
-- [ ] T043 [US2] Implement the private Cloud Tasks worker endpoint in `apps/web/app/api/internal/tasks/run-case/route.ts`
-- [ ] T044 [US2] Implement callback authentication, dedupe, candidate extraction, and deterministic verification in `apps/web/app/api/callbacks/merchant/route.ts`
-- [ ] T045 [US2] Implement the Gemini evidence-reconciliation flow as a non-authoritative candidate producer in `packages/genkit-flows/src/reconcile-evidence.ts`
+- [x] T039 [US2] Implement the separately runnable Merchant Sandbox API, signed callbacks, and request ledger in `apps/merchant-sandbox/src/server.ts`
+- [x] T040 [US2] Build a judge-visible controlled-service status page and labeling in `apps/merchant-sandbox/src/status-page.ts`
+- [x] T041 [US2] Implement the closed merchant adapter and receipt mapping in `packages/channel-adapters/src/merchant-sandbox.ts`
+- [x] T042 [US2] Implement due-time evaluation and authorized follow-up orchestration in `packages/runtime/src/case-runner.ts`
+- [x] T043 [US2] Implement the private Cloud Tasks worker endpoint in `apps/web/app/api/internal/tasks/run-case/route.ts`
+- [x] T044 [US2] Implement callback authentication, dedupe, candidate extraction, and deterministic verification in `apps/web/app/api/callbacks/merchant/route.ts`
+- [x] T045 [US2] Implement the Gemini evidence-reconciliation flow as a non-authoritative candidate producer in `packages/genkit-flows/src/reconcile-evidence.ts`
 - [ ] T046 [US2] Build waiting, retry, insufficient-evidence, and completion result views in `apps/web/app/cases/[caseId]/result/page.tsx`
 - [ ] T047 [US2] Build the ordered inspectable case timeline with claim limitations in `apps/web/components/case-timeline.tsx`
 - [ ] T048 [US2] Persist deduplicated intervention/completion notifications and add correlated IDs across product, worker, broker, verifier, and sandbox in `packages/runtime/src/notifications.ts` and `packages/observability/src/correlation.ts`

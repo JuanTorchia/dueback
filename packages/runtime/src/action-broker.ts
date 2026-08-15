@@ -18,7 +18,11 @@ export interface ActionRecordStore {
 }
 
 export interface ClosedActionAdapter {
-  execute(proposal: ProposedAction, idempotencyKey: string): Promise<ActionReceipt>;
+  execute(
+    proposal: ProposedAction,
+    idempotencyKey: string,
+    context: { readonly caseId: string }
+  ): Promise<ActionReceipt>;
 }
 
 export type BrokerResult =
@@ -67,7 +71,9 @@ export class ActionBroker {
     }
 
     try {
-      const receipt = await this.adapter.execute(input.proposal, idempotencyKey);
+      const receipt = await this.adapter.execute(input.proposal, idempotencyKey, {
+        caseId: input.caseId
+      });
       await this.store.succeed(idempotencyKey, receipt);
       return { status: "SUCCEEDED", idempotencyKey, receipt, duplicate: false };
     } catch (error) {

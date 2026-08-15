@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Firestore } from "firebase-admin/firestore";
 import type { CaseSnapshot } from "@dueback/domain";
-import { FirestoreCaseRepository } from "../src/firestore.js";
+import { FirestoreCaseRepository } from "../src/firestore";
 
 describe("FirestoreCaseRepository", () => {
   it("creates and retrieves a case without changing its version", async () => {

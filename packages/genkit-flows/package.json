@@ -1,0 +1,24 @@
+{
+  "name": "@dueback/genkit-flows",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./extract-promise": "./src/extract-promise.ts",
+    "./reconcile-evidence": "./src/reconcile-evidence.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dueback/contracts": "workspace:*",
+    "@genkit-ai/google-genai": "1.41.0",
+    "genkit": "1.41.0"
+  },
+  "devDependencies": {
+    "@dueback/test-fixtures": "workspace:*"
+  }
+}

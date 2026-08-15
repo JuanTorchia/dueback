@@ -80,6 +80,17 @@
   secuencia maximiza utilidad, disciplina arquitectónica y reproducibilidad para una persona sola.
   El backlog completo no es un requisito de las primeras 48 horas.
 
+## D-010 — Plugin vigente de Genkit para Vertex AI
+
+- Fecha: 15 de agosto de 2026
+- Estado: aceptada; precisa D-007 sin cambiar el framework ni el proveedor
+- Decisión: usar Genkit 1.41 con `@genkit-ai/google-genai` y su inicializador `vertexAI()` para
+  invocar `gemini-3.5-flash` mediante Vertex AI y Application Default Credentials.
+- Motivo: la documentación oficial actual de Genkit marca como deprecado el export principal para
+  Gemini de `@genkit-ai/vertexai` y recomienda el plugin unificado. Continuar con el paquete antiguo
+  introduciría deuda y una señal técnica negativa evitable.
+- Fuente: https://genkit.dev/docs/js/integrations/vertex-ai/
+
 ## Decisiones pendientes
 
 - Confirmación de ausencia de sanciones o conflictos de interés.

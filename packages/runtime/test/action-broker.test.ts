@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionBroker } from "../src/action-broker.js";
+import { ActionBroker } from "../src/action-broker";
 import type {
   ActionReceipt,
   ActionRecordStore,
   ClosedActionAdapter,
   Reservation
-} from "../src/action-broker.js";
+} from "../src/action-broker";
 import type { ApprovedActionPolicy, ProposedAction } from "@dueback/domain";
 
 const policy: ApprovedActionPolicy = {

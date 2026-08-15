@@ -6,7 +6,7 @@ import {
   caseDedupeKey,
   eventDedupeKey,
   stableHash
-} from "../src/identity.js";
+} from "../src/identity";
 
 describe("stable identities", () => {
   it("hashes objects independently of key order", () => {

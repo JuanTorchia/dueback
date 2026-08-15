@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { redactUnknownFields, safeEvent } from "../src/index.js";
+import { redactUnknownFields, safeEvent } from "../src/index";
 
 describe("privacy-safe observability", () => {
   it("keeps only structured correlation and outcome fields", () => {

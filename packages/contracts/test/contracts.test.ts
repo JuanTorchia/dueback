@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { actionEnvelopeSchema, promiseDraftSchema } from "../src/index.js";
+import { actionEnvelopeSchema, promiseDraftSchema } from "../src/index";
 
 describe("boundary contracts", () => {
   it("rejects a free-form model draft without provenance", () => {

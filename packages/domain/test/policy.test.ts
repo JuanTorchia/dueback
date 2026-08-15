@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { authorizeAction } from "../src/policy.js";
-import type { ApprovedActionPolicy, ProposedAction } from "../src/policy.js";
+import { authorizeAction } from "../src/policy";
+import type { ApprovedActionPolicy, ProposedAction } from "../src/policy";
 
 const policy: ApprovedActionPolicy = {
   ownerId: "person_1",

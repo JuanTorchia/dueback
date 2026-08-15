@@ -1,10 +1,10 @@
-import { evidenceLevels } from "./types.js";
+import { evidenceLevels } from "./types";
 import type {
   EvidenceCandidate,
   EvidenceRequirement,
   VerificationReason,
   VerificationResult
-} from "./types.js";
+} from "./types";
 
 function levelRank(level: EvidenceCandidate["level"]): number {
   return evidenceLevels.indexOf(level);

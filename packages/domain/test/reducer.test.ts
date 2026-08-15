@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { DomainTransitionError, reduceCase } from "../src/reducer.js";
-import type { ApprovalBoundary, CaseSnapshot } from "../src/types.js";
+import { DomainTransitionError, reduceCase } from "../src/reducer";
+import type { ApprovalBoundary, CaseSnapshot } from "../src/types";
 
 const approval: ApprovalBoundary = {
   ownerId: "person_1",

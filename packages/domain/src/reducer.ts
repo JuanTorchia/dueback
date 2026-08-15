@@ -1,4 +1,4 @@
-import type { CaseSnapshot, CaseState, DomainEvent, TransitionCommand } from "./types.js";
+import type { CaseSnapshot, CaseState, DomainEvent, TransitionCommand } from "./types";
 
 const transitions: Readonly<Record<CaseState, readonly CaseState[]>> = {
   DRAFT: ["AWAITING_APPROVAL", "CANCELLED", "EXPIRED"],

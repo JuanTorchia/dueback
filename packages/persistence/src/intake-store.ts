@@ -1,0 +1,61 @@
+import type { Firestore } from "firebase-admin/firestore";
+import type { DraftCase, IntakeStore } from "@dueback/runtime/intake-service";
+import type { PlanStore } from "@dueback/runtime/plan-service";
+
+export class FirestoreIntakeStore implements IntakeStore, PlanStore {
+  constructor(private readonly db: Firestore) {}
+
+  async findByDedupeKey(ownerId: string, dedupeKey: string): Promise<DraftCase | undefined> {
+    const document = await this.db.collection("intakeDedupe").doc(dedupeKey.slice(7)).get();
+    if (!document.exists || document.get("ownerId") !== ownerId) return undefined;
+    const caseId = document.get("caseId") as string;
+    const draftDocument = await this.db.collection("caseDrafts").doc(caseId).get();
+    return draftDocument.exists ? (draftDocument.data() as DraftCase) : undefined;
+  }
+
+  async createDraft(draft: DraftCase): Promise<void> {
+    const dedupeRef = this.db.collection("intakeDedupe").doc(draft.dedupeKey.slice(7));
+    const draftRef = this.db.collection("caseDrafts").doc(draft.caseId);
+    await this.db.runTransaction(async (transaction) => {
+      const existing = await transaction.get(dedupeRef);
+      if (existing.exists) throw new Error("DUPLICATE_INTAKE_RACE");
+      transaction.create(draftRef, draft);
+      transaction.create(dedupeRef, {
+        ownerId: draft.ownerId,
+        caseId: draft.caseId,
+        createdAt: draft.createdAt
+      });
+    });
+  }
+
+  async get(caseId: string): Promise<DraftCase | undefined> {
+    const document = await this.db.collection("caseDrafts").doc(caseId).get();
+    return document.exists ? (document.data() as DraftCase) : undefined;
+  }
+
+  async replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
+    const reference = this.db.collection("caseDrafts").doc(caseId);
+    const runReference = this.db.collection("caseRuns").doc(caseId);
+    await this.db.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (!current.exists) throw new Error("CASE_NOT_FOUND");
+      const currentDraft = current.data() as DraftCase;
+      if (currentDraft.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
+      transaction.set(reference, next);
+      if (next.state === "READY" && next.approval) {
+        transaction.set(runReference, {
+          caseId: next.caseId,
+          ownerId: next.ownerId,
+          state: "READY",
+          version: 1,
+          plan: next.plan,
+          approval: next.approval,
+          actionOrdinal: 1,
+          dueAt:
+            next.promiseDraft.dueAt?.value ??
+            new Date(Date.parse(next.createdAt) + 1000).toISOString()
+        });
+      }
+    });
+  }
+}

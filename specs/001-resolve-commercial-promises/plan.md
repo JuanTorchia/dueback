@@ -23,7 +23,8 @@ broker, and evidence verifier retain exclusive authority over permissions and li
 
 **Language/Version**: TypeScript in strict mode on Node.js 22+
 
-**Primary Dependencies**: Next.js App Router, React, Genkit, Vertex AI plugin for Genkit, Zod,
+**Primary Dependencies**: Next.js App Router, React, Genkit, the unified Google GenAI plugin in
+Vertex AI mode, Zod,
 Google Cloud client libraries, OpenTelemetry-compatible structured logging
 
 **Storage**: Firestore for contracts, cases, actions, evidence, and events; private Cloud Storage for

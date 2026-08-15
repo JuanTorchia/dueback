@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { verifyEvidence } from "../src/verifier.js";
-import type { EvidenceCandidate, EvidenceRequirement } from "../src/types.js";
+import { verifyEvidence } from "../src/verifier";
+import type { EvidenceCandidate, EvidenceRequirement } from "../src/types";
 
 const requirement: EvidenceRequirement = {
   minimumLevel: "MERCHANT_CONFIRMED",

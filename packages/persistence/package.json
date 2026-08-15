@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/firestore.ts"
+    ".": "./src/firestore.ts",
+    "./intake-store": "./src/intake-store.ts",
+    "./runtime-store": "./src/runtime-store.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
@@ -13,6 +15,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dueback/runtime": "workspace:*",
     "@dueback/domain": "workspace:*",
     "firebase-admin": "14.2.0"
   }

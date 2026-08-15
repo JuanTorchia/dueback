@@ -91,6 +91,23 @@
   introduciría deuda y una señal técnica negativa evitable.
 - Fuente: https://genkit.dev/docs/js/integrations/vertex-ai/
 
+## D-011 — Walking skeleton desplegado supera el kill test
+
+- Fecha: 15 de agosto de 2026
+- Estado: aceptada
+- Decisión: continuar con DueBack después de demostrar el flujo P0 en Cloud Run, Firestore,
+  Cloud Tasks y Vertex AI. El caso desplegado `case_45346841-8e3d-4d1f-9f48-7ea606384716`
+  avanzó de `READY` a `WAITING_EXTERNAL` y `DONE` sin mantener la pestaña activa.
+- Evidencia observada: Gemini 3.5 Flash extrajo la promesa; el sandbox HTTP emitió un
+  `REQUEST_ACKNOWLEDGED` firmado que el verificador rechazó por `INSUFFICIENT_LEVEL`; luego emitió
+  `MERCHANT_CONFIRMED`, que fue aceptado. Firestore registró versión final 4, cero `lastError` y una
+  notificación `CASE_COMPLETED` deduplicada.
+- Despliegue: revisiones `dueback-web-00009-5jz` y `dueback-merchant-sandbox-00004-lht`, con
+  imágenes construidas por Cloud Build. El sandbox está rotulado como servicio controlado y no se
+  presenta como comercio real.
+- Motivo: cumple el gate técnico para continuar a excepciones, portabilidad y evaluación sin
+  inventar una integración comercial productiva.
+
 ## Decisiones pendientes
 
 - Confirmación de ausencia de sanciones o conflictos de interés.

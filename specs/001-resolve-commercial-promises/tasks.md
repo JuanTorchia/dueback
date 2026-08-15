@@ -96,7 +96,7 @@
 - [x] T047 [US2] Build the ordered inspectable case timeline with claim limitations in `apps/web/components/case-timeline.tsx`
 - [ ] T048 [US2] Persist deduplicated intervention/completion notifications and add correlated IDs across product, worker, broker, verifier, and sandbox in `packages/runtime/src/notifications.ts` and `packages/observability/src/correlation.ts`
 - [x] T049 [US2] Add the full refund walking-skeleton test including restart, exactly-once effects, and one completion notification in `tests/e2e/refund-walking-skeleton.spec.ts`
-- [ ] T050 [US2] Deploy both services and infrastructure to the development project using `infra/cloud-run/deploy.sh`, `infra/cloud-tasks/queue.yaml`, and `infra/firestore/rules.rules`
+- [x] T050 [US2] Deploy both services and infrastructure to the development project using `infra/cloud-run/deploy.sh`, `infra/cloud-tasks/queue.yaml`, and `infra/firestore/rules.rules`
 
 **48-hour kill test**: Complete only the 15 observable results defined in `plan.md`, drawing the
 smallest necessary subset from T001–T050. The task numbers are backlog order, not a requirement to

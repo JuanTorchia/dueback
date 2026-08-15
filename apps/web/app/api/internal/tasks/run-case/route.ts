@@ -14,7 +14,8 @@ export async function POST(request: Request) {
   const workerUrl = process.env.DUEBACK_WORKER_URL;
   const merchantUrl = process.env.MERCHANT_SANDBOX_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
-  if (!projectId || !workerUrl || !merchantUrl || !serviceAccountEmail)
+  const actionSecret = process.env.MERCHANT_CALLBACK_SECRET;
+  if (!projectId || !workerUrl || !merchantUrl || !serviceAccountEmail || !actionSecret)
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
   const scheduler = new TaskScheduler(new CloudTasksClient(), {
@@ -26,7 +27,8 @@ export async function POST(request: Request) {
   });
   const adapter = new MerchantSandboxAdapter({
     baseUrl: merchantUrl,
-    scenario: process.env.MERCHANT_SCENARIO ?? "signed-completion"
+    scenario: process.env.MERCHANT_SCENARIO ?? "signed-completion",
+    actionSecret
   });
   const runner = new CaseRunner(store, new ActionBroker(store, adapter), scheduler);
   return handleRunCaseTask(request, runner, () => new Date().toISOString());

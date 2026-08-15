@@ -14,6 +14,16 @@ export class FirestoreRuntimeStore
     return document.exists ? (document.data() as FollowThroughCase) : undefined;
   }
 
+  async listEvidence(caseId: string): Promise<readonly EvidenceRecord[]> {
+    const snapshot = await this.db
+      .collection("caseRuns")
+      .doc(caseId)
+      .collection("evidence")
+      .orderBy("recordedAt", "asc")
+      .get();
+    return snapshot.docs.map((document) => document.data() as EvidenceRecord);
+  }
+
   async compareAndSet(
     caseId: string,
     expectedVersion: number,

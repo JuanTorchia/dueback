@@ -293,3 +293,79 @@ summary {
     flex-direction: column;
   }
 }
+.result-grid {
+  display: grid;
+  gap: 16px;
+}
+.preview-label {
+  margin: 0;
+  color: #9a3412;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.outcome h2 {
+  font-size: clamp(28px, 6vw, 46px);
+  letter-spacing: -0.04em;
+  margin: 10px 0;
+}
+.outcome.verified {
+  border-color: #66a987;
+  background: #f2fff8;
+}
+.outcome.waiting {
+  border-color: #e3bd69;
+  background: #fffaf0;
+}
+.claim-limit {
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgb(18 33 27 / 7%);
+  font-size: 13px;
+  font-weight: 700;
+}
+.timeline {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+.timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 12px;
+  padding-bottom: 22px;
+}
+.timeline li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 14px;
+  bottom: 0;
+  border-left: 2px solid var(--line);
+}
+.timeline-mark {
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-top: 3px;
+  background: var(--amber);
+}
+.timeline-mark.complete {
+  background: var(--green);
+}
+.timeline-mark.rejected {
+  background: #a83d30;
+}
+.timeline p {
+  margin: 5px 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.timeline code {
+  color: var(--muted);
+  font-size: 10px;
+}

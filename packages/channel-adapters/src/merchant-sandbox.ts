@@ -4,6 +4,7 @@ import type { ActionReceipt, ClosedActionAdapter } from "@dueback/runtime/action
 export interface MerchantSandboxAdapterConfig {
   readonly baseUrl: string;
   readonly scenario: string;
+  readonly actionSecret?: string;
   readonly fetch?: typeof globalThis.fetch;
 }
 
@@ -24,7 +25,8 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
       headers: {
         "content-type": "application/json",
         "idempotency-key": idempotencyKey,
-        "x-dueback-scenario": this.config.scenario
+        "x-dueback-scenario": this.config.scenario,
+        ...(this.config.actionSecret ? { authorization: `Bearer ${this.config.actionSecret}` } : {})
       },
       body: JSON.stringify({ caseId: context.caseId, proposal })
     });

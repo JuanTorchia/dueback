@@ -47,6 +47,7 @@ async function readBody(request: import("node:http").IncomingMessage): Promise<s
 
 export function createMerchantServer(input: {
   readonly callbackSecret: string;
+  readonly actionSecret?: string;
   readonly callbackUrl?: string;
   readonly now?: () => string;
   readonly request?: typeof fetch;
@@ -83,6 +84,8 @@ export function createMerchantServer(input: {
         if (!envelope.caseId || !envelope.proposal?.sharedFields) {
           throw new Error("INVALID_ACTION_ENVELOPE");
         }
+        const caseId = envelope.caseId;
+        const sharedFields = envelope.proposal.sharedFields;
         if (step.status >= 500) {
           response.writeHead(step.status, { "content-type": "application/json" });
           response.end(JSON.stringify({ error: "INJECTED_RECOVERABLE_FAILURE", attempt }));
@@ -94,23 +97,22 @@ export function createMerchantServer(input: {
 
         if (input.callbackUrl) {
           const callbackUrl = input.callbackUrl;
-          const callback = JSON.stringify({
-            evidenceId: `evidence_${randomUUID()}`,
-            caseId: envelope.caseId,
-            level: step.outcome,
-            amountMinor:
-              step.mismatch === "amount" ? 1 : Number(envelope.proposal.sharedFields.amountMinor),
-            currency: envelope.proposal.sharedFields.currency,
-            transactionRef:
-              step.mismatch === "reference"
-                ? "WRONG-REFERENCE"
-                : envelope.proposal.sharedFields.transactionRef,
-            issuedAt: now(),
-            issuer: "merchant-sandbox"
-          });
-          const timestamp = now();
-          const send = () =>
-            outbound(callbackUrl, {
+          const callbackPayload = (level: typeof step.outcome) =>
+            JSON.stringify({
+              evidenceId: `evidence_${randomUUID()}`,
+              caseId,
+              level,
+              amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor),
+              currency: sharedFields.currency,
+              transactionRef:
+                step.mismatch === "reference" ? "WRONG-REFERENCE" : sharedFields.transactionRef,
+              issuedAt: now(),
+              issuer: "merchant-sandbox"
+            });
+          const send = (level: typeof step.outcome) => {
+            const callback = callbackPayload(level);
+            const timestamp = now();
+            return outbound(callbackUrl, {
               method: "POST",
               headers: {
                 "content-type": "application/json",
@@ -119,14 +121,24 @@ export function createMerchantServer(input: {
               },
               body: callback
             });
-          setTimeout(() => void send(), step.delayMs ?? 0);
-          if (step.replayCount === 2) setTimeout(() => void send(), (step.delayMs ?? 0) + 5);
+          };
+          setTimeout(() => void send(step.outcome), step.delayMs ?? 0);
+          if (step.replayCount === 2)
+            setTimeout(() => void send(step.outcome), (step.delayMs ?? 0) + 5);
+          const followupOutcome = step.followupOutcome;
+          if (followupOutcome)
+            setTimeout(() => void send(followupOutcome), (step.delayMs ?? 0) + 15);
         }
       } catch (error) {
         response.writeHead(400, { "content-type": "application/json" });
         response.end(
           JSON.stringify({ error: error instanceof Error ? error.message : "BAD_REQUEST" })
         );
+      }
+      if (input.actionSecret && request.headers.authorization !== `Bearer ${input.actionSecret}`) {
+        response.writeHead(401, { "content-type": "application/json" });
+        response.end(JSON.stringify({ error: "ACTION_AUTH_REQUIRED" }));
+        return;
       }
     })();
   });
@@ -138,6 +150,7 @@ if (process.env.NODE_ENV !== "test") {
   if (!secret) throw new Error("MERCHANT_CALLBACK_SECRET is required");
   createMerchantServer({
     callbackSecret: secret,
+    actionSecret: secret,
     ...(process.env.DUEBACK_CALLBACK_URL ? { callbackUrl: process.env.DUEBACK_CALLBACK_URL } : {})
   }).listen(port);
 }

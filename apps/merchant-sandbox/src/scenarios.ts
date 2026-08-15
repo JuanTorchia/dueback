@@ -12,6 +12,7 @@ export interface ScenarioStep {
   readonly mismatch?: "amount" | "reference";
   readonly delayMs?: number;
   readonly replayCount?: number;
+  readonly followupOutcome?: "MERCHANT_CONFIRMED";
 }
 
 export const merchantScenarios: Readonly<Record<ScenarioName, readonly ScenarioStep[]>> = {
@@ -23,8 +24,11 @@ export const merchantScenarios: Readonly<Record<ScenarioName, readonly ScenarioS
   ],
   mismatch: [{ status: 200, outcome: "MERCHANT_CONFIRMED", mismatch: "reference" }],
   "signed-completion": [
-    { status: 202, outcome: "REQUEST_ACKNOWLEDGED" },
-    { status: 200, outcome: "MERCHANT_CONFIRMED" }
+    {
+      status: 202,
+      outcome: "REQUEST_ACKNOWLEDGED",
+      followupOutcome: "MERCHANT_CONFIRMED"
+    }
   ],
   replay: [{ status: 200, outcome: "MERCHANT_CONFIRMED", replayCount: 2 }],
   latency: [{ status: 200, outcome: "MERCHANT_CONFIRMED", delayMs: 250 }]

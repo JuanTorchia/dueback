@@ -92,10 +92,10 @@
 - [x] T043 [US2] Implement the private Cloud Tasks worker endpoint in `apps/web/app/api/internal/tasks/run-case/route.ts`
 - [x] T044 [US2] Implement callback authentication, dedupe, candidate extraction, and deterministic verification in `apps/web/app/api/callbacks/merchant/route.ts`
 - [x] T045 [US2] Implement the Gemini evidence-reconciliation flow as a non-authoritative candidate producer in `packages/genkit-flows/src/reconcile-evidence.ts`
-- [ ] T046 [US2] Build waiting, retry, insufficient-evidence, and completion result views in `apps/web/app/cases/[caseId]/result/page.tsx`
-- [ ] T047 [US2] Build the ordered inspectable case timeline with claim limitations in `apps/web/components/case-timeline.tsx`
+- [x] T046 [US2] Build waiting, retry, insufficient-evidence, and completion result views in `apps/web/app/cases/[caseId]/result/page.tsx`
+- [x] T047 [US2] Build the ordered inspectable case timeline with claim limitations in `apps/web/components/case-timeline.tsx`
 - [ ] T048 [US2] Persist deduplicated intervention/completion notifications and add correlated IDs across product, worker, broker, verifier, and sandbox in `packages/runtime/src/notifications.ts` and `packages/observability/src/correlation.ts`
-- [ ] T049 [US2] Add the full refund walking-skeleton test including restart, exactly-once effects, and one completion notification in `tests/e2e/refund-walking-skeleton.spec.ts`
+- [x] T049 [US2] Add the full refund walking-skeleton test including restart, exactly-once effects, and one completion notification in `tests/e2e/refund-walking-skeleton.spec.ts`
 - [ ] T050 [US2] Deploy both services and infrastructure to the development project using `infra/cloud-run/deploy.sh`, `infra/cloud-tasks/queue.yaml`, and `infra/firestore/rules.rules`
 
 **48-hour kill test**: Complete only the 15 observable results defined in `plan.md`, drawing the

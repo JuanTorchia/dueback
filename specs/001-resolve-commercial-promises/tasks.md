@@ -110,13 +110,13 @@ If this fails, freeze later phases and execute the documented pivot review.
 
 **Independent Test**: Reject mismatched evidence, exhaust retry, resolve the exception, stop future action, delete artifacts, and reopen a completed case without losing prior evidence.
 
-- [ ] T051 [P] [US3] Write exception, stop/revoke, expiry, deletion, and reopen integration tests in `tests/integration/case-control.test.ts`
-- [ ] T052 [P] [US3] Write cross-case isolation and artifact-link abuse tests in `tests/adversarial/isolation.test.ts`
-- [ ] T053 [US3] Implement intervention creation and minimal notification policy in `packages/runtime/src/interventions.ts`
-- [ ] T054 [US3] Build the exception decision surface in `apps/web/app/cases/[caseId]/exception/page.tsx`
-- [ ] T055 [US3] Implement stop, revoke, expire, delete, and reopen command endpoints in `apps/web/app/api/cases/[caseId]/control/route.ts`
-- [ ] T056 [US3] Implement artifact deletion and privacy-safe audit tombstones in `packages/persistence/src/retention.ts`
-- [ ] T057 [US3] Add end-to-end exception and reopen coverage in `tests/e2e/case-exception.spec.ts`
+- [x] T051 [P] [US3] Write exception, stop/revoke, expiry, deletion, and reopen integration tests in `tests/integration/case-control.test.ts`
+- [x] T052 [P] [US3] Write cross-case isolation and artifact-link abuse tests in `tests/adversarial/isolation.test.ts`
+- [x] T053 [US3] Implement intervention creation and minimal notification policy in `packages/runtime/src/interventions.ts`
+- [x] T054 [US3] Build the exception decision surface in `apps/web/app/cases/[caseId]/exception/page.tsx`
+- [x] T055 [US3] Implement stop, revoke, expire, delete, and reopen command endpoints in `apps/web/app/api/cases/[caseId]/control/route.ts`
+- [x] T056 [US3] Implement artifact deletion and privacy-safe audit tombstones in `packages/persistence/src/retention.ts`
+- [x] T057 [US3] Add end-to-end exception and reopen coverage in `tests/e2e/case-exception.spec.ts`
 
 ## Phase 6: User Story 4 — Reuse the Resolution Model (P3)
 

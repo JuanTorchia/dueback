@@ -1,6 +1,7 @@
 import type { ResolutionPlan } from "@dueback/contracts";
-import type { ApprovalBoundary, CaseState, ProposedAction } from "@dueback/domain";
+import type { ApprovalBoundary, CaseState, EvidenceLevel, ProposedAction } from "@dueback/domain";
 import type { ActionBroker, BrokerResult } from "./action-broker";
+import type { InterventionService } from "./interventions";
 
 export interface FollowThroughCase {
   readonly caseId: string;
@@ -15,6 +16,10 @@ export interface FollowThroughCase {
   readonly nextWakeAt?: string | undefined;
   readonly lastReceiptId?: string;
   readonly lastError?: string | undefined;
+  readonly controlReason?: string;
+  readonly controlledAt?: string;
+  readonly attemptCount?: number;
+  readonly completedLevel?: EvidenceLevel;
 }
 
 export interface FollowThroughStore {
@@ -35,7 +40,8 @@ export type RunResult =
   | { readonly status: "NOT_DUE"; readonly wakeAt: string }
   | { readonly status: "STALE_TASK" }
   | { readonly status: "WAITING_EXTERNAL"; readonly broker: BrokerResult }
-  | { readonly status: "WAITING_RETRY"; readonly wakeAt: string };
+  | { readonly status: "WAITING_RETRY"; readonly wakeAt: string }
+  | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" };
 
 function actionProposal(item: FollowThroughCase): ProposedAction {
   const requirement = item.plan.evidenceRequirements[0];
@@ -59,7 +65,9 @@ export class CaseRunner {
     private readonly store: FollowThroughStore,
     private readonly broker: ActionBroker,
     private readonly scheduler: RetryScheduler,
-    private readonly retryDelaySeconds = 30
+    private readonly retryDelaySeconds = 30,
+    private readonly maxAttempts = 5,
+    private readonly interventions?: InterventionService
   ) {}
 
   async run(input: {
@@ -118,13 +126,36 @@ export class CaseRunner {
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
     } catch (error) {
+      const attemptCount = (item.attemptCount ?? 0) + 1;
+      if (attemptCount >= this.maxAttempts) {
+        const exhausted: FollowThroughCase = {
+          ...item,
+          state: "NEEDS_ATTENTION",
+          version: item.version + 1,
+          attemptCount,
+          lastError: "RECOVERY_EXHAUSTED"
+        };
+        await this.store.compareAndSet(item.caseId, item.version, exhausted);
+        const correlationId =
+          input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+        await this.interventions?.raise({
+          caseId: item.caseId,
+          ownerId: item.ownerId,
+          correlationId,
+          kind: "RECOVERY_EXHAUSTED",
+          reasonCodes: [error instanceof Error ? error.message : "ACTION_FAILED"],
+          createdAt: input.now
+        });
+        return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };
+      }
       const retryAt = new Date(Date.parse(input.now) + this.retryDelaySeconds * 1000).toISOString();
       const next = {
         ...item,
         state: "WAITING_RETRY" as const,
         version: item.version + 1,
         nextWakeAt: retryAt,
-        lastError: error instanceof Error ? error.message : "ACTION_FAILED"
+        lastError: error instanceof Error ? error.message : "ACTION_FAILED",
+        attemptCount
       };
       await this.store.compareAndSet(item.caseId, item.version, next);
       await this.scheduler.scheduleCase({

@@ -11,6 +11,11 @@ import {
   type FollowThroughStore
 } from "../../packages/runtime/src/case-runner";
 import { makeDraftCase } from "../helpers/draft-case";
+import {
+  InterventionService,
+  type InterventionRecord
+} from "../../packages/runtime/src/interventions";
+import type { NotificationRecord } from "../../packages/runtime/src/notifications";
 
 class Records implements ActionRecordStore {
   readonly records = new Map<string, Reservation>();
@@ -149,5 +154,49 @@ describe("durable follow-through", () => {
         now: "2026-08-15T12:00:00.000Z"
       })
     ).resolves.toEqual({ status: "STALE_TASK" });
+  });
+
+  it("stops bounded recovery and creates one inspectable intervention", async () => {
+    const cases = new Cases(readyCase());
+    const interventionRecords = new Map<string, InterventionRecord>();
+    const notificationRecords = new Map<string, NotificationRecord>();
+    const interventionService = new InterventionService(
+      {
+        createInterventionIfAbsent: async (record) => {
+          const old = interventionRecords.get(record.dedupeKey);
+          if (old) return { record: old, duplicate: true };
+          interventionRecords.set(record.dedupeKey, record);
+          return { record, duplicate: false };
+        },
+        listInterventions: () => Promise.resolve([...interventionRecords.values()])
+      },
+      {
+        createIfAbsent: async (record) => {
+          const old = notificationRecords.get(record.dedupeKey);
+          if (old) return { record: old, duplicate: true };
+          notificationRecords.set(record.dedupeKey, record);
+          return { record, duplicate: false };
+        }
+      }
+    );
+    const runner = new CaseRunner(
+      cases,
+      new ActionBroker(new Records(), { execute: vi.fn(() => Promise.reject(new Error("503"))) }),
+      { scheduleCase: vi.fn() },
+      30,
+      1,
+      interventionService
+    );
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 1,
+        now: "2026-08-15T12:00:00.000Z",
+        correlationId: "corr_recovery_123456789012"
+      })
+    ).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" });
+    expect(cases.value.state).toBe("NEEDS_ATTENTION");
+    expect(interventionRecords.size).toBe(1);
+    expect(notificationRecords.size).toBe(1);
   });
 });

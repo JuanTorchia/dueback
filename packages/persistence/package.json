@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/firestore.ts",
     "./intake-store": "./src/intake-store.ts",
-    "./runtime-store": "./src/runtime-store.ts"
+    "./runtime-store": "./src/runtime-store.ts",
+    "./retention": "./src/retention.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

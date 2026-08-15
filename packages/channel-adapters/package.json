@@ -6,6 +6,7 @@
   "exports": {
     "./upload": "./src/upload.ts",
     "./callback-signature": "./src/callback-signature.ts",
+    "./artifact-access": "./src/artifact-access.ts",
     "./merchant-sandbox": "./src/merchant-sandbox.ts"
   },
   "scripts": {

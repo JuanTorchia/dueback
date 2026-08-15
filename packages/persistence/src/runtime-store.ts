@@ -3,9 +3,15 @@ import type { ActionReceipt, ActionRecordStore, Reservation } from "@dueback/run
 import type { FollowThroughCase, FollowThroughStore } from "@dueback/runtime/case-runner";
 import type { EvidenceCaseStore, EvidenceRecord } from "@dueback/runtime/evidence-service";
 import type { NotificationRecord, NotificationStore } from "@dueback/runtime/notifications";
+import type { InterventionRecord, InterventionStore } from "@dueback/runtime/interventions";
 
 export class FirestoreRuntimeStore
-  implements FollowThroughStore, ActionRecordStore, EvidenceCaseStore, NotificationStore
+  implements
+    FollowThroughStore,
+    ActionRecordStore,
+    EvidenceCaseStore,
+    NotificationStore,
+    InterventionStore
 {
   constructor(private readonly db: Firestore) {}
 
@@ -103,6 +109,27 @@ export class FirestoreRuntimeStore
       transaction.create(reference, record);
       return { record, duplicate: false };
     });
+  }
+
+  async createInterventionIfAbsent(
+    record: InterventionRecord
+  ): Promise<{ record: InterventionRecord; duplicate: boolean }> {
+    const reference = this.db.collection("interventions").doc(record.dedupeKey.slice(7));
+    return this.db.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (current.exists) return { record: current.data() as InterventionRecord, duplicate: true };
+      transaction.create(reference, record);
+      return { record, duplicate: false };
+    });
+  }
+
+  async listInterventions(caseId: string): Promise<readonly InterventionRecord[]> {
+    const snapshot = await this.db
+      .collection("interventions")
+      .where("caseId", "==", caseId)
+      .orderBy("createdAt", "asc")
+      .get();
+    return snapshot.docs.map((document) => document.data() as InterventionRecord);
   }
 
   async reserveCallback(

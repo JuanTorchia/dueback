@@ -73,6 +73,15 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         </div>
       </section>
       <section className="card">
+        <h2>Case controls</h2>
+        <p>
+          Stop future actions, remove your data, or report that a completed result did not arrive.
+        </p>
+        <a className="button-link" href={`/cases/${caseId}/exception`}>
+          {done ? "This isn't resolved" : "Review or stop this case"}
+        </a>
+      </section>
+      <section className="card">
         <h2>Auditable timeline</h2>
         <CaseTimeline evidence={payload.evidence} />
       </section>

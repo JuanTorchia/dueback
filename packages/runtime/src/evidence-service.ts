@@ -10,6 +10,11 @@ import {
   type NotificationRecord,
   type NotificationStore
 } from "./notifications";
+import {
+  interventionRecord,
+  type InterventionRecord,
+  type InterventionStore
+} from "./interventions";
 
 export interface EvidenceCase {
   readonly caseId: string;
@@ -40,7 +45,8 @@ export interface EvidenceCaseStore {
 export class EvidenceService {
   constructor(
     private readonly cases: EvidenceCaseStore,
-    private readonly notifications: NotificationStore
+    private readonly notifications: NotificationStore,
+    private readonly interventions?: InterventionStore
   ) {}
 
   async reconcile(
@@ -51,9 +57,13 @@ export class EvidenceService {
     status: "VERIFIED" | "INSUFFICIENT";
     verification: VerificationResult;
     notification?: NotificationRecord;
+    intervention?: InterventionRecord;
   }> {
     const item = await this.cases.get(candidate.caseId);
     if (!item) throw new Error("CASE_NOT_FOUND");
+    if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
+      throw new Error("EVIDENCE_NOT_ACCEPTED_IN_STATE");
+    }
     const requirement = item.plan.evidenceRequirements[0];
     if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
     const verification = verifyEvidence({ caseId: item.caseId, requirement, candidate, now });
@@ -62,13 +72,48 @@ export class EvidenceService {
       item.correlationId ??
       `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: item.caseId }).slice(7, 31)}`;
     const accepted = verification.accepted;
+    const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_LEVEL");
     await this.cases.record({
       caseId: item.caseId,
       expectedVersion: item.version,
-      nextState: accepted ? "DONE" : "WAITING_EXTERNAL",
+      nextState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL",
       evidence: { candidate, verification, recordedAt: now, correlationId }
     });
-    if (!accepted) return { status: "INSUFFICIENT", verification };
+    if (!accepted) {
+      if (!conflict) return { status: "INSUFFICIENT", verification };
+      const notification = notificationRecord({
+        caseId: item.caseId,
+        ownerId: item.ownerId,
+        kind: "NEEDS_ATTENTION",
+        createdAt: now,
+        correlationId
+      });
+      const persistedNotification = await this.notifications.createIfAbsent(notification);
+      const intervention = interventionRecord({
+        caseId: item.caseId,
+        ownerId: item.ownerId,
+        correlationId,
+        kind: "EVIDENCE_CONFLICT",
+        reasonCodes: verification.reasonCodes,
+        requestedField: verification.reasonCodes.includes("WRONG_AMOUNT")
+          ? "amount"
+          : verification.reasonCodes.includes("WRONG_CURRENCY")
+            ? "currency"
+            : verification.reasonCodes.includes("WRONG_REFERENCE")
+              ? "transaction reference"
+              : "evidence",
+        createdAt: now
+      });
+      const persistedIntervention = this.interventions
+        ? await this.interventions.createInterventionIfAbsent(intervention)
+        : { record: intervention };
+      return {
+        status: "INSUFFICIENT",
+        verification,
+        notification: persistedNotification.record,
+        intervention: persistedIntervention.record
+      };
+    }
     const record = notificationRecord({
       caseId: item.caseId,
       ownerId: item.ownerId,

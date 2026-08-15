@@ -1,0 +1,42 @@
+import type { CaseControlService } from "@dueback/runtime/case-control";
+
+export async function handleCaseControl(
+  request: Request,
+  caseId: string,
+  dependencies: {
+    authenticate: (request: Request) => Promise<{ uid: string }>;
+    service: CaseControlService;
+    now: () => string;
+  }
+): Promise<Response> {
+  try {
+    const owner = await dependencies.authenticate(request);
+    const body = (await request.json()) as {
+      action?: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "DELETE";
+      expectedVersion?: number;
+      reason?: string;
+    };
+    if (!body.action || !Number.isInteger(body.expectedVersion)) {
+      return Response.json({ error: "INVALID_CONTROL_COMMAND" }, { status: 400 });
+    }
+    const result = await dependencies.service.command({
+      caseId,
+      ownerId: owner.uid,
+      expectedVersion: body.expectedVersion as number,
+      action: body.action,
+      ...(body.reason ? { reason: body.reason } : {}),
+      now: dependencies.now()
+    });
+    return Response.json(result, { status: body.action === "DELETE" ? 202 : 200 });
+  } catch (cause) {
+    const error = cause instanceof Error ? cause.message : "CONTROL_COMMAND_FAILED";
+    const status = error.includes("OWNERSHIP")
+      ? 403
+      : error.includes("NOT_FOUND")
+        ? 404
+        : error.includes("AUTH")
+          ? 401
+          : 409;
+    return Response.json({ error }, { status });
+  }
+}

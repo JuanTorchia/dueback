@@ -3,6 +3,7 @@ import { MerchantSandboxAdapter } from "@dueback/channel-adapters/merchant-sandb
 import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
 import { ActionBroker } from "@dueback/runtime/action-broker";
 import { CaseRunner } from "@dueback/runtime/case-runner";
+import { InterventionService } from "@dueback/runtime/interventions";
 import { TaskScheduler } from "@dueback/runtime/task-scheduler";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleRunCaseTask } from "../../../../../lib/task-controller";
@@ -30,6 +31,13 @@ export async function POST(request: Request) {
     scenario: process.env.MERCHANT_SCENARIO ?? "signed-completion",
     actionSecret
   });
-  const runner = new CaseRunner(store, new ActionBroker(store, adapter), scheduler);
+  const runner = new CaseRunner(
+    store,
+    new ActionBroker(store, adapter),
+    scheduler,
+    30,
+    5,
+    new InterventionService(store, store)
+  );
   return handleRunCaseTask(request, runner, () => new Date().toISOString());
 }

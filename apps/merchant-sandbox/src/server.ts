@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { signCallback } from "@dueback/channel-adapters/callback-signature";
-import { scenarioStep, type ScenarioName } from "./scenarios";
-import { statusPage } from "./status-page";
+import { scenarioStep, type ScenarioName } from "./scenarios.ts";
+import { statusPage } from "./status-page.ts";
 
 interface LedgerRecord {
   readonly receiptId: string;

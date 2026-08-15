@@ -7,6 +7,9 @@ repository="${ARTIFACT_REPOSITORY:-dueback}"
 runtime_sa="dueback-runtime@${project_id}.iam.gserviceaccount.com"
 tasks_sa="dueback-tasks@${project_id}.iam.gserviceaccount.com"
 callback_secret="${MERCHANT_CALLBACK_SECRET:?Set MERCHANT_CALLBACK_SECRET}"
+firebase_api_key="${FIREBASE_WEB_API_KEY:?Set FIREBASE_WEB_API_KEY}"
+firebase_auth_domain="${FIREBASE_AUTH_DOMAIN:?Set FIREBASE_AUTH_DOMAIN}"
+firebase_app_id="${FIREBASE_APP_ID:?Set FIREBASE_APP_ID}"
 image_tag="$(git rev-parse --short HEAD)"
 
 gcloud services enable \
@@ -47,11 +50,11 @@ web_image="${region}-docker.pkg.dev/${project_id}/${repository}/web:${image_tag}
 gcloud run deploy dueback-merchant-sandbox --image="${sandbox_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 sandbox_url="$(gcloud run services describe dueback-merchant-sandbox --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
-gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
+gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 web_url="$(gcloud run services describe dueback-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
 gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${web_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
 gcloud run services update dueback-merchant-sandbox --region="${region}" --update-env-vars="DUEBACK_CALLBACK_URL=${web_url}/api/callbacks/merchant" --project="${project_id}" >/dev/null
 gcloud run services add-iam-policy-binding dueback-web --region="${region}" --member="serviceAccount:${tasks_sa}" --role=roles/run.invoker --project="${project_id}" >/dev/null
 
-printf 'DueBack web: %s\nMerchant sandbox (private): %s\n' "${web_url}" "${sandbox_url}"
+printf 'DueBack web: %s\nMerchant sandbox (controlled demo service): %s\n' "${web_url}" "${sandbox_url}"

@@ -26,7 +26,7 @@ gcloud iam service-accounts describe "${runtime_sa}" --project="${project_id}" >
 gcloud iam service-accounts describe "${tasks_sa}" --project="${project_id}" >/dev/null 2>&1 || \
   gcloud iam service-accounts create dueback-tasks --display-name="DueBack Cloud Tasks invoker" --project="${project_id}"
 
-for role in roles/datastore.user roles/aiplatform.user roles/cloudtasks.enqueuer roles/secretmanager.secretAccessor; do
+for role in roles/datastore.user roles/aiplatform.user roles/cloudtasks.enqueuer roles/secretmanager.secretAccessor roles/firebaseauth.viewer; do
   gcloud projects add-iam-policy-binding "${project_id}" --member="serviceAccount:${runtime_sa}" --role="${role}" --condition=None --quiet >/dev/null
 done
 

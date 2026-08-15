@@ -9,7 +9,7 @@ export const extractionInputSchema = z.object({
     z.object({ kind: z.literal("text"), content: z.string().min(1).max(50_000) }),
     z.object({
       kind: z.literal("media"),
-      dataUrl: z.string().startsWith("data:").max(14_000_000),
+      dataUrl: z.string().min(6).max(14_000_000),
       contentType: z.enum(["image/jpeg", "image/png", "application/pdf"])
     })
   ])
@@ -97,6 +97,9 @@ export async function extractPromiseWithGateway(
   unparsedInput: unknown
 ): Promise<PromiseDraft> {
   const input = extractionInputSchema.parse(unparsedInput);
+  if (input.source.kind === "media" && !input.source.dataUrl.startsWith("data:")) {
+    throw new Error("MEDIA_DATA_URL_REQUIRED");
+  }
   const output = await gateway.generate({
     system: extractionSystemInstruction,
     prompt: buildExtractionPrompt(input)

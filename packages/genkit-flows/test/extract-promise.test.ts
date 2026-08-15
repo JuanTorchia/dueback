@@ -83,4 +83,18 @@ describe("extractPromise", () => {
       )
     ).rejects.toThrow("MODEL_OUTPUT_MISSING");
   });
+
+  it("validates media data URLs outside the model-facing JSON Schema", async () => {
+    const generate = vi.fn<PromiseModelGateway["generate"]>();
+    await expect(
+      extractPromiseWithGateway(
+        { generate },
+        {
+          artifactId: "artifact-media",
+          source: { kind: "media", dataUrl: "https://attacker.test/file", contentType: "image/png" }
+        }
+      )
+    ).rejects.toThrow("MEDIA_DATA_URL_REQUIRED");
+    expect(generate).not.toHaveBeenCalled();
+  });
 });

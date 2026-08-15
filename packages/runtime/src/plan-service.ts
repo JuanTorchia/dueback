@@ -10,6 +10,14 @@ export interface PlanStore {
   replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void>;
 }
 
+export interface ActivationScheduler {
+  scheduleCase(input: {
+    caseId: string;
+    expectedVersion: number;
+    wakeAt: string;
+  }): Promise<unknown>;
+}
+
 export interface PlanRevision {
   readonly amountMinor?: number;
   readonly currency?: string;
@@ -90,7 +98,17 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
 }
 
 export class PlanService {
-  constructor(private readonly store: PlanStore) {}
+  constructor(
+    private readonly store: PlanStore,
+    private readonly scheduler?: ActivationScheduler
+  ) {}
+
+  private async schedule(draft: DraftCase, now: string): Promise<void> {
+    if (!this.scheduler) return;
+    const promisedAt = draft.promiseDraft.dueAt?.value;
+    const wakeAt = promisedAt && Date.parse(promisedAt) > Date.parse(now) ? promisedAt : now;
+    await this.scheduler.scheduleCase({ caseId: draft.caseId, expectedVersion: 1, wakeAt });
+  }
 
   async inspect(caseId: string, ownerId: string): Promise<DraftCase> {
     const draft = await this.store.get(caseId);
@@ -142,6 +160,15 @@ export class PlanService {
   }): Promise<DraftCase> {
     const current = await this.inspect(input.caseId, input.ownerId);
     if (
+      current.state === "READY" &&
+      current.approval?.planVersion === input.expectedPlanVersion &&
+      current.approval.planHash === input.expectedPlanHash
+    ) {
+      if (!this.scheduler) throw new Error("PLAN_NOT_APPROVABLE");
+      await this.schedule(current, input.now);
+      return current;
+    }
+    if (
       current.plan.version !== input.expectedPlanVersion ||
       current.plan.planHash !== input.expectedPlanHash
     ) {
@@ -162,6 +189,7 @@ export class PlanService {
     };
     const next: DraftCase = { ...current, state: "READY", approval };
     await this.store.replace(input.caseId, input.expectedPlanVersion, next);
+    await this.schedule(next, input.now);
     return next;
   }
 

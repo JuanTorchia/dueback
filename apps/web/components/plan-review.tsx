@@ -41,7 +41,11 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     setBusy(true);
     setError(undefined);
     try {
-      setDraft(await api("POST", body));
+      const next = await api("POST", body);
+      setDraft(next);
+      if ("action" in body && body.action === "approve" && next.state === "READY") {
+        window.location.assign(`/cases/${caseId}/result`);
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "PLAN_REQUEST_FAILED");
     } finally {

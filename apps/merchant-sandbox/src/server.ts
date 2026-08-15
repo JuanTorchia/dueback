@@ -52,6 +52,7 @@ export function createMerchantServer(input: {
   readonly now?: () => string;
   readonly request?: typeof fetch;
   readonly ledger?: MerchantLedger;
+  readonly callbackDelayMs?: number;
 }) {
   const ledger = input.ledger ?? new MerchantLedger();
   const now = input.now ?? (() => new Date().toISOString());
@@ -68,6 +69,14 @@ export function createMerchantServer(input: {
         }
         if (request.method !== "POST" || request.url !== "/v1/follow-ups") {
           response.writeHead(404).end();
+          return;
+        }
+        if (
+          input.actionSecret &&
+          request.headers.authorization !== `Bearer ${input.actionSecret}`
+        ) {
+          response.writeHead(401, { "content-type": "application/json" });
+          response.end(JSON.stringify({ error: "ACTION_AUTH_REQUIRED" }));
           return;
         }
         const key = request.headers["idempotency-key"];
@@ -109,10 +118,10 @@ export function createMerchantServer(input: {
               issuedAt: now(),
               issuer: "merchant-sandbox"
             });
-          const send = (level: typeof step.outcome) => {
+          const send = async (level: typeof step.outcome) => {
             const callback = callbackPayload(level);
             const timestamp = now();
-            return outbound(callbackUrl, {
+            const callbackResponse = await outbound(callbackUrl, {
               method: "POST",
               headers: {
                 "content-type": "application/json",
@@ -121,24 +130,25 @@ export function createMerchantServer(input: {
               },
               body: callback
             });
+            if (!callbackResponse.ok)
+              throw new Error(`CALLBACK_${String(callbackResponse.status)}`);
           };
-          setTimeout(() => void send(step.outcome), step.delayMs ?? 0);
+          const callbackDelay = step.delayMs ?? input.callbackDelayMs ?? 1_000;
+          setTimeout(() => void send(step.outcome).catch(() => undefined), callbackDelay);
           if (step.replayCount === 2)
-            setTimeout(() => void send(step.outcome), (step.delayMs ?? 0) + 5);
+            setTimeout(() => void send(step.outcome).catch(() => undefined), callbackDelay + 100);
           const followupOutcome = step.followupOutcome;
           if (followupOutcome)
-            setTimeout(() => void send(followupOutcome), (step.delayMs ?? 0) + 15);
+            setTimeout(
+              () => void send(followupOutcome).catch(() => undefined),
+              callbackDelay + 1_500
+            );
         }
       } catch (error) {
         response.writeHead(400, { "content-type": "application/json" });
         response.end(
           JSON.stringify({ error: error instanceof Error ? error.message : "BAD_REQUEST" })
         );
-      }
-      if (input.actionSecret && request.headers.authorization !== `Bearer ${input.actionSecret}`) {
-        response.writeHead(401, { "content-type": "application/json" });
-        response.end(JSON.stringify({ error: "ACTION_AUTH_REQUIRED" }));
-        return;
       }
     })();
   });

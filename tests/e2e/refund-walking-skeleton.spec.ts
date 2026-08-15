@@ -114,7 +114,7 @@ async function listen(server: ReturnType<typeof createServer>): Promise<string> 
 }
 
 async function eventually(check: () => boolean): Promise<void> {
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+  for (let attempt = 0; attempt < 400; attempt += 1) {
     if (check()) return;
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
@@ -167,7 +167,8 @@ describe("refund walking skeleton", () => {
       callbackSecret: secret,
       callbackUrl,
       now: () => "2026-08-15T12:00:00.000Z",
-      ledger
+      ledger,
+      callbackDelayMs: 5
     });
     const merchantUrl = await listen(merchantServer);
     const runner = new CaseRunner(

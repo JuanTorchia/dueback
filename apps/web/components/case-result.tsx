@@ -17,18 +17,33 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    void anonymousIdToken()
-      .then(async (token) => {
+    let cancelled = false;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const load = async () => {
+      try {
+        const token = await anonymousIdToken();
         const response = await fetch(`/api/cases/${caseId}/result`, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store"
         });
         const result = (await response.json()) as ResultPayload;
         if (!response.ok) throw new Error(result.error ?? "RESULT_FAILED");
+        if (cancelled) return;
         setPayload(result);
-      })
-      .catch((cause: unknown) => {
+        setError(undefined);
+        if (!["DONE", "CANCELLED", "NEEDS_ATTENTION"].includes(result.case.state)) {
+          timeout = setTimeout(() => void load(), 2_000);
+        }
+      } catch (cause: unknown) {
+        if (cancelled) return;
         setError(cause instanceof Error ? cause.message : "RESULT_FAILED");
-      });
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+      if (timeout) clearTimeout(timeout);
+    };
   }, [caseId]);
 
   if (error) return <section className="card error">{error}</section>;

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { DraftCase } from "../src/intake-service";
 import { PlanService } from "../src/plan-service";
 import type { PlanStore } from "../src/plan-service";
@@ -89,8 +89,9 @@ describe("PlanService", () => {
     expect(revised.plan.evidenceRequirements[0]?.amountMinor).toBe(5900);
   });
 
-  it("binds approval to owner, plan version, hash, and expiry", async () => {
-    const service = new PlanService(new MemoryPlanStore());
+  it("binds approval and schedules the first durable wake-up", async () => {
+    const scheduleCase = vi.fn(() => Promise.resolve({}));
+    const service = new PlanService(new MemoryPlanStore(), { scheduleCase });
     const approved = await service.approve({
       caseId: "case_12345678",
       ownerId: "person_12345678",
@@ -103,6 +104,11 @@ describe("PlanService", () => {
       ownerId: "person_12345678",
       planVersion: 1,
       planHash: hash
+    });
+    expect(scheduleCase).toHaveBeenCalledWith({
+      caseId: "case_12345678",
+      expectedVersion: 1,
+      wakeAt: "2026-08-20T00:00:00.000Z"
     });
   });
 

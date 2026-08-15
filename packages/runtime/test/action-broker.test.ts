@@ -1,0 +1,101 @@
+import { describe, expect, it, vi } from "vitest";
+import { ActionBroker } from "../src/action-broker.js";
+import type {
+  ActionReceipt,
+  ActionRecordStore,
+  ClosedActionAdapter,
+  Reservation
+} from "../src/action-broker.js";
+import type { ApprovedActionPolicy, ProposedAction } from "@dueback/domain";
+
+const policy: ApprovedActionPolicy = {
+  ownerId: "person_1",
+  planVersion: 1,
+  planHash: "sha256:plan",
+  allowedActions: ["SEND_FOLLOW_UP"],
+  allowedRecipient: "merchant@example.test",
+  sharedFields: ["transactionRef"],
+  approval: {
+    ownerId: "person_1",
+    planVersion: 1,
+    planHash: "sha256:plan",
+    expiresAt: "2026-08-16T00:00:00.000Z"
+  }
+};
+
+const proposal: ProposedAction = {
+  ownerId: "person_1",
+  planVersion: 1,
+  planHash: "sha256:plan",
+  actionType: "SEND_FOLLOW_UP",
+  recipient: "merchant@example.test",
+  sharedFields: { transactionRef: "ORDER-79" }
+};
+
+class MemoryActionStore implements ActionRecordStore {
+  private readonly records = new Map<string, Reservation>();
+
+  reserve(key: string): Promise<Reservation> {
+    const existing = this.records.get(key);
+    if (existing)
+      return Promise.resolve(existing.status === "RESERVED" ? { status: "IN_FLIGHT" } : existing);
+    const reservation: Reservation = { status: "RESERVED" };
+    this.records.set(key, reservation);
+    return Promise.resolve(reservation);
+  }
+
+  succeed(key: string, receipt: ActionReceipt): Promise<void> {
+    this.records.set(key, { status: "SUCCEEDED", receipt });
+    return Promise.resolve();
+  }
+
+  fail(key: string): Promise<void> {
+    this.records.delete(key);
+    return Promise.resolve();
+  }
+}
+
+describe("ActionBroker", () => {
+  it("performs one external effect across duplicate delivery", async () => {
+    const execute = vi.fn(() =>
+      Promise.resolve({ receiptId: "receipt_1", acceptedAt: "2026-08-15T12:00:00.000Z" })
+    );
+    const adapter: ClosedActionAdapter = {
+      execute
+    };
+    const broker = new ActionBroker(new MemoryActionStore(), adapter);
+    const input = {
+      caseId: "case_1",
+      actionOrdinal: 1,
+      policy,
+      proposal,
+      now: "2026-08-15T12:00:00.000Z"
+    };
+
+    await expect(broker.execute(input)).resolves.toMatchObject({
+      status: "SUCCEEDED",
+      duplicate: false
+    });
+    await expect(broker.execute(input)).resolves.toMatchObject({
+      status: "SUCCEEDED",
+      duplicate: true
+    });
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it("never calls the adapter for an unapproved recipient", async () => {
+    const execute = vi.fn<ClosedActionAdapter["execute"]>();
+    const adapter: ClosedActionAdapter = { execute };
+    const broker = new ActionBroker(new MemoryActionStore(), adapter);
+    await expect(
+      broker.execute({
+        caseId: "case_1",
+        actionOrdinal: 1,
+        policy,
+        proposal: { ...proposal, recipient: "attacker@example.test" },
+        now: "2026-08-15T12:00:00.000Z"
+      })
+    ).resolves.toMatchObject({ status: "DENIED" });
+    expect(execute).not.toHaveBeenCalled();
+  });
+});

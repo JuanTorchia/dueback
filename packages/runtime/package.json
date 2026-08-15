@@ -1,0 +1,20 @@
+{
+  "name": "@dueback/runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./action-broker": "./src/action-broker.ts",
+    "./task-scheduler": "./src/task-scheduler.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dueback/domain": "workspace:*",
+    "@google-cloud/tasks": "7.0.0"
+  }
+}

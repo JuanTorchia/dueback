@@ -1,0 +1,78 @@
+import { actionIdempotencyKey, authorizeAction } from "@dueback/domain";
+import type { ApprovedActionPolicy, AuthorizationDecision, ProposedAction } from "@dueback/domain";
+
+export interface ActionReceipt {
+  readonly receiptId: string;
+  readonly acceptedAt: string;
+}
+
+export type Reservation =
+  | { readonly status: "RESERVED" }
+  | { readonly status: "IN_FLIGHT" }
+  | { readonly status: "SUCCEEDED"; readonly receipt: ActionReceipt };
+
+export interface ActionRecordStore {
+  reserve(idempotencyKey: string): Promise<Reservation>;
+  succeed(idempotencyKey: string, receipt: ActionReceipt): Promise<void>;
+  fail(idempotencyKey: string, reasonCode: string): Promise<void>;
+}
+
+export interface ClosedActionAdapter {
+  execute(proposal: ProposedAction, idempotencyKey: string): Promise<ActionReceipt>;
+}
+
+export type BrokerResult =
+  | { readonly status: "DENIED"; readonly decision: AuthorizationDecision }
+  | { readonly status: "PENDING_DUPLICATE"; readonly idempotencyKey: string }
+  | {
+      readonly status: "SUCCEEDED";
+      readonly idempotencyKey: string;
+      readonly receipt: ActionReceipt;
+      readonly duplicate: boolean;
+    };
+
+export class ActionBroker {
+  constructor(
+    private readonly store: ActionRecordStore,
+    private readonly adapter: ClosedActionAdapter
+  ) {}
+
+  async execute(input: {
+    readonly caseId: string;
+    readonly actionOrdinal: number;
+    readonly policy: ApprovedActionPolicy;
+    readonly proposal: ProposedAction;
+    readonly now: string;
+  }): Promise<BrokerResult> {
+    const decision = authorizeAction(input.policy, input.proposal, input.now);
+    if (!decision.authorized) return { status: "DENIED", decision };
+
+    const idempotencyKey = actionIdempotencyKey({
+      caseId: input.caseId,
+      planVersion: input.proposal.planVersion,
+      actionType: input.proposal.actionType,
+      ordinal: input.actionOrdinal
+    });
+    const reservation = await this.store.reserve(idempotencyKey);
+    if (reservation.status === "SUCCEEDED") {
+      return {
+        status: "SUCCEEDED",
+        idempotencyKey,
+        receipt: reservation.receipt,
+        duplicate: true
+      };
+    }
+    if (reservation.status === "IN_FLIGHT") {
+      return { status: "PENDING_DUPLICATE", idempotencyKey };
+    }
+
+    try {
+      const receipt = await this.adapter.execute(input.proposal, idempotencyKey);
+      await this.store.succeed(idempotencyKey, receipt);
+      return { status: "SUCCEEDED", idempotencyKey, receipt, duplicate: false };
+    } catch (error) {
+      await this.store.fail(idempotencyKey, "ADAPTER_FAILURE");
+      throw error;
+    }
+  }
+}

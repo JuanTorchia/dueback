@@ -1,0 +1,19 @@
+{
+  "name": "@dueback/persistence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/firestore.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@dueback/domain": "workspace:*",
+    "firebase-admin": "14.2.0"
+  }
+}

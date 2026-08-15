@@ -137,6 +137,7 @@ describe("refund walking skeleton", () => {
         expiresAt: draft.plan.expiresAt
       },
       actionOrdinal: 1,
+      correlationId: "corr_walking_skeleton_12345678",
       dueAt: "2026-08-15T12:00:00.000Z"
     });
     const secret = "walking-skeleton-secret";
@@ -192,6 +193,10 @@ describe("refund walking skeleton", () => {
       ]);
       expect(ledger.count()).toBe(1);
       expect(store.notifications.size).toBe(1);
+      expect(
+        store.evidence.every((record) => record.correlationId === store.item.correlationId)
+      ).toBe(true);
+      expect([...store.notifications.values()][0]?.correlationId).toBe(store.item.correlationId);
       await expect(
         runner.run({ caseId: draft.caseId, expectedVersion: 1, now: "2026-08-15T12:01:00.000Z" })
       ).resolves.toEqual({ status: "STALE_TASK" });

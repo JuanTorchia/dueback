@@ -11,6 +11,7 @@ export interface FollowThroughCase {
   readonly approval: ApprovalBoundary;
   readonly actionOrdinal: number;
   readonly dueAt: string;
+  readonly correlationId?: string;
   readonly nextWakeAt?: string | undefined;
   readonly lastReceiptId?: string;
   readonly lastError?: string | undefined;
@@ -26,6 +27,7 @@ export interface RetryScheduler {
     caseId: string;
     expectedVersion: number;
     wakeAt: string;
+    correlationId?: string;
   }): Promise<unknown>;
 }
 
@@ -60,7 +62,12 @@ export class CaseRunner {
     private readonly retryDelaySeconds = 30
   ) {}
 
-  async run(input: { caseId: string; expectedVersion: number; now: string }): Promise<RunResult> {
+  async run(input: {
+    caseId: string;
+    expectedVersion: number;
+    now: string;
+    correlationId?: string;
+  }): Promise<RunResult> {
     const item = await this.store.get(input.caseId);
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (
@@ -86,7 +93,10 @@ export class CaseRunner {
           approval: item.approval
         },
         proposal: actionProposal(item),
-        now: input.now
+        now: input.now,
+        ...(input.correlationId || item.correlationId
+          ? { correlationId: input.correlationId ?? item.correlationId }
+          : {})
       });
       if (broker.status === "DENIED")
         throw new Error(`ACTION_DENIED:${broker.decision.reasonCodes.join(",")}`);
@@ -100,6 +110,9 @@ export class CaseRunner {
         approval: item.approval,
         actionOrdinal: item.actionOrdinal,
         dueAt: item.dueAt,
+        ...(item.correlationId || input.correlationId
+          ? { correlationId: item.correlationId ?? input.correlationId }
+          : {}),
         lastReceiptId: broker.receipt.receiptId
       };
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
@@ -117,7 +130,10 @@ export class CaseRunner {
       await this.scheduler.scheduleCase({
         caseId: item.caseId,
         expectedVersion: next.version,
-        wakeAt: retryAt
+        wakeAt: retryAt,
+        ...(input.correlationId || item.correlationId
+          ? { correlationId: input.correlationId ?? item.correlationId }
+          : {})
       });
       return { status: "WAITING_RETRY", wakeAt: retryAt };
     }

@@ -81,6 +81,7 @@ export function createMerchantServer(input: {
         }
         const key = request.headers["idempotency-key"];
         if (typeof key !== "string") throw new Error("IDEMPOTENCY_KEY_REQUIRED");
+        const correlationId = request.headers["x-dueback-correlation-id"];
         const scenario = (request.headers["x-dueback-scenario"] ??
           "signed-completion") as ScenarioName;
         const attempt = ledger.attempt(key);
@@ -126,7 +127,10 @@ export function createMerchantServer(input: {
               headers: {
                 "content-type": "application/json",
                 "x-dueback-timestamp": timestamp,
-                "x-dueback-signature": signCallback(callback, timestamp, input.callbackSecret)
+                "x-dueback-signature": signCallback(callback, timestamp, input.callbackSecret),
+                ...(typeof correlationId === "string"
+                  ? { "x-dueback-correlation-id": correlationId }
+                  : {})
               },
               body: callback
             });

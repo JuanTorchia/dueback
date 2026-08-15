@@ -94,7 +94,7 @@
 - [x] T045 [US2] Implement the Gemini evidence-reconciliation flow as a non-authoritative candidate producer in `packages/genkit-flows/src/reconcile-evidence.ts`
 - [x] T046 [US2] Build waiting, retry, insufficient-evidence, and completion result views in `apps/web/app/cases/[caseId]/result/page.tsx`
 - [x] T047 [US2] Build the ordered inspectable case timeline with claim limitations in `apps/web/components/case-timeline.tsx`
-- [ ] T048 [US2] Persist deduplicated intervention/completion notifications and add correlated IDs across product, worker, broker, verifier, and sandbox in `packages/runtime/src/notifications.ts` and `packages/observability/src/correlation.ts`
+- [x] T048 [US2] Persist deduplicated intervention/completion notifications and add correlated IDs across product, worker, broker, verifier, and sandbox in `packages/runtime/src/notifications.ts` and `packages/observability/src/correlation.ts`
 - [x] T049 [US2] Add the full refund walking-skeleton test including restart, exactly-once effects, and one completion notification in `tests/e2e/refund-walking-skeleton.spec.ts`
 - [x] T050 [US2] Deploy both services and infrastructure to the development project using `infra/cloud-run/deploy.sh`, `infra/cloud-tasks/queue.yaml`, and `infra/firestore/rules.rules`
 

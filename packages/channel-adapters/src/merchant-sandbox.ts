@@ -18,7 +18,7 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
   async execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string }
+    context: { readonly caseId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     const response = await this.request(`${this.config.baseUrl}/v1/follow-ups`, {
       method: "POST",
@@ -26,6 +26,7 @@ export class MerchantSandboxAdapter implements ClosedActionAdapter {
         "content-type": "application/json",
         "idempotency-key": idempotencyKey,
         "x-dueback-scenario": this.config.scenario,
+        ...(context.correlationId ? { "x-dueback-correlation-id": context.correlationId } : {}),
         ...(this.config.actionSecret ? { authorization: `Bearer ${this.config.actionSecret}` } : {})
       },
       body: JSON.stringify({ caseId: context.caseId, proposal })

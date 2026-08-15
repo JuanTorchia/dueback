@@ -6,6 +6,7 @@ export interface NotificationRecord {
   readonly notificationId: string;
   readonly dedupeKey: string;
   readonly caseId: string;
+  readonly correlationId: string;
   readonly ownerId: string;
   readonly kind: NotificationKind;
   readonly deepLinkPath: string;
@@ -24,16 +25,19 @@ export function notificationRecord(input: {
   ownerId: string;
   kind: NotificationKind;
   createdAt: string;
+  correlationId: string;
 }): NotificationRecord {
   const dedupeKey = stableHash({
     namespace: "dueback/notification/v1",
     caseId: input.caseId,
+    correlationId: input.correlationId,
     kind: input.kind
   });
   return {
     notificationId: `notification_${dedupeKey.slice(7, 31)}`,
     dedupeKey,
     caseId: input.caseId,
+    correlationId: input.correlationId,
     ownerId: input.ownerId,
     kind: input.kind,
     deepLinkPath: `/cases/${input.caseId}/result`,

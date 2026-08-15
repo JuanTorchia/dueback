@@ -3,6 +3,7 @@ import { CaseTimeline } from "./case-timeline";
 
 const evidence: EvidenceRecord[] = [
   {
+    correlationId: "corr_demo0000000000000000000",
     candidate: {
       evidenceId: "evidence_ack_demo",
       caseId: "case_demo_verified",
@@ -18,6 +19,7 @@ const evidence: EvidenceRecord[] = [
     recordedAt: "2026-08-15T12:00:05.000Z"
   },
   {
+    correlationId: "corr_demo0000000000000000000",
     candidate: {
       evidenceId: "evidence_confirmed_demo",
       caseId: "case_demo_verified",

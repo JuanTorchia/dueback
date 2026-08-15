@@ -21,6 +21,7 @@ export async function handleMerchantCallback(
   const body = await request.text();
   const timestamp = request.headers.get("x-dueback-timestamp");
   const signature = request.headers.get("x-dueback-signature");
+  const correlationId = request.headers.get("x-dueback-correlation-id") ?? undefined;
   const now = dependencies.now();
   if (!timestamp || !signature)
     return Response.json({ error: "CALLBACK_AUTH_REQUIRED" }, { status: 401 });
@@ -36,7 +37,9 @@ export async function handleMerchantCallback(
     return Response.json({ duplicate: true, status: reservation }, { status: 202 });
   try {
     const candidate = evidenceCandidateSchema.parse({ ...JSON.parse(body), signatureValid: true });
-    const result = await dependencies.evidence.reconcile(candidate, now);
+    const result = correlationId
+      ? await dependencies.evidence.reconcile(candidate, now, correlationId)
+      : await dependencies.evidence.reconcile(candidate, now);
     await dependencies.callbacks.completeCallback(key);
     return Response.json(result, { status: result.status === "VERIFIED" ? 200 : 202 });
   } catch (error) {

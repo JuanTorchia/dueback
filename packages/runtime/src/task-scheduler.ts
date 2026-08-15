@@ -19,16 +19,24 @@ export class TaskScheduler {
     readonly caseId: string;
     readonly expectedVersion: number;
     readonly wakeAt: string;
+    readonly correlationId?: string;
   }): Promise<{ taskName: string; duplicate: boolean }> {
     const parent = this.client.queuePath(
       this.config.projectId,
       this.config.location,
       this.config.queue
     );
+    const correlationId =
+      input.correlationId ??
+      `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: input.caseId }).slice(7, 31)}`;
     const stableName = stableHash({ namespace: "dueback/task/v1", ...input }).slice(7, 39);
     const taskName = `${parent}/tasks/case-${stableName}`;
     const body = Buffer.from(
-      JSON.stringify({ caseId: input.caseId, expectedVersion: input.expectedVersion })
+      JSON.stringify({
+        caseId: input.caseId,
+        expectedVersion: input.expectedVersion,
+        correlationId
+      })
     ).toString("base64");
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,

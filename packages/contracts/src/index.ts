@@ -107,6 +107,7 @@ export const notificationSchema = z.object({
   notificationId: opaqueIdSchema,
   dedupeKey: sha256Schema,
   caseId: opaqueIdSchema,
+  correlationId: opaqueIdSchema,
   kind: z.enum(["APPROVAL_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED"]),
   deepLinkPath: z.string().startsWith("/cases/"),
   createdAt: isoDateSchema

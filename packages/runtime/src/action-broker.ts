@@ -21,7 +21,7 @@ export interface ClosedActionAdapter {
   execute(
     proposal: ProposedAction,
     idempotencyKey: string,
-    context: { readonly caseId: string }
+    context: { readonly caseId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt>;
 }
 
@@ -47,6 +47,7 @@ export class ActionBroker {
     readonly policy: ApprovedActionPolicy;
     readonly proposal: ProposedAction;
     readonly now: string;
+    readonly correlationId?: string;
   }): Promise<BrokerResult> {
     const decision = authorizeAction(input.policy, input.proposal, input.now);
     if (!decision.authorized) return { status: "DENIED", decision };
@@ -72,7 +73,8 @@ export class ActionBroker {
 
     try {
       const receipt = await this.adapter.execute(input.proposal, idempotencyKey, {
-        caseId: input.caseId
+        caseId: input.caseId,
+        ...(input.correlationId ? { correlationId: input.correlationId } : {})
       });
       await this.store.succeed(idempotencyKey, receipt);
       return { status: "SUCCEEDED", idempotencyKey, receipt, duplicate: false };

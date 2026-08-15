@@ -1,6 +1,7 @@
 import type { Firestore } from "firebase-admin/firestore";
 import type { DraftCase, IntakeStore } from "@dueback/runtime/intake-service";
 import type { PlanStore } from "@dueback/runtime/plan-service";
+import { stableHash } from "@dueback/domain";
 
 export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   constructor(private readonly db: Firestore) {}
@@ -43,6 +44,10 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
       if (currentDraft.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
       transaction.set(reference, next);
       if (next.state === "READY" && next.approval) {
+        const correlationId = `corr_${stableHash({
+          namespace: "dueback/correlation/v1",
+          caseId: next.caseId
+        }).slice(7, 31)}`;
         transaction.set(runReference, {
           caseId: next.caseId,
           ownerId: next.ownerId,
@@ -51,6 +56,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
           plan: next.plan,
           approval: next.approval,
           actionOrdinal: 1,
+          correlationId,
           dueAt:
             next.promiseDraft.dueAt?.value ??
             new Date(Date.parse(next.createdAt) + 1000).toISOString()

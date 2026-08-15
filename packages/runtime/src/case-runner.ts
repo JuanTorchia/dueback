@@ -91,14 +91,18 @@ export class CaseRunner {
       if (broker.status === "DENIED")
         throw new Error(`ACTION_DENIED:${broker.decision.reasonCodes.join(",")}`);
       if (broker.status === "PENDING_DUPLICATE") throw new Error("ACTION_IN_FLIGHT");
-      await this.store.compareAndSet(item.caseId, item.version, {
-        ...item,
+      const waitingExternal: FollowThroughCase = {
+        caseId: item.caseId,
+        ownerId: item.ownerId,
         state: "WAITING_EXTERNAL",
         version: item.version + 1,
-        lastReceiptId: broker.receipt.receiptId,
-        lastError: undefined,
-        nextWakeAt: undefined
-      });
+        plan: item.plan,
+        approval: item.approval,
+        actionOrdinal: item.actionOrdinal,
+        dueAt: item.dueAt,
+        lastReceiptId: broker.receipt.receiptId
+      };
+      await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
     } catch (error) {
       const retryAt = new Date(Date.parse(input.now) + this.retryDelaySeconds * 1000).toISOString();

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const store = new FirestoreRuntimeStore(firestore);
   const scheduler = new TaskScheduler(new CloudTasksClient(), {
     projectId,
-    location: process.env.GOOGLE_CLOUD_LOCATION ?? "us-central1",
+    location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
     queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
     workerUrl,
     serviceAccountEmail

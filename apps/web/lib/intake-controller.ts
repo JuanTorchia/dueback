@@ -57,7 +57,12 @@ export async function handleIntake(
     );
   } catch (cause) {
     const error = cause instanceof Error ? cause.message : "INTAKE_FAILED";
-    const status = "status" in Object(cause) ? (cause as { status: number }).status : 422;
+    const candidateStatus =
+      "status" in Object(cause) ? (cause as { status?: unknown }).status : undefined;
+    const status =
+      typeof candidateStatus === "number" && candidateStatus >= 400 && candidateStatus <= 599
+        ? candidateStatus
+        : 422;
     return Response.json({ error }, { status });
   }
 }

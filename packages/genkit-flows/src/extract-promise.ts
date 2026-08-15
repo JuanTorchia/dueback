@@ -1,6 +1,7 @@
 import { vertexAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
 import { promiseDraftSchema, type PromiseDraft } from "@dueback/contracts";
+import { stableHash } from "@dueback/domain";
 
 export const extractionInputSchema = z.object({
   artifactId: z.string().min(8).max(128),
@@ -50,6 +51,7 @@ const promiseDraftFlowSchema = z.object({
 
 export interface PromiseModelGateway {
   generate(input: {
+    readonly artifactId: string;
     readonly system: string;
     readonly prompt: ({ text: string } | { media: { url: string; contentType: string } })[];
   }): Promise<PromiseDraft | null>;
@@ -101,6 +103,7 @@ export async function extractPromiseWithGateway(
     throw new Error("MEDIA_DATA_URL_REQUIRED");
   }
   const output = await gateway.generate({
+    artifactId: input.artifactId,
     system: extractionSystemInstruction,
     prompt: buildExtractionPrompt(input)
   });
@@ -121,7 +124,28 @@ const gateway: PromiseModelGateway = {
       output: { schema: promiseDraftFlowSchema },
       config: { temperature: 0 }
     });
-    return response.output ? promiseDraftSchema.parse(response.output) : null;
+    if (!response.output) return null;
+    const normalized = structuredClone(response.output) as Record<string, unknown>;
+    for (const value of Object.values(normalized)) {
+      if (!value || typeof value !== "object" || !("provenance" in value)) continue;
+      const field = value as {
+        value?: unknown;
+        provenance: { locator: string; confidence: string }[];
+      };
+      field.provenance = field.provenance.map((citation) => ({
+        ...citation,
+        artifactId: input.artifactId,
+        excerptHash: stableHash({
+          artifactId: input.artifactId,
+          locator: citation.locator
+        })
+      }));
+    }
+    const dueAt = normalized.dueAt as { value?: unknown } | undefined;
+    if (typeof dueAt?.value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dueAt.value)) {
+      dueAt.value = `${dueAt.value}T23:59:59.000Z`;
+    }
+    return promiseDraftSchema.parse(normalized);
   }
 };
 

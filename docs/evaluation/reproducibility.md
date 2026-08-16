@@ -277,3 +277,19 @@ The visual case is explicitly illustrative and contains no fabricated user, test
 
 All six public browser tests passed sequentially with retries disabled. The new value-comprehension
 path passed in 1.3 seconds; both live-Gemini paths and all intake resilience paths also passed.
+
+## Full journey and channel clarity deployment
+
+Commit `7d32822` was built by Cloud Build operation
+`b38ec2e8-9dd0-4388-9f07-ba625dbef5a0` and deployed as `dueback-web-00027-nnp` at 100% traffic.
+The intake is now a single text-and-file composer rather than a sequence of form controls. The
+intake, approval, and result views explain the complete communication loop: the approved action is
+sent to the controlled Merchant Sandbox over HTTP, a signed callback is evaluated, and the open
+case page updates automatically. They also state that no real company is contacted and that the
+implemented outbound-email adapter is not enabled in the public deployment.
+
+Typecheck, lint, the production build, 44 root tests, and 16 web tests passed locally. The first
+public browser run exposed two stale copy assertions after the intentional redesign; no product
+failure occurred. After updating those assertions in commit `421ee3c`, all six public browser tests
+passed sequentially with retries disabled: ambiguous recovery in 44.5 seconds, the complete mobile
+autonomous path in 31.3 seconds, and the four landing/intake resilience paths in 1.0–5.0 seconds.

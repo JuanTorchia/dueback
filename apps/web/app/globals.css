@@ -184,6 +184,59 @@ h1 {
   font-size: 12px;
   line-height: 1.45;
 }
+.source-guide {
+  margin: 0 0 18px;
+  padding: 13px;
+  border-radius: 13px;
+  background: #f3f7f3;
+}
+.source-guide > strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.source-guide > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.source-guide span {
+  padding: 5px 8px;
+  border: 1px solid #d6e0d8;
+  border-radius: 999px;
+  background: white;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+.example-picker {
+  margin-top: 10px;
+}
+.example-picker > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.example-picker > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 7px;
+}
+.example-picker button {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: white;
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.example-picker button:hover {
+  border-color: var(--green);
+  background: #f2faf5;
+}
 label {
   display: block;
   font-size: 13px;
@@ -411,15 +464,31 @@ textarea {
     min-height: 48px;
   }
   .intake-layout {
-    padding-top: 28px;
+    gap: 10px;
+    padding-top: 14px;
   }
   .hero {
-    padding-top: 18px;
-    padding-bottom: 18px;
+    padding-top: 10px;
+    padding-bottom: 8px;
   }
   h1 {
-    font-size: 43px;
-    line-height: 0.98;
+    margin: 10px 0 12px;
+    font-size: 36px;
+    line-height: 1;
+  }
+  .lede {
+    font-size: 15px;
+    line-height: 1.45;
+  }
+  .trust-line {
+    margin-top: 14px;
+    font-size: 11px;
+  }
+  .use-case-row {
+    margin-top: 10px;
+  }
+  .use-case-row span {
+    padding: 4px 7px;
   }
   .card {
     padding: 18px;

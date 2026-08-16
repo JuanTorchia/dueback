@@ -37,7 +37,7 @@ test.describe("intake feedback and recovery", () => {
     await page
       .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
       .fill("The correct amount is USD 59.");
-    await page.getByLabel(/Drop or choose a screenshot/).setInputFiles({
+    await page.getByLabel(/Choose a screenshot/).setInputFiles({
       name: "merchant-promise.png",
       mimeType: "image/png",
       buffer: Buffer.from(
@@ -47,6 +47,16 @@ test.describe("intake feedback and recovery", () => {
     });
     await expect(page.getByText("Text and file will be analyzed together")).toBeVisible();
     await expect(page.getByText("merchant-promise.png")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
+  });
+
+  test("teaches a first-time user with an actionable example", async ({ page }) => {
+    await page.goto(`${deployedUrl}/intake`);
+    await expect(page.getByText("Start with anything you have")).toBeVisible();
+    await page.getByRole("button", { name: "Missing refund" }).click();
+    await expect(
+      page.getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
+    ).toHaveValue(/Northstar Store promised to refund USD 59/);
     await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
   });
 });

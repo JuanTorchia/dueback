@@ -5,6 +5,25 @@ import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
 
+const examples = [
+  {
+    label: "Missing refund",
+    text: "Northstar Store promised to refund USD 59 for order ORDER-1842 by August 20, 2026, but the refund has not arrived."
+  },
+  {
+    label: "Cancellation",
+    text: "Northstar Travel promised to cancel booking BOOKING-731 and confirm a full USD 120 refund by August 22, 2026."
+  },
+  {
+    label: "Replacement",
+    text: "Northstar Electronics promised to replace the damaged headphones from order ORDER-992 by August 25, 2026."
+  },
+  {
+    label: "Missing document",
+    text: "Northstar Insurance promised to email the coverage certificate for case CASE-441 by August 21, 2026."
+  }
+] as const;
+
 export function IntakeForm() {
   const router = useRouter();
   const [text, setText] = useState("");
@@ -64,6 +83,15 @@ export function IntakeForm() {
       <p className="recipe-scope">
         Start with a refund, replacement, cancellation, delivery, or document a company owes you.
       </p>
+      <div className="source-guide" aria-label="What you can give DueBack">
+        <strong>Start with anything you have</strong>
+        <div>
+          <span>Write it yourself</span>
+          <span>Paste an email or message</span>
+          <span>Add a screenshot or photo</span>
+          <span>Upload a PDF</span>
+        </div>
+      </div>
       <div>
         <label htmlFor="promise">Describe the outcome or paste the evidence</label>
         <textarea
@@ -77,10 +105,28 @@ export function IntakeForm() {
           maxLength={50_000}
         />
       </div>
+      <div className="example-picker">
+        <span>Not sure what to add? Try an example:</span>
+        <div>
+          {examples.map((example) => (
+            <button
+              key={example.label}
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setText(example.text);
+                setError(undefined);
+              }}
+            >
+              {example.label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="input-divider"><span>or add evidence</span></div>
       <div className="file smart-file" data-has-file={Boolean(file)}>
         <label htmlFor="artifact">
-          <strong>{file ? file.name : "Drop or choose a screenshot, photo, or PDF"}</strong>
+          <strong>{file ? file.name : "Choose a screenshot, photo, or PDF"}</strong>
           <span>{file ? `${(file.size / 1024 / 1024).toFixed(1)} MB · ready to analyze` : "Gemini will detect and read the format automatically · max 10 MB"}</span>
         </label>
         <input

@@ -127,7 +127,7 @@ test.describe("channel plan authorization", () => {
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(draft) });
     });
     await page.goto(`${deployedUrl}/cases/case_12345678/review`);
-    const email = page.getByRole("button", { name: /Managed email Available/ });
+    const email = page.getByRole("button", { name: /Managed email/ });
     await email.focus();
     await page.keyboard.press("Enter");
     await expect(email).toHaveAttribute("aria-pressed", "true");

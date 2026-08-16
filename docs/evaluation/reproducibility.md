@@ -360,3 +360,10 @@ All eight public Playwright paths passed sequentially with one worker and retrie
 minutes. This included two channel-plan paths (available approval and unavailable-channel denial),
 two fresh live-Gemini journeys (33.9 s and 18.5 s), and four deterministic landing/intake recovery
 paths (0.9–4.8 s).
+
+Commit `0896d12` was built by Cloud Build operation
+`b0d1f533-e7c4-4c18-8d32-40503c181ad6` and deployed as `dueback-web-00032-grm` at 100% traffic.
+The deployed channel suite verified available approval and unavailable-channel denial. Its first
+keyboard-switch run exposed a stale accessible-name locator after the button correctly changed from
+“Available” to “Selected”; updating only that test locator produced a clean rerun in 3.5 seconds.
+No product code was changed to turn that result green.

@@ -17,13 +17,13 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | FR-008 | PASS | `ActionBroker` calls `authorizeAction` immediately before reservation/budget/provider execution. |
 | FR-009 | PASS | Local stable action key and Firestore reservation are independent of provider idempotency. |
 | FR-010 | PARTIAL | Unknown acceptance remains `IN_FLIGHT` and is never blindly resent; provider-side reconciliation/manual resolution is not implemented. |
-| FR-011 | PARTIAL | Receipt/thread persistence covers provider ID, channel, case, fingerprint, time and delivery state; explicit correlation/action identity is stored adjacent rather than inside the receipt. |
+| FR-011 | PASS | Every broker receipt is enriched before persistence with case, channel, correlation and stable action-idempotency identity alongside provider ID, recipient fingerprint and timestamps. |
 | FR-012 | PASS | Transport projection is separate from evidence reconciliation; receipt/ACK tests cannot produce `DONE`. |
 | FR-013 | PASS | Bounce/complaint/suppression halt nonterminal cases with `NEEDS_ATTENTION` and transactionally create one deduplicated intervention and user notification. |
 | FR-014 | PASS | Cloud Tasks backoff and `CaseRunner` attempt cap transition exhausted work to one intervention. |
 | FR-015 | PASS | Signed provider webhook reserves then schedules bounded Cloud Task processing; handler does not call Gemini inline. |
 | FR-016 | PASS | Original-body signature, timestamp tolerance, stable ID and replay reservation have deterministic tests. |
-| FR-017 | PARTIAL | Opaque reply route and exact sender are enforced; provider `Message-ID`/`In-Reply-To` are normalized but not used as a second correlation key. |
+| FR-017 | PASS | Opaque reply route and exact sender are enforced; when `In-Reply-To` is available it must independently resolve through the stored provider message ID to the same case. |
 | FR-018 | PASS | Inbound Gemini flow is tool-less, typed and instructed to treat all text as data; addresses and content never grant authority. |
 | FR-019 | PASS | Exact provider endpoint, ten-second abort, text/metadata limits and unsafe-ID rejection are tested. |
 | FR-020 | PASS | Gemini emits only typed candidates; deterministic services own lifecycle transitions. |
@@ -42,7 +42,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | FR-033 | PASS | Capability schema/endpoint report send, receive, threading, receipts, authenticated replies, OAuth and health. |
 | FR-034 | PASS | Public labels and capability reason codes distinguish sandbox, managed email, Gmail and controlled partner fixture. |
 | FR-035 | PASS | Sandbox and email implement `ClosedActionAdapter` and return the shared receipt shape. |
-| FR-036 | PARTIAL | Signed partner fixture passes common adapter conformance; common lifecycle/retry integration coverage is missing. |
+| FR-036 | PASS | The signed partner fixture passes common conformance plus broker authorization, retry, stable idempotency, enriched receipt and duplicate-suppression integration coverage. |
 | FR-037 | PASS | Gmail gate is rejected/documented and capability remains `FUTURE` with no authority. |
 | FR-038 | PASS | Research specifies a managed reply route if Gmail is later accepted; no broad inbox scope is requested now. |
 | FR-039 | PASS | Email requires explicit controlled-domain allowlist; public UI requires legitimate-contact confirmation and sends max three times. |
@@ -52,7 +52,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | FR-043 | PASS | Secret Manager/deploy configuration keeps secrets server-side; `.env.example` contains no values. |
 | FR-044 | PASS | Review requires visible legitimate-relationship authorization before activation. |
 | FR-045 | PASS | Closed action enum and adapters cannot browse, pay, threaten, post, bypass CAPTCHA or mutate remedies. |
-| FR-046 | PARTIAL | Broad deterministic coverage now includes transport intervention dedupe and provider replay; explicit reopen and terminal dead-letter projection remain. |
+| FR-046 | PASS | Deterministic suites cover authorization, mutation, uncertainty, retry, provider failure visibility, replay, false-DONE, cross-case isolation, explicit reopen and adapter lifecycle parity. |
 | FR-047 | EXTERNAL | No controlled mailbox/domain/provider credentials exist, so no external email smoke result can be claimed. |
 | FR-048 | PASS | Public Firebase-anonymous sandbox judge path needs no paid credential and remains deployed. |
 | FR-049 | EXTERNAL | Script and shot list exist; the final public continuous video has not been recorded/published. |

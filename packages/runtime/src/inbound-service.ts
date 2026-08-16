@@ -6,6 +6,7 @@ import type { InterventionService } from "./interventions";
 
 export interface InboundCorrelationStore extends FollowThroughStore {
   caseForReplyRoute(replyRoute: string): Promise<string | undefined>;
+  caseForProviderMessageId?(providerMessageId: string): Promise<string | undefined>;
 }
 
 export interface NormalizedInboundEmail {
@@ -14,6 +15,8 @@ export interface NormalizedInboundEmail {
   readonly to: readonly string[];
   readonly subject: string;
   readonly text: string;
+  readonly messageId?: string;
+  readonly inReplyTo?: string;
 }
 
 export interface InboundInterpretation {
@@ -59,6 +62,12 @@ export class InboundService {
     }
     const caseId = uniqueCases[0];
     if (!caseId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
+    if (email.inReplyTo && this.cases.caseForProviderMessageId) {
+      const threadedCaseId = await this.cases.caseForProviderMessageId(email.inReplyTo);
+      if (!threadedCaseId || threadedCaseId !== caseId) {
+        return { status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] };
+      }
+    }
     const item = await this.cases.get(caseId);
     if (!item) return { status: "REJECTED", reasonCodes: ["CASE_NOT_FOUND"] };
     if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {

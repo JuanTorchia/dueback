@@ -9,6 +9,8 @@ export interface ActionReceipt {
   readonly providerMessageId?: string;
   readonly replyRoute?: string;
   readonly recipientFingerprint?: string;
+  readonly correlationId?: string;
+  readonly actionIdempotencyKey?: string;
 }
 
 export type Reservation =
@@ -104,10 +106,18 @@ export class ActionBroker {
         requestedAt: input.now,
         idempotencyKey
       });
-      const receipt = await this.adapter.execute(input.proposal, idempotencyKey, {
+      const providerReceipt = await this.adapter.execute(input.proposal, idempotencyKey, {
         caseId: input.caseId,
         ...(input.correlationId ? { correlationId: input.correlationId } : {})
       });
+      const channelType = input.proposal.channelType ?? providerReceipt.channelType;
+      const receipt: ActionReceipt = {
+        ...providerReceipt,
+        caseId: input.caseId,
+        ...(channelType ? { channelType } : {}),
+        actionIdempotencyKey: idempotencyKey,
+        ...(input.correlationId ? { correlationId: input.correlationId } : {})
+      };
       await this.store.succeed(idempotencyKey, receipt);
       return { status: "SUCCEEDED", idempotencyKey, receipt, duplicate: false };
     } catch (error) {

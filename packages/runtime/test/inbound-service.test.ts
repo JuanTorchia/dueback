@@ -55,6 +55,23 @@ describe("inbound service", () => {
     expect(interpret).not.toHaveBeenCalled();
   });
 
+  it("requires an available In-Reply-To header to agree with the opaque reply route", async () => {
+    const interpret = vi.fn();
+    const service = new InboundService(
+      {
+        get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId),
+        caseForProviderMessageId: () => Promise.resolve("case_other")
+      },
+      { interpret },
+      { reconcile: vi.fn() } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(service.process({ ...email, inReplyTo: "provider_message_123" }, "2026-08-16T00:00:00.000Z"))
+      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] });
+    expect(interpret).not.toHaveBeenCalled();
+  });
+
   it("escalates an unexpected sender before interpreting content", async () => {
     const interpret = vi.fn();
     const raise = vi.fn(() => Promise.resolve({}));

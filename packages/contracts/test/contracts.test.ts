@@ -85,6 +85,7 @@ describe("boundary contracts", () => {
       channelType: "MANAGED_EMAIL",
       providerMessageId: "email_12345678",
       recipientFingerprint: hash,
+      actionIdempotencyKey: hash,
       transportStatus: "ACCEPTED",
       acceptedAt: "2026-08-16T00:00:00.000Z"
     }).transportStatus).toBe("ACCEPTED");

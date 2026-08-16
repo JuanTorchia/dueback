@@ -207,6 +207,15 @@ export class FirestoreRuntimeStore
     return document.exists ? document.get("caseId") as string : undefined;
   }
 
+  async caseForProviderMessageId(providerMessageId: string): Promise<string | undefined> {
+    const snapshot = await this.db.collection("messageThreads")
+      .where("providerMessageId", "==", providerMessageId)
+      .limit(2)
+      .get();
+    if (snapshot.size !== 1) return undefined;
+    return snapshot.docs[0]?.get("caseId") as string | undefined;
+  }
+
   async recordTransportEvent(
     providerMessageId: string,
     transportStatus: "DELIVERED" | "BOUNCED" | "COMPLAINED" | "SUPPRESSED",

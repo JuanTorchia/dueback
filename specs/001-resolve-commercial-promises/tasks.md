@@ -124,10 +124,10 @@ If this fails, freeze later phases and execute the documented pivot review.
 
 **Independent Test**: Evaluate one next-bill credit and one replacement-tracking fixture against the same plan, reducer, broker, verifier, and audit semantics.
 
-- [ ] T058 [P] [US4] Define bill-credit and replacement manifests in `packages/test-fixtures/src/promise-manifests.ts`
-- [ ] T059 [P] [US4] Add expected evaluation cases for bill-credit and replacement evidence in `packages/test-fixtures/src/evaluation-corpus.ts`
-- [ ] T060 [US4] Extend schema-driven plan and verifier predicates without new lifecycle branches in `packages/domain/src/promise-types.ts`
-- [ ] T061 [US4] Add portability tests proving common authority and completion semantics in `tests/integration/promise-portability.test.ts`
+- [x] T058 [P] [US4] Define bill-credit and replacement manifests in `packages/test-fixtures/src/promise-manifests.ts`
+- [x] T059 [P] [US4] Add expected evaluation cases for bill-credit and replacement evidence in `packages/test-fixtures/src/evaluation-corpus.ts`
+- [x] T060 [US4] Extend schema-driven plan and verifier predicates without new lifecycle branches in `packages/domain/src/promise-types.ts`
+- [x] T061 [US4] Add portability tests proving common authority and completion semantics in `tests/integration/promise-portability.test.ts`
 
 ## Phase 7: Evaluation, Hardening, and Submission
 

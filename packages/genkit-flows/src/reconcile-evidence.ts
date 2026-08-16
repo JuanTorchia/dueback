@@ -18,9 +18,12 @@ const candidateOutputSchema = z.object({
     "MERCHANT_CONFIRMED",
     "FUNDS_SETTLED"
   ]),
-  amountMinor: z.number().int().nonnegative(),
-  currency: z.string(),
+  amountMinor: z.number().int().nonnegative().optional(),
+  currency: z.string().optional(),
   transactionRef: z.string(),
+  subject: z.string().optional(),
+  billPeriod: z.string().optional(),
+  trackingNumber: z.string().optional(),
   issuedAt: z.string(),
   issuer: z.string()
 });

@@ -38,33 +38,73 @@ export const promiseDraftSchema = z.object({
   proposedEvidenceLevel: evidenceLevelSchema
 });
 
-export const resolutionPlanSchema = z.object({
-  planId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
-  ownerId: opaqueIdSchema,
-  version: z.int().positive(),
-  planHash: sha256Schema,
-  goal: z.string().min(1).max(500),
-  allowedActions: z
-    .array(z.enum(["SEND_FOLLOW_UP", "CHECK_STATUS"]))
-    .min(1)
-    .max(2),
-  allowedRecipient: z.string().min(1).max(320),
-  sharedFields: z.array(z.string().min(1).max(80)).max(12),
-  evidenceRequirements: z
-    .array(
-      z.object({
-        minimumLevel: evidenceLevelSchema,
-        amountMinor: z.int().nonnegative(),
-        currency: currencySchema,
-        transactionRef: z.string().min(1).max(200),
-        maxAgeSeconds: z.int().positive(),
-        trustedIssuer: z.string().min(1).max(200)
-      })
-    )
-    .min(1),
-  expiresAt: isoDateSchema
-});
+export const resolutionPlanSchema = z
+  .object({
+    planId: opaqueIdSchema,
+    caseId: opaqueIdSchema,
+    ownerId: opaqueIdSchema,
+    version: z.int().positive(),
+    planHash: sha256Schema,
+    goal: z.string().min(1).max(500),
+    promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT"]).optional(),
+    allowedActions: z
+      .array(z.enum(["SEND_FOLLOW_UP", "CHECK_STATUS"]))
+      .min(1)
+      .max(2),
+    allowedRecipient: z.string().min(1).max(320),
+    sharedFields: z.array(z.string().min(1).max(80)).max(12),
+    evidenceRequirements: z
+      .array(
+        z.object({
+          minimumLevel: evidenceLevelSchema,
+          amountMinor: z.int().nonnegative().optional(),
+          currency: currencySchema.optional(),
+          transactionRef: z.string().min(1).max(200),
+          subject: z.string().min(1).max(300).optional(),
+          billPeriod: z.string().min(1).max(100).optional(),
+          requiredEvidenceFields: z
+            .array(z.enum(["amountMinor", "currency", "subject", "billPeriod", "trackingNumber"]))
+            .max(5)
+            .optional(),
+          maxAgeSeconds: z.int().positive(),
+          trustedIssuer: z.string().min(1).max(200)
+        })
+      )
+      .min(1),
+    expiresAt: isoDateSchema
+  })
+  .superRefine((plan, context) => {
+    const promiseType = plan.promiseType ?? "REFUND";
+    for (const [index, requirement] of plan.evidenceRequirements.entries()) {
+      if (
+        ["REFUND", "BILL_CREDIT"].includes(promiseType) &&
+        (requirement.amountMinor === undefined || requirement.currency === undefined)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["evidenceRequirements", index],
+          message: "Money evidence is required"
+        });
+      }
+      if (promiseType === "BILL_CREDIT" && !requirement.billPeriod) {
+        context.addIssue({
+          code: "custom",
+          path: ["evidenceRequirements", index, "billPeriod"],
+          message: "Bill period is required"
+        });
+      }
+      if (
+        promiseType === "REPLACEMENT" &&
+        (!requirement.subject || !requirement.requiredEvidenceFields?.includes("trackingNumber"))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["evidenceRequirements", index],
+          message: "Replacement subject and tracking proof are required"
+        });
+      }
+    }
+  });
 
 export const actionEnvelopeSchema = z.object({
   actionId: opaqueIdSchema,
@@ -83,9 +123,12 @@ export const evidenceCandidateSchema = z.object({
   evidenceId: opaqueIdSchema,
   caseId: opaqueIdSchema,
   level: evidenceLevelSchema,
-  amountMinor: z.int().nonnegative(),
-  currency: currencySchema,
+  amountMinor: z.int().nonnegative().optional(),
+  currency: currencySchema.optional(),
   transactionRef: z.string().min(1).max(200),
+  subject: z.string().min(1).max(300).optional(),
+  billPeriod: z.string().min(1).max(100).optional(),
+  trackingNumber: z.string().min(1).max(200).optional(),
   issuedAt: isoDateSchema,
   issuer: z.string().min(1).max(200),
   signatureValid: z.boolean()

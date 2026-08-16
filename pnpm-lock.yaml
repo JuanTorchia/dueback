@@ -148,7 +148,14 @@ importers:
         specifier: workspace:*
         version: link:../test-fixtures
 
-  packages/test-fixtures: {}
+  packages/test-fixtures:
+    dependencies:
+      '@dueback/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@dueback/domain':
+        specifier: workspace:*
+        version: link:../domain
 
 packages:
 

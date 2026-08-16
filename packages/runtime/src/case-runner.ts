@@ -46,17 +46,19 @@ export type RunResult =
 function actionProposal(item: FollowThroughCase): ProposedAction {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) throw new Error("EVIDENCE_REQUIREMENT_MISSING");
+  const sharedFields: Record<string, string> = { transactionRef: requirement.transactionRef };
+  if (requirement.amountMinor !== undefined)
+    sharedFields.amountMinor = String(requirement.amountMinor);
+  if (requirement.currency !== undefined) sharedFields.currency = requirement.currency;
+  if (requirement.subject !== undefined) sharedFields.subject = requirement.subject;
+  if (requirement.billPeriod !== undefined) sharedFields.billPeriod = requirement.billPeriod;
   return {
     ownerId: item.ownerId,
     planVersion: item.plan.version,
     planHash: item.plan.planHash,
     actionType: "SEND_FOLLOW_UP",
     recipient: item.plan.allowedRecipient,
-    sharedFields: {
-      transactionRef: requirement.transactionRef,
-      amountMinor: String(requirement.amountMinor),
-      currency: requirement.currency
-    }
+    sharedFields
   };
 }
 

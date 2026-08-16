@@ -4,12 +4,18 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/promises.ts"
+    ".": "./src/promises.ts",
+    "./promise-manifests": "./src/promise-manifests.ts",
+    "./evaluation-corpus": "./src/evaluation-corpus.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@dueback/contracts": "workspace:*",
+    "@dueback/domain": "workspace:*"
   }
 }

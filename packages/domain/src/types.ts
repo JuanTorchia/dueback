@@ -60,9 +60,14 @@ export interface TransitionCommand {
 
 export interface EvidenceRequirement {
   readonly minimumLevel: EvidenceLevel;
-  readonly amountMinor: number;
-  readonly currency: string;
+  readonly amountMinor?: number | undefined;
+  readonly currency?: string | undefined;
   readonly transactionRef: string;
+  readonly subject?: string | undefined;
+  readonly billPeriod?: string | undefined;
+  readonly requiredEvidenceFields?:
+    | readonly ("amountMinor" | "currency" | "subject" | "billPeriod" | "trackingNumber")[]
+    | undefined;
   readonly maxAgeSeconds: number;
   readonly trustedIssuer: string;
 }
@@ -71,9 +76,12 @@ export interface EvidenceCandidate {
   readonly evidenceId: string;
   readonly caseId: string;
   readonly level: EvidenceLevel;
-  readonly amountMinor: number;
-  readonly currency: string;
+  readonly amountMinor?: number | undefined;
+  readonly currency?: string | undefined;
   readonly transactionRef: string;
+  readonly subject?: string | undefined;
+  readonly billPeriod?: string | undefined;
+  readonly trackingNumber?: string | undefined;
   readonly issuedAt: string;
   readonly issuer: string;
   readonly signatureValid: boolean;
@@ -86,6 +94,9 @@ export type VerificationReason =
   | "WRONG_AMOUNT"
   | "WRONG_CURRENCY"
   | "WRONG_REFERENCE"
+  | "WRONG_SUBJECT"
+  | "WRONG_BILL_PERIOD"
+  | "MISSING_TRACKING"
   | "STALE_EVIDENCE"
   | "UNTRUSTED_ISSUER"
   | "INVALID_SIGNATURE";

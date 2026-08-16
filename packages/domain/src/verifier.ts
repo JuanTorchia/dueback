@@ -22,9 +22,17 @@ export function verifyEvidence(input: {
   if (candidate.caseId !== caseId) reasons.push("WRONG_CASE");
   if (levelRank(candidate.level) < levelRank(requirement.minimumLevel))
     reasons.push("INSUFFICIENT_LEVEL");
-  if (candidate.amountMinor !== requirement.amountMinor) reasons.push("WRONG_AMOUNT");
-  if (candidate.currency !== requirement.currency) reasons.push("WRONG_CURRENCY");
+  if (requirement.amountMinor !== undefined && candidate.amountMinor !== requirement.amountMinor)
+    reasons.push("WRONG_AMOUNT");
+  if (requirement.currency !== undefined && candidate.currency !== requirement.currency)
+    reasons.push("WRONG_CURRENCY");
   if (candidate.transactionRef !== requirement.transactionRef) reasons.push("WRONG_REFERENCE");
+  if (requirement.subject !== undefined && candidate.subject !== requirement.subject)
+    reasons.push("WRONG_SUBJECT");
+  if (requirement.billPeriod !== undefined && candidate.billPeriod !== requirement.billPeriod)
+    reasons.push("WRONG_BILL_PERIOD");
+  if (requirement.requiredEvidenceFields?.includes("trackingNumber") && !candidate.trackingNumber)
+    reasons.push("MISSING_TRACKING");
   if (candidate.issuer !== requirement.trustedIssuer) reasons.push("UNTRUSTED_ISSUER");
   if (!candidate.signatureValid) reasons.push("INVALID_SIGNATURE");
 

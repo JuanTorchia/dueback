@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
 import type { PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { stableHash } from "@dueback/domain";
-import { blockingCriticalFields } from "./intake-service";
+import { blockingCriticalFields, commercialOutcomeContract } from "./intake-service";
 import type { DraftCase, PlanApproval } from "./intake-service";
 
 export interface PlanStore {
@@ -152,6 +152,10 @@ export class PlanService {
     const next: DraftCase = {
       ...current,
       promiseDraft,
+      outcomeContract: commercialOutcomeContract(
+        current.outcomeContract?.contractId ?? `outcome_${randomUUID()}`,
+        promiseDraft
+      ),
       plan,
       blockingFields,
       activationBlocked: blockingFields.length > 0

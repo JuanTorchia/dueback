@@ -126,7 +126,8 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         </button>
       </div>
     );
-  if (!draft) return <div className="card">Building the cited Promise Contract…</div>;
+  if (!draft) return <div className="card">Building the cited Outcome Contract…</div>;
+  const outcome = draft.outcomeContract;
   const fieldLabels: Record<string, string> = {
     promisor: "company name",
     result: "promised result",
@@ -160,18 +161,18 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
       <section className="card">
         <div className="contract-heading">
           <div>
-            <span className="status-dot" /> Promise Contract · v{draft.plan.version}
+            <span className="status-dot" /> Outcome Contract · v{draft.plan.version}
           </div>
           <code>{draft.plan.planHash.slice(0, 18)}…</code>
         </div>
         <dl className="facts">
           <div>
-            <dt>Company</dt>
-            <dd>{draft.promiseDraft.promisor.value}{uncertainty(draft.promiseDraft.promisor)}</dd>
+            <dt>Responsible party</dt>
+            <dd>{outcome?.responsibleParty ?? draft.promiseDraft.promisor.value}{uncertainty(draft.promiseDraft.promisor)}</dd>
           </div>
           <div>
-            <dt>Promised result</dt>
-            <dd>{draft.plan.goal}{uncertainty(draft.promiseDraft.result)}</dd>
+            <dt>Outcome</dt>
+            <dd>{outcome?.outcome ?? draft.plan.goal}{uncertainty(draft.promiseDraft.result)}</dd>
           </div>
           <div>
             <dt>Amount</dt>
@@ -207,7 +208,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
           </div>
           <div>
             <dt>Done means</dt>
-            <dd>The merchant confirms the promised refund in signed evidence.</dd>
+            <dd>{outcome?.proofRequired ?? "The merchant confirms the promised refund in signed evidence."}</dd>
           </div>
         </dl>
         {draft.blockingFields.length > 0 ? (

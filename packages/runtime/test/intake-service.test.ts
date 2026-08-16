@@ -63,6 +63,13 @@ describe("IntakeService", () => {
     expect(duplicate.duplicate).toBe(true);
     expect(duplicate.draft.caseId).toBe(first.draft.caseId);
     expect(first.draft.plan.evidenceRequirements[0]?.minimumLevel).toBe("MERCHANT_CONFIRMED");
+    expect(first.draft.outcomeContract).toMatchObject({
+      recipe: "COMMERCIAL_FOLLOW_UP",
+      outcome: "USD 79 refund",
+      responsibleParty: "Northstar",
+      actionIntents: ["FOLLOW_UP", "CHECK_STATUS"],
+      recipeData: { reference: "ORDER-79", amountMinor: 7900, currency: "USD" }
+    });
   });
 
   it("blocks activation when a critical amount is contradictory", async () => {

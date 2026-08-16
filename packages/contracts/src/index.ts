@@ -39,6 +39,52 @@ export const promiseDraftSchema = z.object({
   proposedEvidenceLevel: evidenceLevelSchema
 });
 
+const outcomeContractBaseSchema = z.object({
+  contractId: opaqueIdSchema,
+  outcome: z.string().min(1).max(500),
+  responsibleParty: z.string().min(1).max(200),
+  dueAt: isoDateSchema.optional(),
+  proofRequired: z.string().min(1).max(500),
+  actionIntents: z
+    .array(
+      z.enum([
+        "FOLLOW_UP",
+        "CHECK_STATUS",
+        "FIND_OPTION",
+        "RESERVE_APPOINTMENT",
+        "REQUEST_DOCUMENT"
+      ])
+    )
+    .min(1)
+    .max(5)
+});
+
+export const outcomeContractSchema = z.discriminatedUnion("recipe", [
+  outcomeContractBaseSchema.extend({
+    recipe: z.literal("COMMERCIAL_FOLLOW_UP"),
+    recipeData: z.object({
+      reference: z.string().min(1).max(200),
+      amountMinor: z.int().nonnegative().optional(),
+      currency: currencySchema.optional()
+    })
+  }),
+  outcomeContractBaseSchema.extend({
+    recipe: z.literal("APPOINTMENT"),
+    recipeData: z.object({
+      service: z.string().min(1).max(200),
+      acceptableWindows: z.array(z.string().min(1).max(200)).min(1).max(10),
+      location: z.string().min(1).max(300).optional()
+    })
+  }),
+  outcomeContractBaseSchema.extend({
+    recipe: z.literal("DOCUMENT"),
+    recipeData: z.object({
+      documentName: z.string().min(1).max(200),
+      deliveryChannel: z.string().min(1).max(100).optional()
+    })
+  })
+]);
+
 export const resolutionPlanSchema = z
   .object({
     planId: opaqueIdSchema,
@@ -159,6 +205,7 @@ export const notificationSchema = z.object({
 });
 
 export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
+export type OutcomeContract = z.infer<typeof outcomeContractSchema>;
 export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
 export type EvidenceCandidateContract = z.infer<typeof evidenceCandidateSchema>;

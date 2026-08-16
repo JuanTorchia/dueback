@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
-import type { PromiseDraft, ResolutionPlan } from "@dueback/contracts";
+import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
+import type { OutcomeContract, PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { caseDedupeKey, stableHash } from "@dueback/domain";
 
 export interface IntakeArtifact {
@@ -28,11 +28,33 @@ export interface DraftCase {
   readonly dedupeKey: string;
   readonly state: "AWAITING_APPROVAL" | "READY" | "CANCELLED";
   readonly promiseDraft: PromiseDraft;
+  readonly outcomeContract?: OutcomeContract;
   readonly plan: ResolutionPlan;
   readonly activationBlocked: boolean;
   readonly blockingFields: readonly string[];
   readonly createdAt: string;
   readonly approval?: PlanApproval;
+}
+
+export function commercialOutcomeContract(
+  contractId: string,
+  draft: PromiseDraft
+): OutcomeContract {
+  return outcomeContractSchema.parse({
+    contractId,
+    recipe: "COMMERCIAL_FOLLOW_UP",
+    outcome: draft.result.value,
+    responsibleParty: draft.promisor.value,
+    ...(draft.dueAt?.uncertainty === "NONE" ? { dueAt: draft.dueAt.value } : {}),
+    proofRequired:
+      "Signed evidence from the responsible party confirming the exact outcome and reference.",
+    actionIntents: ["FOLLOW_UP", "CHECK_STATUS"],
+    recipeData: {
+      reference: draft.transactionRef.value,
+      ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
+      ...(draft.currency ? { currency: draft.currency.value } : {})
+    }
+  });
 }
 
 export interface PlanApproval {
@@ -143,6 +165,7 @@ export class IntakeService {
       dedupeKey,
       state: "AWAITING_APPROVAL",
       promiseDraft,
+      outcomeContract: commercialOutcomeContract(`outcome_${randomUUID()}`, promiseDraft),
       plan,
       activationBlocked: blockingFields.length > 0,
       blockingFields,

@@ -5,6 +5,19 @@ const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
 test.describe("intake feedback and recovery", () => {
   test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
 
+  test("explains the value before asking for evidence", async ({ page }) => {
+    await page.goto(`${deployedUrl}/`);
+    await expect(
+      page.getByRole("heading", {
+        name: "Stop chasing companies for what they already promised."
+      })
+    ).toBeVisible();
+    await expect(page.getByText("“Request received” rejected")).toBeVisible();
+    await expect(page.getByText("Not another chatbot. A case that stays open.")).toBeVisible();
+    await page.getByRole("link", { name: "Hand off a follow-up" }).click();
+    await expect(page).toHaveURL(/\/intake$/);
+  });
+
   test("shows honest progress during a slow analysis and preserves input after failure", async ({
     page
   }) => {

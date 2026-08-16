@@ -38,7 +38,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | FR-029 | PASS | Notification record has stable dedupe identity and owned deep link; duplicate evidence tests create one record. |
 | FR-030 | PASS | Action and notification transport events independently project accepted, delivered, bounced, complained, suppressed, failed and unavailable without changing evidence truth. |
 | FR-031 | PASS | Control service and race tests prevent sends after stop/delete and terminal inbound is rejected before model execution. |
-| FR-032 | PARTIAL | History remains immutable, but an explicit reopen flow with fresh approval is not implemented. |
+| FR-032 | PASS | The explicit “This isn't resolved” route reopens only `DONE` cases with a required reason, preserves prior evidence, and moves to `NEEDS_ATTENTION` before any resume decision. |
 | FR-033 | PASS | Capability schema/endpoint report send, receive, threading, receipts, authenticated replies, OAuth and health. |
 | FR-034 | PASS | Public labels and capability reason codes distinguish sandbox, managed email, Gmail and controlled partner fixture. |
 | FR-035 | PASS | Sandbox and email implement `ClosedActionAdapter` and return the shared receipt shape. |
@@ -66,7 +66,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | SC-002 | PASS | Revision/hash/stale-approval tests cover current authorizing fields and server blocks editing an active plan. |
 | SC-003 | EXTERNAL | Deterministic authorization passes, but the required controlled external-email corpus does not exist. |
 | SC-004 | PASS | Duplicate delivery and uncertain-acceptance tests execute one logical provider call; deployed sandbox ledger also shows one receipt. |
-| SC-005 | PARTIAL | Accepted events reserve and enqueue or return a visible error; explicit dead-letter projection is missing. |
+| SC-005 | PASS | Accepted events are reserved before enqueue and transition to `ENQUEUED`, `PROCESSED`, or visible `FAILED` with reason codes; enqueue-failure and replay tests prevent silent loss. |
 | SC-006 | PASS | Invalid signature, replay, stale, cross-case, unknown/ambiguous route, terminal case and unexpected sender are tested; the published 28-case report includes four email outcomes. |
 | SC-007 | PASS | Deterministic and deployed paths observe zero completion from delivery/ACK alone. |
 | SC-008 | PARTIAL | Deployed sandbox continues after tab closure; managed-email bidirectional external case is missing. |

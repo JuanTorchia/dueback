@@ -8,6 +8,25 @@ const secret = `whsec_${Buffer.from("controller-secret").toString("base64")}`;
 const body = JSON.stringify({ type: "email.received", created_at: now, data: { email_id: "email_123" } });
 
 describe("email webhook controller", () => {
+  it("projects an enqueue failure into a visible provider-event failure state", async () => {
+    const events = {
+      reserveProviderEvent: vi.fn(() => Promise.resolve("RESERVED" as const)),
+      markProviderEvent: vi.fn(() => Promise.resolve())
+    };
+    const scheduler = { scheduleInbound: vi.fn(() => Promise.reject(new Error("QUEUE_UNAVAILABLE"))) };
+    const response = await handleEmailWebhook(new Request("https://dueback.test/webhook", {
+      method: "POST",
+      headers: { "content-type": "application/json", "svix-id": "event_failed_123",
+        "svix-timestamp": timestamp,
+        "svix-signature": `v1,${signEmailWebhook(body, "event_failed_123", timestamp, secret)}` },
+      body
+    }), { secret, now: () => now, events, scheduler });
+    expect(response.status).toBe(400);
+    expect(events.markProviderEvent).toHaveBeenCalledWith(
+      "event_failed_123", "FAILED", now, ["QUEUE_UNAVAILABLE"]
+    );
+  });
+
   it("reserves, enqueues and completes one verified event", async () => {
     const events = {
       reserveProviderEvent: vi.fn(() => Promise.resolve("RESERVED" as const)),

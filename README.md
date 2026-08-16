@@ -140,8 +140,10 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - Merchant confirmation is not bank settlement. Replacement tracking is not delivery. A promised
   bill credit is not proof of the final bill total.
 - Inbound email, WhatsApp, banks, general web browsing, and arbitrary merchant APIs are not built.
-- Outbound email has an idempotent Resend-compatible adapter but is disabled in the public deployment
-  until a verified sender and authorized recipient exist; the current return channel is the case UI.
+- Company follow-up email and user-notification email have separate idempotent Resend-compatible
+  adapters. They remain disabled in the public deployment until a verified sender, authorized test
+  recipient, reply domain, and inbound webhook exist; the current complete return path is the
+  controlled Merchant Sandbox plus the case UI.
 - English is the judging UI; one Spanish promise is processed without changing its financial meaning.
 - The eight-person usability study has a published protocol but results must not be claimed until the
   sessions are actually completed.

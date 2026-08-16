@@ -94,6 +94,16 @@ describe("PlanService", () => {
     expect(revised.plan.evidenceRequirements[0]?.amountMinor).toBe(5900);
   });
 
+  it("binds a corrected company email into a new plan version", async () => {
+    const service = new PlanService(new MemoryPlanStore());
+    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+      allowedRecipient: "support@northstar.example"
+    });
+    expect(revised.plan.allowedRecipient).toBe("support@northstar.example");
+    expect(revised.plan.version).toBe(2);
+    expect(revised.plan.planHash).not.toBe(hash);
+  });
+
   it("lets a person resolve every critical field exposed by intake", async () => {
     const initial = caseDraft();
     const blocked: DraftCase = {

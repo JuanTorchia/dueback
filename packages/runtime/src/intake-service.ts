@@ -76,7 +76,11 @@ export interface NewCaseBudget {
   consume(ownerId: string, now: string): Promise<void>;
 }
 
-export function blockingCriticalFields(draft: PromiseDraft, followUpAt?: string): string[] {
+export function blockingCriticalFields(
+  draft: PromiseDraft,
+  followUpAt?: string,
+  allowedRecipient?: string
+): string[] {
   const fields: [string, { uncertainty: string } | undefined][] = [
     ["promisor", draft.promisor],
     ["result", draft.result],
@@ -89,6 +93,7 @@ export function blockingCriticalFields(draft: PromiseDraft, followUpAt?: string)
     .map(([name]) => name);
   const extractedDeadline = draft.dueAt?.uncertainty === "NONE" ? draft.dueAt.value : undefined;
   if (!followUpAt && !extractedDeadline) blocked.push("followUpAt");
+  if (allowedRecipient?.endsWith(".invalid")) blocked.push("allowedRecipient");
   return blocked;
 }
 
@@ -157,7 +162,11 @@ export class IntakeService {
       recipient: this.merchantRecipient,
       now
     });
-    const blockingFields = blockingCriticalFields(promiseDraft, plan.followUpAt);
+    const blockingFields = blockingCriticalFields(
+      promiseDraft,
+      plan.followUpAt,
+      plan.allowedRecipient
+    );
     const draft: DraftCase = {
       caseId,
       ownerId: artifact.ownerId,

@@ -1219,6 +1219,113 @@ summary {
   font-size: 27px;
   letter-spacing: -0.035em;
 }
+.channel-plan,
+.message-preview {
+  margin-top: 14px;
+  padding: 15px !important;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: #fbfcfa;
+}
+.channel-plan-heading,
+.message-preview-heading {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.channel-plan-heading > span,
+.message-preview-heading > span {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  font-size: 12px;
+  font-weight: 850;
+}
+.channel-plan-heading p,
+.message-preview-heading p {
+  font-size: 11px;
+}
+.channel-options {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin-top: 13px;
+}
+.channel-options > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: white;
+}
+.channel-options > div[data-active="true"] {
+  border-color: var(--green);
+  box-shadow: inset 0 0 0 1px var(--green);
+  background: #f1f9f4;
+}
+.channel-options > div > span {
+  color: var(--green);
+  font-weight: 900;
+}
+.channel-options strong {
+  font-size: 11px;
+}
+.channel-options small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.message-preview dl {
+  margin: 14px 0 0;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 11px 11px 0 0;
+  background: white;
+}
+.message-preview dl > div {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--line);
+}
+.message-preview dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+.message-preview dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  font-weight: 700;
+}
+.email-body {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 11px 11px;
+  background: white;
+}
+.email-body p {
+  margin: 0 0 9px;
+  color: var(--ink);
+  font-size: 11px;
+}
+.email-body p:last-child {
+  margin-bottom: 0;
+}
+.email-body .email-rule {
+  padding: 8px;
+  border-radius: 8px;
+  background: #fff7ed;
+  color: #7c2d12;
+}
 .permission-list {
   display: grid;
   gap: 0;
@@ -1313,6 +1420,9 @@ summary {
   .facts div {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+  .channel-options {
+    grid-template-columns: repeat(2, 1fr);
   }
   .inline-edit {
     flex-direction: column;

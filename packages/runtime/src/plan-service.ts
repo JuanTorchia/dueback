@@ -29,6 +29,7 @@ export interface PlanRevision {
   readonly followUpAt?: string;
   readonly goal?: string;
   readonly expiresAt?: string;
+  readonly allowedRecipient?: string;
 }
 
 export interface PlanSimulation {
@@ -88,7 +89,7 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
     version: current.version + 1,
     goal: revision.goal ?? draft.result.value,
     allowedActions: current.allowedActions,
-    allowedRecipient: current.allowedRecipient,
+    allowedRecipient: revision.allowedRecipient ?? current.allowedRecipient,
     sharedFields: current.sharedFields,
     ...(revision.followUpAt || revision.dueAt || current.followUpAt
       ? { followUpAt: revision.followUpAt ?? revision.dueAt ?? current.followUpAt }
@@ -148,7 +149,11 @@ export class PlanService {
     if (current.state !== "AWAITING_APPROVAL") throw new Error("PLAN_NOT_EDITABLE");
     const promiseDraft = revisedDraft(current.promiseDraft, revision);
     const plan = revisedPlan(current.plan, promiseDraft, revision);
-    const blockingFields = blockingCriticalFields(promiseDraft, plan.followUpAt);
+    const blockingFields = blockingCriticalFields(
+      promiseDraft,
+      plan.followUpAt,
+      plan.allowedRecipient
+    );
     const next: DraftCase = {
       ...current,
       promiseDraft,

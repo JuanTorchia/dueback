@@ -51,7 +51,9 @@ const service = new IntakeService(
       throw new Error("MODEL_RETRY_EXHAUSTED");
     }
   },
-  process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
+  process.env.COMPANY_CONTACT_MODE === "email"
+    ? process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid"
+    : process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
   { consume: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now) }
 );
 

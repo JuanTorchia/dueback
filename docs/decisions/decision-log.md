@@ -207,3 +207,18 @@
   capacidad implementada del canal efectivamente habilitado en el despliegue público.
 - Motivo: la autonomía no es comprensible si el usuario solo ve cómo empieza. Mostrar contacto,
   respuesta, verificación y retorno hace visible el valor completo sin inventar una integración real.
+
+## D-019 — Email primero, contrato multicanal
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: implementar email como primer adaptador de contacto externo habilitable, sin convertirlo
+  en la identidad completa del producto. La aprobación muestra canal, destinatario, asunto, mensaje,
+  límites y retorno. Formulario web, WhatsApp y API comparten el modelo conceptual, pero permanecen
+  rotulados como próximos adaptadores hasta tener ejecución, errores y verificación propios.
+- Seguridad: el envío empresarial usa texto plano, destinatario ligado al plan aprobado, clave de
+  idempotencia y dirección de respuesta específica del caso. El modo email no se considera completo
+  ni se habilita públicamente sin remitente, destinatario de prueba y dominio verificados, además de
+  recepción autenticada de respuestas. El sandbox continúa como único recorrido bidireccional P0.
+- Motivo: demuestra una acción externa útil y una expansión creíble sin sacrificar la demo durable,
+  ni confundir capacidad de transporte con resolución comprobada.

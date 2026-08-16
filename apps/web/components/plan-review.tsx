@@ -8,7 +8,13 @@ import { errorCopy } from "../lib/error-copy";
 
 type PlanResponse = DraftCase & { error?: string };
 
-export function PlanReview({ caseId }: { readonly caseId: string }) {
+export function PlanReview({
+  caseId,
+  contactMode
+}: {
+  readonly caseId: string;
+  readonly contactMode: "sandbox" | "email";
+}) {
   const [draft, setDraft] = useState<DraftCase>();
   const [simulation, setSimulation] = useState<PlanSimulation>();
   const [amount, setAmount] = useState("");
@@ -17,6 +23,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
   const [currency, setCurrency] = useState("");
   const [reference, setReference] = useState("");
   const [dueAt, setDueAt] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
@@ -139,7 +146,8 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     currency: "currency",
     transactionRef: "order or case reference",
     dueAt: "company deadline",
-    followUpAt: "follow-up date"
+    followUpAt: "follow-up date",
+    allowedRecipient: "company support email"
   };
   const uncertainty = (field: { uncertainty: string; provenance: readonly { locator: string; excerpt?: string | undefined; confidence: string }[] } | undefined) =>
     field && field.uncertainty !== "NONE" ? (
@@ -159,6 +167,9 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     ) : null;
   const saveRevision = (revision: Record<string, unknown>) =>
     command({ action: "revise", expectedPlanVersion: draft.plan.version, revision });
+  const referenceValue = draft.promiseDraft.transactionRef.value;
+  const amountValue = `${draft.promiseDraft.currency?.value ?? ""} ${((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}`.trim();
+  const followUpSubject = `Follow-up for ${referenceValue}`;
 
   return (
     <div className="review-grid">
@@ -257,19 +268,47 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
       <section className="card boundaries">
         <div className="delegate-heading">
           <span>Controlled delegation</span>
-          <h2>What DueBack will do</h2>
-          <p>One approved action. Clear limits. A verifiable finish.</p>
+          <h2>Approve the conversation</h2>
+          <p>See the channel, recipient, first message, and return path before anything leaves DueBack.</p>
+        </div>
+        <div className="channel-plan">
+          <div className="channel-plan-heading">
+            <span>1</span><div><strong>How DueBack contacts them</strong><p>One channel is authorized for this case.</p></div>
+          </div>
+          <div className="channel-options" role="list" aria-label="Contact channel availability">
+            <div role="listitem" data-active={contactMode === "email"}><span>✉</span><strong>Email</strong><small>{contactMode === "email" ? "Outbound active" : "Ready to connect"}</small></div>
+            <div role="listitem" data-active={contactMode === "sandbox"}><span>↗</span><strong>Demo API</strong><small>{contactMode === "sandbox" ? "Live now" : "Test mode"}</small></div>
+            <div role="listitem"><span>▤</span><strong>Web form</strong><small>Next adapter</small></div>
+            <div role="listitem"><span>◉</span><strong>WhatsApp</strong><small>Next adapter</small></div>
+          </div>
+        </div>
+        <div className="message-preview">
+          <div className="message-preview-heading"><span>2</span><div><strong>The first follow-up</strong><p>This exact scope is bound to your approval.</p></div></div>
+          <dl>
+            <div><dt>To</dt><dd>{draft.plan.allowedRecipient}</dd></div>
+            <div><dt>Subject</dt><dd>{followUpSubject}</dd></div>
+          </dl>
+          <div className="email-body">
+            <p>Hello,</p>
+            <p>DueBack is following up on an outcome requested by your customer.</p>
+            <p><strong>Reference:</strong> {referenceValue}<br /><strong>Amount:</strong> {amountValue}</p>
+            <p>Please reply with the current status and verifiable confirmation when the outcome is complete.</p>
+            <p className="email-rule">An acknowledgement that the request was received will not be treated as completion.</p>
+          </div>
+          {contactMode === "email" ? (
+            <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
+          ) : null}
         </div>
         <div className="permission-list">
           <div><span className="permission-icon">→</span><div><strong>Action</strong><p>Send one follow-up after the due time.</p></div></div>
           <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
-          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>Controlled HTTP merchant adapter in this public demo.</p></div></div>
+          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>{contactMode === "email" ? "Verified outbound email with a case-specific reply address. Automated reply processing requires the inbound webhook." : "Controlled HTTP merchant adapter in this public demo."}</p></div></div>
           <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
           <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>Signed evidence matching this case, amount, currency, and reference. “Request received” is not completion.</p></div></div>
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
-        <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p>
-        <div className="return-promise"><strong>How you’ll know</strong><p>The case page updates automatically. Production email delivery is implemented but disabled in this public demo.</p></div>
+        {contactMode === "sandbox" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
+        <div className="return-promise"><strong>3 · How the result comes back to you</strong><p>The case page updates automatically. Decisions and verified results can also use the outbound notification adapter when a verified user address is configured.</p></div>
         <button
           className="secondary"
           type="button"

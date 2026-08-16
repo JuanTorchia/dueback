@@ -15,7 +15,10 @@ export default async function ReviewPage({
         <h1>Review what DueBack understood.</h1>
         <p className="lede">Correct anything that looks wrong, then choose exactly what the agent may do.</p>
       </section>
-      <PlanReview caseId={caseId} />
+      <PlanReview
+        caseId={caseId}
+        contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"}
+      />
     </main>
   );
 }

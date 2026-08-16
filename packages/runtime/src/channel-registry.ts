@@ -59,6 +59,7 @@ export function publicChannelCapabilities(input: {
   readonly sandboxAvailable: boolean;
   readonly managedEmailOutbound: boolean;
   readonly managedEmailInbound: boolean;
+  readonly partnerFixtureAvailable?: boolean;
 }): readonly ChannelCapability[] {
   const emailAvailable = input.managedEmailOutbound && input.managedEmailInbound;
   return [
@@ -100,14 +101,14 @@ export function publicChannelCapabilities(input: {
     },
     {
       channelType: "PARTNER_API",
-      status: "FUTURE",
-      canSend: false,
+      status: input.partnerFixtureAvailable ? "AVAILABLE" : "FUTURE",
+      canSend: input.partnerFixtureAvailable ?? false,
       canReceive: false,
       supportsThreading: false,
       supportsDeliveryReceipt: true,
       supportsAuthenticatedReply: true,
       requiresUserOAuth: false,
-      reasonCodes: ["PARTNER_FIXTURE_NOT_IMPLEMENTED"],
+      reasonCodes: [input.partnerFixtureAvailable ? "CONTROLLED_PARTNER_FIXTURE" : "PARTNER_FIXTURE_NOT_CONFIGURED"],
       checkedAt: input.now
     }
   ];

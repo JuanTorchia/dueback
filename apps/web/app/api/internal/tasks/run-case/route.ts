@@ -1,6 +1,7 @@
 import { CloudTasksClient } from "@google-cloud/tasks";
 import { MerchantSandboxAdapter } from "@dueback/channel-adapters/merchant-sandbox";
 import { CompanyEmailActionAdapter } from "@dueback/channel-adapters/company-email";
+import { PartnerApiFixtureAdapter } from "@dueback/channel-adapters/partner-api";
 import {
   ChannelRegistry,
   publicChannelCapabilities,
@@ -32,6 +33,8 @@ export async function POST(request: Request) {
   const allowedRecipientDomains = parseAllowedRecipientDomains(
     process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
   );
+  const partnerEndpoint = process.env.PARTNER_FIXTURE_ENDPOINT;
+  const partnerSecret = process.env.PARTNER_FIXTURE_SIGNING_SECRET;
   if (!projectId || !workerUrl || !serviceAccountEmail)
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
@@ -55,11 +58,13 @@ export async function POST(request: Request) {
       emailApiKey &&
       process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
       emailReplyDomain
-    )
+    ),
+    partnerFixtureAvailable: Boolean(partnerEndpoint && partnerSecret)
   });
   const sandboxCapability = capabilities.find((item) => item.channelType === "CONTROLLED_SANDBOX");
   const emailCapability = capabilities.find((item) => item.channelType === "MANAGED_EMAIL");
-  if (!sandboxCapability || !emailCapability)
+  const partnerCapability = capabilities.find((item) => item.channelType === "PARTNER_API");
+  if (!sandboxCapability || !emailCapability || !partnerCapability)
     return Response.json({ error: "CONTACT_CHANNEL_NOT_CONFIGURED" }, { status: 503 });
   const registry = new ChannelRegistry([
     {
@@ -85,6 +90,15 @@ export async function POST(request: Request) {
               }).execute(proposal, idempotencyKey, context);
             }
           } }
+        : {})
+    },
+    {
+      capability: partnerCapability,
+      ...(partnerEndpoint && partnerSecret
+        ? { adapter: new PartnerApiFixtureAdapter({
+            endpoint: partnerEndpoint,
+            signingSecret: partnerSecret
+          }) }
         : {})
     }
   ]);

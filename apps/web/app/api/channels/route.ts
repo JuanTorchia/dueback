@@ -6,7 +6,8 @@ export function GET() {
   const managedEmailOutbound = Boolean(
     process.env.RESEND_API_KEY &&
     process.env.COMPANY_EMAIL_FROM &&
-    process.env.COMPANY_EMAIL_REPLY_DOMAIN
+    process.env.COMPANY_EMAIL_REPLY_DOMAIN &&
+    process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
   );
   const managedEmailInbound = Boolean(
     process.env.RESEND_API_KEY &&
@@ -19,6 +20,9 @@ export function GET() {
       process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
     ),
     managedEmailOutbound,
-    managedEmailInbound
+    managedEmailInbound,
+    partnerFixtureAvailable: Boolean(
+      process.env.PARTNER_FIXTURE_ENDPOINT && process.env.PARTNER_FIXTURE_SIGNING_SECRET
+    )
   }));
 }

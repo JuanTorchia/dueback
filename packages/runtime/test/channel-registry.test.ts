@@ -31,4 +31,20 @@ describe("channel registry", () => {
       "CONTACT_CHANNEL_UNAVAILABLE"
     );
   });
+
+  it("reports the partner proof only when its controlled fixture is configured", () => {
+    const capabilities = publicChannelCapabilities({
+      now,
+      sandboxAvailable: true,
+      managedEmailOutbound: false,
+      managedEmailInbound: false,
+      partnerFixtureAvailable: true
+    });
+    expect(capabilities.find((item) => item.channelType === "PARTNER_API")).toMatchObject({
+      status: "AVAILABLE",
+      canSend: true,
+      canReceive: false,
+      reasonCodes: ["CONTROLLED_PARTNER_FIXTURE"]
+    });
+  });
 });

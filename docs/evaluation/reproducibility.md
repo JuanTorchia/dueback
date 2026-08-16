@@ -165,3 +165,18 @@ run then encountered one exhausted two-attempt Gemini request and is retained as
 failure; an immediate no-retry rerun passed end to end in 25.1 seconds. Axe 4.12.1 reported zero
 confirmed violations on the deployed intake page, 37 passed checks, and one manual contrast check
 for the aria-hidden decorative checkmark.
+
+## Consumer experience redesign
+
+Commit `a5103d3` was built by Cloud Build operation
+`3e367d0e-887a-442e-9d2f-73c6285a2066` and deployed as `dueback-web-00018-nv4` at 100% traffic.
+The redesign replaces the form-like landing page with a responsive consumer hierarchy: a concise
+value proposition, control and privacy assurances before intake, one primary action, and three
+plain-language proof principles. The same branded header and visual system now continue through
+review, result, exception, and privacy routes.
+
+After deployment, both mobile Playwright journeys ran sequentially with retries disabled. The
+ambiguous-review path passed in 30.7 seconds and the standard judge path passed in 22.0 seconds
+(53.8 seconds total). A separate 390 by 844 browser inspection confirmed that the public intake
+exposed the expected heading, input-mode controls, privacy link, labelled textbox, and disabled
+primary action before input.

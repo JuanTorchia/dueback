@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 
@@ -11,6 +11,11 @@ export function IntakeForm() {
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   async function submit() {
     setBusy(true);
@@ -36,7 +41,7 @@ export function IntakeForm() {
 
   const ready = mode === "paste" ? text.trim().length > 0 : file !== undefined;
   return (
-    <div className="card">
+    <div className="card" data-testid="intake-form" data-hydrated={hydrated}>
       <div className="tabs" aria-label="Promise input method">
         <button
           className="tab"

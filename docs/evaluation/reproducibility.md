@@ -250,3 +250,18 @@ tap. Mobile hero spacing was reduced so the live recipe and guidance appear in t
 Five public browser tests passed sequentially with retries disabled. The live-Gemini paths passed
 in 33.2 and 28.9 seconds; delayed-error recovery, combined text-and-image intake, and first-use
 example discovery passed in 4.4, 1.1, and 1.1 seconds respectively.
+
+## Outcome review redesign
+
+Commit `8ab38cf` was built by Cloud Build operation
+`432fa379-768e-4f22-bace-0a6cf259dbea` and deployed as `dueback-web-00024-tww` at 100% traffic.
+The second step now separates comprehension from authorization: visible case progress, a readiness
+summary, human-first outcome facts, a proof-of-done callout, collapsed technical identity, and a
+separate delegation card containing action, recipient, prohibitions, proof, shared data, and the
+controlled-demo disclosure. Five public browser paths passed without retries in 58.3 seconds.
+
+Commit `e5cf0c2` was built by Cloud Build operation
+`259bb164-ae33-47a6-9072-1c7d83376acc` and deployed as `dueback-web-00025-wsq` at 100% traffic. It
+replaced the remaining ISO deadline in the review with a locale-formatted date. A mobile visual
+inspection confirmed the human date, and the complete standard live-Gemini journey passed again
+without retries in 24.3 seconds.

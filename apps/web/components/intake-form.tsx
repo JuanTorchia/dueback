@@ -58,11 +58,14 @@ export function IntakeForm() {
   return (
     <div className="card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
       <div className="form-heading">
-        <span>Start a case</span>
-        <strong>Add the company’s promise</strong>
+        <span>Live recipe · company follow-up</span>
+        <strong>What are you waiting to have done?</strong>
       </div>
+      <p className="recipe-scope">
+        Start with a refund, replacement, cancellation, delivery, or document a company owes you.
+      </p>
       <div>
-        <label htmlFor="promise">Paste the promise or add helpful context</label>
+        <label htmlFor="promise">Describe the outcome or paste the evidence</label>
         <textarea
           id="promise"
           value={text}
@@ -70,7 +73,7 @@ export function IntakeForm() {
           onChange={(event) => {
             setText(event.target.value);
           }}
-          placeholder="Paste an email, message, or describe what you are waiting for…"
+          placeholder="Example: The store promised to refund $59 for order 1842 by Friday…"
           maxLength={50_000}
         />
       </div>
@@ -105,7 +108,7 @@ export function IntakeForm() {
             <strong>Gemini is reading your evidence</strong>
             <p>
               {elapsedSeconds < 15
-                ? "Extracting the company, promise, dates, and proof requirements."
+                ? "Extracting the outcome, responsible party, dates, and proof requirements."
                 : elapsedSeconds < 30
                   ? "Still working — complex or ambiguous evidence can take a little longer."
                   : "This is taking longer than usual. Nothing has been sent to the company."}
@@ -115,8 +118,8 @@ export function IntakeForm() {
         </div>
       ) : null}
       <p className="privacy">
-        DueBack processes only what you share. Raw files expire within 24 hours. Nothing is sent to
-        a company before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
+        DueBack processes only what you share. Raw files expire within 24 hours. No external action
+        happens before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
       </p>
       <button
         className="primary"

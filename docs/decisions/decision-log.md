@@ -180,3 +180,16 @@
   deberán provenir de estado persistido real, no de animaciones que simulen avance.
 - Motivo: reduce abandono y convierte la latencia de Gemini en una demostración visible de ejecución
   durable para la categoría Taskmaster.
+
+## D-017 — Plataforma global, una receta real primero
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: posicionar DueBack como runtime de `Proof of Done` para resultados pendientes, no como
+  aplicación exclusiva de reembolsos. La interfaz explica el contrato universal —resultado,
+  límites, acciones y evidencia— y muestra seguimiento a empresas como la única receta pública
+  completamente ejecutable en el MVP.
+- Extensiones: turnos y documentos se muestran como próximos adaptadores. No se presentan como
+  integraciones productivas hasta que tengan una ruta real, errores, verificación y documentación.
+- Motivo: conserva una demostración profunda y honesta para la rúbrica, mientras comunica que la
+  misma máquina de estados puede servir a personas, equipos, países y clases de resultado distintas.

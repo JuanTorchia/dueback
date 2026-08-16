@@ -11,13 +11,13 @@ test.describe("deployed mobile judge path", () => {
     const reference = `DEMO-${String(Date.now())}`;
     await page.goto(`${deployedUrl}/intake`);
     await expect(
-      page.getByRole("heading", { name: "Hand off the follow-up. Keep control." })
+      page.getByRole("heading", { name: "Say what needs to happen. DueBack keeps it moving." })
     ).toBeVisible();
     await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
       timeout: 15_000
     });
     await page
-      .getByRole("textbox", { name: "Paste the promise or add helpful context" })
+      .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
       .fill(
         `On August 1, 2026 Northstar Store confirmed it would refund USD 19.00 for order ${reference} by August 15, 2026. The refund is still missing.`
       );

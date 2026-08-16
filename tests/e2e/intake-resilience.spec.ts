@@ -18,7 +18,7 @@ test.describe("intake feedback and recovery", () => {
     });
     await page.goto(`${deployedUrl}/intake`);
     const source = page.getByRole("textbox", {
-      name: "Paste the promise or add helpful context"
+      name: "Describe the outcome or paste the evidence"
     });
     const promise = "Northstar promised a USD 59 refund for ORDER-LATENCY.";
     await source.fill(promise);
@@ -35,7 +35,7 @@ test.describe("intake feedback and recovery", () => {
   test("accepts a file and context as one combined source", async ({ page }) => {
     await page.goto(`${deployedUrl}/intake`);
     await page
-      .getByRole("textbox", { name: "Paste the promise or add helpful context" })
+      .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
       .fill("The correct amount is USD 59.");
     await page.getByLabel(/Drop or choose a screenshot/).setInputFiles({
       name: "merchant-promise.png",

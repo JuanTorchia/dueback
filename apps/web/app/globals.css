@@ -135,6 +135,26 @@ h1 {
 .trust-line span {
   color: var(--peach);
 }
+.use-case-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 16px;
+}
+.use-case-row span {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 45%);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.use-case-row span[data-live="true"] {
+  border-color: #9cc9b2;
+  background: #edf8f1;
+  color: var(--green);
+}
 .card {
   padding: 26px;
   border: 1px solid rgb(18 33 27 / 11%);
@@ -157,6 +177,12 @@ h1 {
 .form-heading strong {
   font-size: 22px;
   letter-spacing: -0.03em;
+}
+.recipe-scope {
+  margin: -10px 0 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 label {
   display: block;

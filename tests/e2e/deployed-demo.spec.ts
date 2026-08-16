@@ -17,7 +17,7 @@ test.describe("deployed mobile judge path", () => {
       timeout: 15_000
     });
     await page
-      .getByRole("textbox", { name: "What did the company promise?" })
+      .getByRole("textbox", { name: "Paste the promise or add helpful context" })
       .fill(
         `On August 1, 2026 Northstar Store confirmed it would refund USD 19.00 for order ${reference} by August 15, 2026. The refund is still missing.`
       );

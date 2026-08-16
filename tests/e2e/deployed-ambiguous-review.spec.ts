@@ -30,7 +30,7 @@ test.describe("deployed ambiguous promise review", () => {
       timeout: 15_000
     });
     await page
-      .getByRole("textbox", { name: "What did the company promise?" })
+      .getByRole("textbox", { name: "Paste the promise or add helpful context" })
       .fill(
         "Northstar Store will refund USD 79 for ORDER-79. A later paragraph says the approved amount is USD 59. Case REF-1001."
       );

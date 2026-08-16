@@ -180,3 +180,17 @@ ambiguous-review path passed in 30.7 seconds and the standard judge path passed 
 (53.8 seconds total). A separate 390 by 844 browser inspection confirmed that the public intake
 exposed the expected heading, input-mode controls, privacy link, labelled textbox, and disabled
 primary action before input.
+
+## Unified multimodal intake
+
+Commit `9cb9286` was built by Cloud Build operation
+`84ccd737-46a4-4dda-aca3-21377e2d35f4` and deployed as `dueback-web-00019-87f` at 100% traffic.
+The intake now accepts text, an image or PDF, or both without requiring the person to choose a
+mode first. When both are supplied, the sanitized media and user context are passed to Gemini in
+one multimodal extraction request and share a content-derived deduplication identity.
+
+The full local suite passed with 60 tests (44 root tests plus 16 web tests), alongside typecheck,
+lint, and the production build. After deployment, both mobile journeys passed sequentially with
+retries disabled in 30.8 and 28.8 seconds (one minute total runner time). The initially invoked
+browser test still referenced the superseded accessible field name and was stopped after that
+selector failure; updating the test contract produced the clean run reported here.

@@ -103,6 +103,12 @@ describe("durable follow-through", () => {
       })
     ).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
     expect(execute).toHaveBeenCalledTimes(2);
+    expect(cases.value).toMatchObject({
+      lastAttemptAt: "2026-08-15T12:00:31.000Z",
+      lastReceiptId: "receipt_1",
+      lastActionDuplicate: false
+    });
+    expect(cases.value.lastActionIdempotencyKey).toMatch(/^sha256:/);
   });
 
   it("does not repeat the external effect after a crash and worker restart", async () => {
@@ -140,6 +146,11 @@ describe("durable follow-through", () => {
     });
     expect(result).toMatchObject({ status: "WAITING_EXTERNAL", broker: { duplicate: true } });
     expect(execute).toHaveBeenCalledOnce();
+    expect(cases.value).toMatchObject({
+      lastAttemptAt: "2026-08-15T12:00:02.000Z",
+      lastReceiptId: "receipt_1",
+      lastActionDuplicate: true
+    });
   });
 
   it("ignores duplicate tasks after state advanced", async () => {

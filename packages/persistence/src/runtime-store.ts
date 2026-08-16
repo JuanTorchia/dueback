@@ -9,6 +9,7 @@ import type {
   EmailDeliveryStore
 } from "@dueback/channel-adapters/outbound-email";
 import { firestoreDeleteAt } from "./expiry";
+import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 
 export class FirestoreRuntimeStore
   implements
@@ -36,6 +37,16 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as EvidenceRecord);
   }
 
+  async listEvents(caseId: string): Promise<readonly RuntimeTimelineEvent[]> {
+    const snapshot = await this.db
+      .collection("caseRuns")
+      .doc(caseId)
+      .collection("events")
+      .orderBy("sequence", "asc")
+      .get();
+    return snapshot.docs.map((document) => document.data() as RuntimeTimelineEvent);
+  }
+
   async compareAndSet(
     caseId: string,
     expectedVersion: number,
@@ -47,6 +58,24 @@ export class FirestoreRuntimeStore
       if (!current.exists) throw new Error("CASE_NOT_FOUND");
       if (current.get("version") !== expectedVersion) throw new Error("VERSION_CONFLICT");
       transaction.set(reference, next);
+      const occurredAt = next.lastAttemptAt ?? new Date().toISOString();
+      const eventId = `${String(next.version).padStart(6, "0")}-action-result`;
+      transaction.create(reference.collection("events").doc(eventId), {
+        eventId,
+        caseId,
+        sequence: next.version,
+        type: "ACTION_RESULT",
+        actor: "SYSTEM",
+        occurredAt,
+        reasonCodes: [
+          next.lastError ?? (next.lastActionDuplicate ? "DUPLICATE_NO_OP" : "ACTION_ACCEPTED")
+        ],
+        correlationId: next.correlationId ?? "corr_unavailable",
+        state: next.state,
+        ...(next.lastReceiptId ? { receiptId: next.lastReceiptId } : {}),
+        ...(next.lastActionIdempotencyKey ? { idempotencyKey: next.lastActionIdempotencyKey } : {}),
+        deleteAt: firestoreDeleteAt(occurredAt)
+      });
     });
   }
 
@@ -120,6 +149,21 @@ export class FirestoreRuntimeStore
               deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
             }
           : {})
+      });
+      const sequence = input.expectedVersion + 1;
+      const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.evidenceId.slice(-8)}`;
+      transaction.create(caseRef.collection("events").doc(eventId), {
+        eventId,
+        caseId: input.caseId,
+        sequence,
+        type: "EVIDENCE_RESULT",
+        actor: "COUNTERPARTY",
+        occurredAt: input.evidence.recordedAt,
+        reasonCodes: input.evidence.verification.reasonCodes,
+        correlationId: input.evidence.correlationId,
+        state: input.nextState,
+        evidenceId: input.evidence.candidate.evidenceId,
+        deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
       });
       return { duplicate: false };
     });

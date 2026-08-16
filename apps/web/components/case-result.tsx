@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
 import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { CaseTimeline } from "./case-timeline";
 
 interface ResultPayload {
   case: FollowThroughCase;
   evidence: EvidenceRecord[];
+  events?: RuntimeTimelineEvent[];
   error?: string;
 }
 
@@ -83,7 +85,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
       </section>
       <section className="card">
         <h2>Auditable timeline</h2>
-        <CaseTimeline evidence={payload.evidence} />
+        <CaseTimeline events={payload.events ?? []} />
       </section>
     </div>
   );

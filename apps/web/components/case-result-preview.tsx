@@ -1,4 +1,5 @@
 import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 import { CaseTimeline } from "./case-timeline";
 
 const evidence: EvidenceRecord[] = [
@@ -40,6 +41,34 @@ const evidence: EvidenceRecord[] = [
   }
 ];
 
+const events: RuntimeTimelineEvent[] = [
+  {
+    eventId: "000001-plan-approved",
+    caseId: "case_demo_verified",
+    sequence: 1,
+    type: "PLAN_APPROVED",
+    actor: "PERSON",
+    occurredAt: "2026-08-15T12:00:00.000Z",
+    reasonCodes: ["CURRENT_PLAN_VERSION_APPROVED"],
+    correlationId: "corr_demo0000000000000000000",
+    state: "READY"
+  },
+  ...evidence.map(
+    (record, index): RuntimeTimelineEvent => ({
+      eventId: `evidence-${String(index + 2)}`,
+      caseId: record.candidate.caseId,
+      sequence: index + 2,
+      type: "EVIDENCE_RESULT",
+      actor: "COUNTERPARTY",
+      occurredAt: record.recordedAt,
+      reasonCodes: record.verification.reasonCodes,
+      correlationId: record.correlationId,
+      state: record.verification.accepted ? "DONE" : "WAITING_EXTERNAL",
+      evidenceId: record.candidate.evidenceId
+    })
+  )
+];
+
 export function CaseResultPreview() {
   return (
     <div className="result-grid">
@@ -54,7 +83,7 @@ export function CaseResultPreview() {
       </section>
       <section className="card">
         <h2>Auditable timeline</h2>
-        <CaseTimeline evidence={evidence} />
+        <CaseTimeline events={events} />
       </section>
     </div>
   );

@@ -50,11 +50,15 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         ...(input.action === "EXPIRE" ? { deleteAt: firestoreDeleteAt(input.now) } : {})
       });
       transaction.create(reference.collection("events").doc(`control-${String(next.version)}`), {
-        type: `CASE_${input.action}`,
+        eventId: `control-${String(next.version)}`,
+        caseId: input.caseId,
+        sequence: next.version,
+        type: "CASE_CONTROL",
         actor: "PERSON",
-        reason: input.reason,
+        reasonCodes: [input.reason],
         occurredAt: input.now,
         correlationId: current.correlationId ?? "corr_unavailable",
+        state,
         deleteAt: firestoreDeleteAt(input.now)
       });
       return next;

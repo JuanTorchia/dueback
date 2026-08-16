@@ -20,6 +20,9 @@ export interface FollowThroughCase {
   readonly controlledAt?: string;
   readonly attemptCount?: number;
   readonly completedLevel?: EvidenceLevel;
+  readonly lastAttemptAt?: string;
+  readonly lastActionIdempotencyKey?: string;
+  readonly lastActionDuplicate?: boolean;
 }
 
 export interface FollowThroughStore {
@@ -134,7 +137,10 @@ export class CaseRunner {
         ...(item.correlationId || input.correlationId
           ? { correlationId: item.correlationId ?? input.correlationId }
           : {}),
-        lastReceiptId: broker.receipt.receiptId
+        lastReceiptId: broker.receipt.receiptId,
+        lastAttemptAt: input.now,
+        lastActionIdempotencyKey: broker.idempotencyKey,
+        lastActionDuplicate: broker.duplicate
       };
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
@@ -146,7 +152,8 @@ export class CaseRunner {
           state: "NEEDS_ATTENTION",
           version: item.version + 1,
           attemptCount,
-          lastError: "RECOVERY_EXHAUSTED"
+          lastError: "RECOVERY_EXHAUSTED",
+          lastAttemptAt: input.now
         };
         await this.store.compareAndSet(item.caseId, item.version, exhausted);
         const correlationId =
@@ -168,7 +175,8 @@ export class CaseRunner {
         version: item.version + 1,
         nextWakeAt: retryAt,
         lastError: error instanceof Error ? error.message : "ACTION_FAILED",
-        attemptCount
+        attemptCount,
+        lastAttemptAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, next);
       await this.scheduler.scheduleCase({

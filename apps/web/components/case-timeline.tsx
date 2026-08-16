@@ -1,38 +1,41 @@
-import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
+import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 
-export function CaseTimeline({ evidence }: { readonly evidence: readonly EvidenceRecord[] }) {
+const title: Record<RuntimeTimelineEvent["type"], string> = {
+  PLAN_APPROVED: "Plan approved",
+  ACTION_RESULT: "Authorized action result",
+  EVIDENCE_RESULT: "Evidence checked",
+  CASE_CONTROL: "User control"
+};
+
+export function CaseTimeline({ events }: { readonly events: readonly RuntimeTimelineEvent[] }) {
+  if (events.length === 0) {
+    return <p>No persisted timeline events are available for this pre-ledger case.</p>;
+  }
   return (
     <ol className="timeline">
-      <li>
-        <span className="timeline-mark complete" />
-        <div>
-          <strong>Plan approved</strong>
-          <p>Authority is bound to one owner, version, hash, recipient, and expiry.</p>
-        </div>
-      </li>
-      <li>
-        <span className="timeline-mark complete" />
-        <div>
-          <strong>Follow-up accepted</strong>
-          <p>One idempotent request crossed the controlled merchant HTTP boundary.</p>
-        </div>
-      </li>
-      {evidence.map((record) => (
-        <li key={record.candidate.evidenceId}>
-          <span
-            className={`timeline-mark ${record.verification.accepted ? "complete" : "rejected"}`}
-          />
-          <div>
-            <strong>{record.candidate.level.replaceAll("_", " ")}</strong>
-            <p>
-              {record.verification.accepted
-                ? "Evidence matched every deterministic requirement."
-                : `Not done — ${record.verification.reasonCodes.join(", ")}.`}
-            </p>
-            <code>{record.candidate.evidenceId}</code>
-          </div>
-        </li>
-      ))}
+      {events.map((event) => {
+        const rejected = event.reasonCodes.some((reason) =>
+          ["INSUFFICIENT", "WRONG", "INVALID", "EXHAUSTED", "DENIED"].some((token) =>
+            reason.includes(token)
+          )
+        );
+        return (
+          <li key={event.eventId}>
+            <span className={`timeline-mark ${rejected ? "rejected" : "complete"}`} />
+            <div>
+              <strong>{title[event.type]}</strong>
+              <p>
+                {event.actor.toLowerCase()} · {event.occurredAt} · state {event.state}
+              </p>
+              <p>{event.reasonCodes.join(", ")}</p>
+              {event.receiptId ? <code>receipt: {event.receiptId}</code> : null}
+              {event.idempotencyKey ? <code>action: {event.idempotencyKey}</code> : null}
+              {event.evidenceId ? <code>evidence: {event.evidenceId}</code> : null}
+              <code>correlation: {event.correlationId}</code>
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }

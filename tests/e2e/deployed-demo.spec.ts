@@ -33,5 +33,8 @@ test.describe("deployed mobile judge path", () => {
     });
     await expect(page.getByText(/does not mean bank settlement/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Auditable timeline" })).toBeVisible();
+    await expect(page.getByText("CURRENT_PLAN_VERSION_APPROVED", { exact: true })).toBeVisible();
+    await expect(page.getByText("ACTION_ACCEPTED", { exact: true })).toBeVisible();
+    await expect(page.getByText(/^correlation: corr_/).first()).toBeVisible();
   });
 });

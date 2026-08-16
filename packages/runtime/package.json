@@ -12,7 +12,8 @@
     "./notifications": "./src/notifications.ts",
     "./interventions": "./src/interventions.ts",
     "./case-control": "./src/case-control.ts",
-    "./evidence-service": "./src/evidence-service.ts"
+    "./evidence-service": "./src/evidence-service.ts",
+    "./timeline": "./src/timeline.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

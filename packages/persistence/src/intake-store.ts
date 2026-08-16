@@ -65,6 +65,18 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
             new Date(Date.parse(next.createdAt) + 1000).toISOString(),
           deleteAt: firestoreDeleteAt(next.plan.expiresAt)
         });
+        transaction.create(runReference.collection("events").doc("000001-plan-approved"), {
+          eventId: "000001-plan-approved",
+          caseId: next.caseId,
+          sequence: 1,
+          type: "PLAN_APPROVED",
+          actor: "PERSON",
+          occurredAt: next.approval.approvedAt,
+          reasonCodes: ["CURRENT_PLAN_VERSION_APPROVED"],
+          correlationId,
+          state: "READY",
+          deleteAt: firestoreDeleteAt(next.plan.expiresAt)
+        });
       }
     });
   }

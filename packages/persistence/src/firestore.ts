@@ -1,6 +1,7 @@
 import type { Firestore } from "firebase-admin/firestore";
 import { DomainTransitionError, reduceCase } from "@dueback/domain";
 import type { CaseSnapshot, DomainEvent, TransitionCommand } from "@dueback/domain";
+import { firestoreDeleteAt } from "./expiry";
 
 export interface PersistedEvent extends DomainEvent {
   readonly eventId: string;
@@ -62,7 +63,7 @@ export class FirestoreCaseRepository {
         schemaVersion: 1
       };
       transaction.update(caseRef, reduced.snapshot);
-      transaction.create(eventRef, event);
+      transaction.create(eventRef, { ...event, deleteAt: firestoreDeleteAt(input.occurredAt) });
       return { snapshot: reduced.snapshot, event, duplicate: false };
     });
   }

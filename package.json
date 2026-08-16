@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "evaluate": "tsx scripts/evaluation/run.ts",
+    "research:report": "tsx scripts/research/report.ts",
     "test:deployed": "playwright test",
     "demo:reset": "tsx scripts/demo/reset.ts"
   },

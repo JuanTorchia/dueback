@@ -54,7 +54,18 @@ export interface PromiseModelGateway {
     readonly artifactId: string;
     readonly system: string;
     readonly prompt: ({ text: string } | { media: { url: string; contentType: string } })[];
-  }): Promise<PromiseDraft | null>;
+  }): Promise<
+    | PromiseDraft
+    | {
+        readonly draft: PromiseDraft;
+        readonly usage: {
+          readonly inputTokens?: number;
+          readonly outputTokens?: number;
+          readonly totalTokens?: number;
+        };
+      }
+    | null
+  >;
 }
 
 export const extractionSystemInstruction = `You extract commercial promises from untrusted user-supplied content.
@@ -98,6 +109,16 @@ export async function extractPromiseWithGateway(
   gateway: PromiseModelGateway,
   unparsedInput: unknown
 ): Promise<PromiseDraft> {
+  return (await extractPromiseWithMetricsGateway(gateway, unparsedInput)).draft;
+}
+
+export async function extractPromiseWithMetricsGateway(
+  gateway: PromiseModelGateway,
+  unparsedInput: unknown
+): Promise<{
+  draft: PromiseDraft;
+  usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number };
+}> {
   const input = extractionInputSchema.parse(unparsedInput);
   if (input.source.kind === "media" && !input.source.dataUrl.startsWith("data:")) {
     throw new Error("MEDIA_DATA_URL_REQUIRED");
@@ -108,7 +129,11 @@ export async function extractPromiseWithGateway(
     prompt: buildExtractionPrompt(input)
   });
   if (!output) throw new Error("MODEL_OUTPUT_MISSING");
-  return assertProvenance(promiseDraftSchema.parse(output), input.artifactId);
+  const generation = "draft" in output ? output : { draft: output, usage: {} };
+  return {
+    draft: assertProvenance(promiseDraftSchema.parse(generation.draft), input.artifactId),
+    usage: generation.usage
+  };
 }
 
 const ai = genkit({
@@ -145,9 +170,31 @@ const gateway: PromiseModelGateway = {
     if (typeof dueAt?.value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dueAt.value)) {
       dueAt.value = `${dueAt.value}T23:59:59.000Z`;
     }
-    return promiseDraftSchema.parse(normalized);
+    return {
+      draft: promiseDraftSchema.parse(normalized),
+      usage: {
+        ...(response.usage.inputTokens === undefined
+          ? {}
+          : { inputTokens: response.usage.inputTokens }),
+        ...(response.usage.outputTokens === undefined
+          ? {}
+          : { outputTokens: response.usage.outputTokens }),
+        ...(response.usage.totalTokens === undefined
+          ? {}
+          : { totalTokens: response.usage.totalTokens })
+      }
+    };
   }
 };
+
+const extractionWithMetricsSchema = z.object({
+  draft: promiseDraftFlowSchema,
+  usage: z.object({
+    inputTokens: z.number().int().nonnegative().optional(),
+    outputTokens: z.number().int().nonnegative().optional(),
+    totalTokens: z.number().int().nonnegative().optional()
+  })
+});
 
 export const extractPromiseFlow = ai.defineFlow(
   {
@@ -156,4 +203,13 @@ export const extractPromiseFlow = ai.defineFlow(
     outputSchema: promiseDraftFlowSchema
   },
   async (input) => extractPromiseWithGateway(gateway, input)
+);
+
+export const extractPromiseWithMetricsFlow = ai.defineFlow(
+  {
+    name: "extractPromiseWithMetrics",
+    inputSchema: extractionInputSchema,
+    outputSchema: extractionWithMetricsSchema
+  },
+  async (input) => extractPromiseWithMetricsGateway(gateway, input)
 );

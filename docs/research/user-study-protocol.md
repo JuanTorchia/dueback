@@ -53,3 +53,21 @@ evidence state they identify as resolved.
 
 Report every denominator and failure. If a threshold fails, say so and list the UX change; do not
 discard or replace participants.
+
+## Recording and report generation
+
+Enter one row per participant in `user-study-results.csv`. Quote any CSV field that contains a comma
+and double any literal quote inside a quoted field. Use only `yes` or `no` for boolean columns and
+only `reminder` or `dueback` for `choice`. Do not leave timing, evidence description, or choice
+reason blank.
+
+After all eight sessions, run:
+
+```bash
+pnpm research:report
+```
+
+The command refuses fewer or more than eight rows, duplicate/missing P01–P08 IDs, missing consent,
+invalid booleans, choices, or timing. Only after validation does it replace
+`user-study-report.md` with the observed denominators, threshold results, and all participant-level
+failures.

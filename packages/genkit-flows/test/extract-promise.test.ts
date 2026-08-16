@@ -3,6 +3,7 @@ import { hostilePromise, spanishRefundPromise } from "@dueback/test-fixtures";
 import {
   buildExtractionPrompt,
   extractPromiseWithGateway,
+  extractPromiseWithMetricsGateway,
   extractionSystemInstruction,
   type PromiseModelGateway
 } from "../src/extract-promise";
@@ -44,6 +45,26 @@ describe("extractPromise", () => {
     expect(result.amountMinor?.value).toBe(7900);
     expect(result.currency?.value).toBe("USD");
     expect(result.transactionRef.value).toBe("ORDER-79");
+  });
+
+  it("retains provider token usage for budget and cost evidence", async () => {
+    const generate = vi.fn<PromiseModelGateway["generate"]>(() =>
+      Promise.resolve({
+        draft: draft("artifact-metrics"),
+        usage: { inputTokens: 120, outputTokens: 40, totalTokens: 160 }
+      })
+    );
+    await expect(
+      extractPromiseWithMetricsGateway(
+        { generate },
+        {
+          artifactId: "artifact-metrics",
+          source: { kind: "text", content: "A valid promise" }
+        }
+      )
+    ).resolves.toMatchObject({
+      usage: { inputTokens: 120, outputTokens: 40, totalTokens: 160 }
+    });
   });
 
   it("quotes hostile content as data and gives the model no tool surface", () => {

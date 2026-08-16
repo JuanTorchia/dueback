@@ -7,7 +7,8 @@
     ".": "./src/firestore.ts",
     "./intake-store": "./src/intake-store.ts",
     "./runtime-store": "./src/runtime-store.ts",
-    "./retention": "./src/retention.ts"
+    "./retention": "./src/retention.ts",
+    "./expiry": "./src/expiry.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

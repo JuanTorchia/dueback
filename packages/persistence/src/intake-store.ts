@@ -2,6 +2,7 @@ import type { Firestore } from "firebase-admin/firestore";
 import type { DraftCase, IntakeStore } from "@dueback/runtime/intake-service";
 import type { PlanStore } from "@dueback/runtime/plan-service";
 import { stableHash } from "@dueback/domain";
+import { firestoreDeleteAt } from "./expiry";
 
 export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   constructor(private readonly db: Firestore) {}
@@ -20,11 +21,13 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     await this.db.runTransaction(async (transaction) => {
       const existing = await transaction.get(dedupeRef);
       if (existing.exists) throw new Error("DUPLICATE_INTAKE_RACE");
-      transaction.create(draftRef, draft);
+      const deleteAt = firestoreDeleteAt(draft.plan.expiresAt);
+      transaction.create(draftRef, { ...draft, deleteAt });
       transaction.create(dedupeRef, {
         ownerId: draft.ownerId,
         caseId: draft.caseId,
-        createdAt: draft.createdAt
+        createdAt: draft.createdAt,
+        deleteAt
       });
     });
   }
@@ -59,7 +62,8 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
           correlationId,
           dueAt:
             next.promiseDraft.dueAt?.value ??
-            new Date(Date.parse(next.createdAt) + 1000).toISOString()
+            new Date(Date.parse(next.createdAt) + 1000).toISOString(),
+          deleteAt: firestoreDeleteAt(next.plan.expiresAt)
         });
       }
     });

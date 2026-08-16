@@ -110,6 +110,8 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - `pnpm test`: package tests plus contract, integration, adversarial, and E2E runtime tests.
 - `pnpm evaluate`: versioned 24-case corpus with per-case output in
   [`docs/evaluation/results.json`](docs/evaluation/results.json).
+- `pnpm research:report`: validates exactly eight consented P01–P08 rows before generating study
+  denominators and threshold results; it refuses the empty template.
 - [Evaluation interpretation](docs/evaluation/results.md) distinguishes deterministic executions
   from fixture-contract checks and explicitly reports zero model calls in that run.
 - [Four-minute demo script](docs/submission/demo-script.md).
@@ -124,6 +126,12 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
   Artifact grants are owner/case/artifact-bound and expire within ten minutes.
 - Requested deletion makes the readable case unavailable and retains only a privacy-safe tombstone
   for bounded audit. No forensic-erasure or backup-deletion claim is made.
+- Firestore `deleteAt` TTL policies cover drafts, dedupe records, case runs, evidence, events,
+  notifications, interventions, security budgets, model usage, and deletion tombstones. TTL is
+  eventual deletion by Firestore, not an immediate or forensic-erasure guarantee.
+- Each model call is reserved before execution. Firestore records call count, observed provider
+  token usage, latency, status, and an estimated standard-global USD cost when token counts exist.
+  The price basis and observation date are stored with the estimate.
 - External source text, model output, tool output, and callbacks remain untrusted data.
 
 ## Honest limitations

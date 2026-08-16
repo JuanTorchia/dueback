@@ -61,6 +61,16 @@ notification records, callback replay reservations, daily security budgets, and 
 tombstones. Cloud Tasks carries case ID, expected version, wake time, and correlation ID. Every
 retry is bounded; a stale delivery is a no-op.
 
+The deploy script enables Firestore TTL on a server-written `deleteAt` timestamp for user-visible
+case data, evidence, events, budgets, model-usage records, and tombstones. Completion and explicit
+expiry move the case-run deadline to 30 days; evidence and operational records receive their own
+bounded deadline. Firestore TTL deletion is asynchronous and is not described as immediate erasure.
+
+Before a Gemini call, a transaction reserves one of the four per-case call slots. Afterward, the
+runtime records status, latency, input/output/total tokens when supplied by the provider, and a cost
+estimate using the pinned standard-global price basis observed on 2026-08-16. Missing token usage
+produces `null`, never a fabricated estimate.
+
 Requested deletion removes the readable draft and case root transactionally, then removes its
 subcollections and related notifications/interventions. The retained tombstone contains only
 hashes, reason, request time, and purge time. The project does not claim forensic erasure or backup

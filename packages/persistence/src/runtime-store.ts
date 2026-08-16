@@ -8,6 +8,7 @@ import type {
   EmailDeliveryReceipt,
   EmailDeliveryStore
 } from "@dueback/channel-adapters/outbound-email";
+import { firestoreDeleteAt } from "./expiry";
 
 export class FirestoreRuntimeStore
   implements
@@ -59,7 +60,11 @@ export class FirestoreRuntimeStore
           ? { status: "SUCCEEDED" as const, receipt: record.receipt }
           : { status: "IN_FLIGHT" as const };
       }
-      transaction.create(reference, { status: "RESERVED", idempotencyKey });
+      transaction.create(reference, {
+        status: "RESERVED",
+        idempotencyKey,
+        deleteAt: firestoreDeleteAt(new Date().toISOString())
+      });
       return { status: "RESERVED" as const };
     });
   }
@@ -68,14 +73,22 @@ export class FirestoreRuntimeStore
     await this.db
       .collection("actionRecords")
       .doc(idempotencyKey.slice(7))
-      .set({ status: "SUCCEEDED", idempotencyKey, receipt });
+      .set({
+        status: "SUCCEEDED",
+        idempotencyKey,
+        receipt,
+        deleteAt: firestoreDeleteAt(new Date().toISOString())
+      });
   }
 
   async fail(idempotencyKey: string, reasonCode: string): Promise<void> {
     await this.db.collection("actionRecords").doc(idempotencyKey.slice(7)).delete();
-    await this.db
-      .collection("actionFailures")
-      .add({ idempotencyKey, reasonCode, occurredAt: new Date().toISOString() });
+    await this.db.collection("actionFailures").add({
+      idempotencyKey,
+      reasonCode,
+      occurredAt: new Date().toISOString(),
+      deleteAt: firestoreDeleteAt(new Date().toISOString())
+    });
   }
 
   async record(input: {
@@ -94,11 +107,19 @@ export class FirestoreRuntimeStore
       if (!item.exists) throw new Error("CASE_NOT_FOUND");
       if (prior.exists) return { duplicate: true };
       if (item.get("version") !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
-      transaction.create(evidenceRef, input.evidence);
+      transaction.create(evidenceRef, {
+        ...input.evidence,
+        deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
+      });
       transaction.update(caseRef, {
         state: input.nextState,
         version: input.expectedVersion + 1,
-        ...(input.nextState === "DONE" ? { completedLevel: input.evidence.candidate.level } : {})
+        ...(input.nextState === "DONE"
+          ? {
+              completedLevel: input.evidence.candidate.level,
+              deleteAt: firestoreDeleteAt(input.evidence.recordedAt)
+            }
+          : {})
       });
       return { duplicate: false };
     });
@@ -115,7 +136,7 @@ export class FirestoreRuntimeStore
         this.db.collection("notifications").where("caseId", "==", record.caseId)
       );
       if (existingForCase.size >= 3) throw new Error("NOTIFICATION_BUDGET_EXHAUSTED");
-      transaction.create(reference, record);
+      transaction.create(reference, { ...record, deleteAt: firestoreDeleteAt(record.createdAt) });
       return { record, duplicate: false };
     });
   }
@@ -127,7 +148,7 @@ export class FirestoreRuntimeStore
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (current.exists) return { record: current.data() as InterventionRecord, duplicate: true };
-      transaction.create(reference, record);
+      transaction.create(reference, { ...record, deleteAt: firestoreDeleteAt(record.createdAt) });
       return { record, duplicate: false };
     });
   }
@@ -149,17 +170,25 @@ export class FirestoreRuntimeStore
         const data = current.data() as { status: string; receipt?: EmailDeliveryReceipt };
         return data.status === "COMPLETED" && data.receipt ? data.receipt : "IN_FLIGHT";
       }
-      transaction.create(reference, { status: "IN_FLIGHT", key });
+      transaction.create(reference, {
+        status: "IN_FLIGHT",
+        key,
+        deleteAt: firestoreDeleteAt(new Date().toISOString())
+      });
       return "RESERVED";
     });
   }
 
   async completeDelivery(key: string, receipt: EmailDeliveryReceipt): Promise<void> {
-    await this.db.collection("emailDeliveries").doc(key.slice(7)).set({
-      status: "COMPLETED",
-      key,
-      receipt
-    });
+    await this.db
+      .collection("emailDeliveries")
+      .doc(key.slice(7))
+      .set({
+        status: "COMPLETED",
+        key,
+        receipt,
+        deleteAt: firestoreDeleteAt(new Date().toISOString())
+      });
   }
 
   async failDelivery(key: string): Promise<void> {
@@ -174,7 +203,11 @@ export class FirestoreRuntimeStore
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (current.exists) return current.get("status") === "COMPLETED" ? "COMPLETED" : "IN_FLIGHT";
-      transaction.create(reference, { receivedAt, status: "IN_FLIGHT" });
+      transaction.create(reference, {
+        receivedAt,
+        status: "IN_FLIGHT",
+        deleteAt: firestoreDeleteAt(receivedAt)
+      });
       return "RESERVED";
     });
   }

@@ -2,6 +2,7 @@ import type { Firestore } from "firebase-admin/firestore";
 import { stableHash } from "@dueback/domain";
 import type { CaseControlStore, DeletionReceipt } from "@dueback/runtime/case-control";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
+import { firestoreDeleteAt } from "./expiry";
 
 export class FirestoreCaseControlStore implements CaseControlStore {
   constructor(private readonly db: Firestore) {}
@@ -44,13 +45,17 @@ export class FirestoreCaseControlStore implements CaseControlStore {
           ? {}
           : { approval: { ...current.approval, revokedAt: input.now } })
       };
-      transaction.set(reference, next);
+      transaction.set(reference, {
+        ...next,
+        ...(input.action === "EXPIRE" ? { deleteAt: firestoreDeleteAt(input.now) } : {})
+      });
       transaction.create(reference.collection("events").doc(`control-${String(next.version)}`), {
         type: `CASE_${input.action}`,
         actor: "PERSON",
         reason: input.reason,
         occurredAt: input.now,
-        correlationId: current.correlationId ?? "corr_unavailable"
+        correlationId: current.correlationId ?? "corr_unavailable",
+        deleteAt: firestoreDeleteAt(input.now)
       });
       return next;
     });
@@ -80,7 +85,8 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         ownerHash: stableHash(input.ownerId),
         reason: "USER_REQUESTED_DELETION",
         requestedAt: input.now,
-        purgeAfter: new Date(Date.parse(input.now) + 30 * 86_400_000).toISOString()
+        purgeAfter: new Date(Date.parse(input.now) + 30 * 86_400_000).toISOString(),
+        deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.delete(runRef);
       transaction.delete(draftRef);

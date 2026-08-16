@@ -3,7 +3,7 @@
 ## Run metadata
 
 - Date: 16 August 2026 (UTC)
-- Commit under test: working tree after `aac0012`
+- Baseline deployed commit: `aac0012`; documentation handoff: `de6e730`
 - Node.js: 22 or newer as required by the repository
 - Package manager: pnpm 10.34.5
 - Google Cloud project: `bulbasour-503317`
@@ -80,3 +80,13 @@ discarded.
   are out of scope.
 - The eight-person unassisted study has not yet run. No usability result is claimed.
 - A public repository URL and public demo video are not yet available.
+
+## Post-audit hardening
+
+The completion audit after `de6e730` found that retention deadlines were stored only as strings and
+therefore did not constitute active deletion. The implementation now writes Firestore `Timestamp`
+values to `deleteAt`, the deployment script enables TTL for every in-scope collection group, and
+the development project reports those TTL configurations. The same audit added a transactional
+four-call model budget plus observed latency/token/cost-basis records. Cost uses provider token
+counts and the official Gemini 3.5 Flash standard-global prices observed on 2026-08-16; absent token
+counts produce no estimate.

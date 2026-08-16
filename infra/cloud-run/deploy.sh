@@ -45,6 +45,17 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
+for collection_group in caseDrafts intakeDedupe caseRuns evidence events notifications interventions deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries; do
+  ttl_state="$(gcloud firestore fields ttls list --project="${project_id}" --collection-group="${collection_group}" --format='value(ttlConfig.state)' 2>/dev/null || true)"
+  if [[ "${ttl_state}" != "ACTIVE" ]]; then
+    gcloud firestore fields ttls update deleteAt \
+      --project="${project_id}" \
+      --collection-group="${collection_group}" \
+      --enable-ttl \
+      --async >/dev/null
+  fi
+done
+
 gcloud tasks queues describe dueback-cases --location="${region}" --project="${project_id}" >/dev/null 2>&1 || \
   gcloud tasks queues create dueback-cases --location="${region}" --max-dispatches-per-second=2 --max-concurrent-dispatches=2 --max-attempts=5 --min-backoff=10s --max-backoff=300s --project="${project_id}"
 

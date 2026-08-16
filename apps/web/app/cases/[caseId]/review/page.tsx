@@ -1,4 +1,5 @@
 import { PlanReview } from "../../../../components/plan-review";
+import { AppHeader } from "../../../../components/app-header";
 
 export default async function ReviewPage({
   params
@@ -8,12 +9,10 @@ export default async function ReviewPage({
   const { caseId } = await params;
   return (
     <main className="shell">
-      <div className="brand">
-        <span className="brand-mark">✓</span> DueBack
-      </div>
+      <AppHeader />
       <section className="hero compact">
         <div className="eyebrow">Review before anything happens</div>
-        <h1>Your resolution plan.</h1>
+        <h1>Confirm the plan.</h1>
       </section>
       <PlanReview caseId={caseId} />
     </main>

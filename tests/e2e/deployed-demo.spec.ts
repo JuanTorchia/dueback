@@ -11,7 +11,7 @@ test.describe("deployed mobile judge path", () => {
     const reference = `DEMO-${String(Date.now())}`;
     await page.goto(`${deployedUrl}/intake`);
     await expect(
-      page.getByRole("heading", { name: "Promises should not become your job." })
+      page.getByRole("heading", { name: "Hand off the follow-up. Keep control." })
     ).toBeVisible();
     await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
       timeout: 15_000
@@ -21,7 +21,7 @@ test.describe("deployed mobile judge path", () => {
       .fill(
         `On August 1, 2026 Northstar Store confirmed it would refund USD 19.00 for order ${reference} by August 15, 2026. The refund is still missing.`
       );
-    await page.getByRole("button", { name: "Build my resolution plan" }).click();
+    await page.getByRole("button", { name: "Create my follow-up plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
     await expect(page.getByText("DueBack will never")).toBeVisible();
     await expect(

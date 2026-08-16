@@ -1,6 +1,9 @@
+import { AppHeader } from "../../components/app-header";
+
 export default function PrivacyPage() {
   return (
-    <main>
+    <main className="shell narrow-shell">
+      <AppHeader />
       <section className="hero compact">
         <p className="eyebrow">DueBack privacy</p>
         <h1>Only the promise you choose to share.</h1>

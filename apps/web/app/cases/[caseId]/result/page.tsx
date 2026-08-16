@@ -1,5 +1,6 @@
 import { CaseResult } from "../../../../components/case-result";
 import { CaseResultPreview } from "../../../../components/case-result-preview";
+import { AppHeader } from "../../../../components/app-header";
 
 export default async function ResultPage({
   params
@@ -9,9 +10,7 @@ export default async function ResultPage({
   const { caseId } = await params;
   return (
     <main className="shell">
-      <div className="brand">
-        <span className="brand-mark">✓</span> DueBack
-      </div>
+      <AppHeader />
       <section className="hero compact">
         <div className="eyebrow">You can close this tab</div>
         <h1>DueBack keeps watch.</h1>

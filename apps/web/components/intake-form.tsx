@@ -43,6 +43,10 @@ export function IntakeForm() {
   const ready = mode === "paste" ? text.trim().length > 0 : file !== undefined;
   return (
     <div className="card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
+      <div className="form-heading">
+        <span>Start a case</span>
+        <strong>Add the company’s promise</strong>
+      </div>
       <div className="tabs" role="group" aria-label="Promise input method">
         <button
           className="tab"
@@ -103,7 +107,7 @@ export function IntakeForm() {
         disabled={!ready || busy}
         onClick={() => void submit()}
       >
-        {busy ? "Finding the promise…" : "Build my resolution plan"}
+        {busy ? "Reading the promise…" : "Create my follow-up plan"}
       </button>
       <p className="sr-status" role="status" aria-live="polite">
         {busy ? "DueBack is finding and checking the promise." : ""}

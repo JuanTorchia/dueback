@@ -25,7 +25,9 @@ test.describe("deployed mobile judge path", () => {
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
     await expect(page.getByText("DueBack will never")).toBeVisible();
     await expect(
-      page.getByText("The merchant confirms the promised refund in signed evidence.")
+      page.getByText(
+        "Signed evidence from the responsible party confirming the exact outcome and reference."
+      )
     ).toBeVisible();
     await page.getByRole("button", { name: "Approve and activate" }).click();
     await expect(page).toHaveURL(/\/result/);

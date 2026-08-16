@@ -223,3 +223,18 @@ claiming unsupported integrations while making the runtime scope visible.
 All four public browser tests passed sequentially with retries disabled: the two live-Gemini paths
 in 36.4 and 18.0 seconds, delayed-error recovery in 4.4 seconds, and combined text plus image intake
 in 1.0 second. The production build, typecheck, lint, 44 root tests, and 16 web tests also passed.
+
+## Universal outcome contract deployment
+
+Commit `a84f012` was built by Cloud Build operation
+`d557f8a2-e0f8-4cbf-b467-c26b1905e392` and deployed as `dueback-web-00022-zwm` at 100% traffic.
+New commercial cases now persist a canonical `OutcomeContract` containing the desired outcome,
+responsible party, deadline, required proof, action intents, and a typed recipe payload. The shared
+schema also validates appointment and document recipes, while only commercial follow-up is claimed
+as an executable public adapter. Existing persisted cases remain readable through the legacy
+fallback and gain the canonical contract when revised.
+
+The first public run passed the ambiguous, delayed-error, and combined-input paths. The standard
+path stopped only because its assertion expected the superseded commercial proof sentence; the new
+universal proof definition was visible. After updating that test contract, the same live-Gemini
+journey passed without retries in 24.7 seconds.

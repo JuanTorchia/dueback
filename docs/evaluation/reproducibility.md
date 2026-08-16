@@ -146,3 +146,8 @@ passed in 46.5 seconds total.
 This deployment also scopes model-call budgets by owner plus content-derived artifact, waits for
 persisted Firebase anonymous identity before creating a new owner, provides `/privacy`, and allows
 owner-checked transactional deletion of a pre-activation draft.
+
+The follow-up accessibility/error-copy commit `d1ec263` was built as Cloud Build operation
+`59a54ae8-b4bb-4634-8aee-bca50ab35f79` and deployed as `dueback-web-00016-zjq` at 100% traffic.
+The public privacy route passed an HTTP content smoke check and the standard mobile judge journey
+passed again without retries in 40.2 seconds.

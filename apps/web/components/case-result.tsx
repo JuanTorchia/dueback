@@ -59,6 +59,23 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   );
   const latestNotification = payload.notifications?.at(-1);
   const latestChannelEvent = payload.channelEvents?.at(-1);
+  const stateCopy: Record<FollowThroughCase["state"], { label: string; next: string }> = {
+    DRAFT: { label: "Draft", next: "Review the extracted outcome" },
+    AWAITING_APPROVAL: { label: "Approval required", next: "Approve the exact conversation" },
+    READY: { label: "Scheduled", next: "DueBack will send the approved follow-up" },
+    RUNNING: { label: "Sending", next: "The authorized channel is processing the action" },
+    WAITING_EXTERNAL: { label: acknowledgement ? "Response insufficient" : "Waiting for reply", next: "DueBack will evaluate the next authenticated response" },
+    WAITING_RETRY: { label: "Retrying safely", next: "A bounded Cloud Task retry is scheduled" },
+    NEEDS_ATTENTION: { label: "Decision needed", next: "Review the intervention before anything continues" },
+    DONE: { label: "Evidence accepted", next: "Check the exact claim and underlying account" },
+    FAILED: { label: "Stopped after failure", next: "Review the recorded failure" },
+    CANCELLED: { label: "Stopped", next: "No future external action is authorized" },
+    EXPIRED: { label: "Expired", next: "Create a new plan and approval to continue" }
+  };
+  const currentState = stateCopy[payload.case.state];
+  const safeRecipient = payload.case.plan.allowedRecipient.includes("@")
+    ? payload.case.plan.allowedRecipient.replace(/(^.).*(@.*$)/, "$1•••$2")
+    : payload.case.plan.allowedRecipient;
   return (
     <div className="result-grid">
       <p className="preview-label">
@@ -71,6 +88,17 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         <div><span>✓</span><p><small>REPLY</small><strong>Signed case callback</strong></p></div>
         <i aria-hidden="true">→</i>
         <div><span>●</span><p><small>YOUR UPDATE</small><strong>This page, automatically</strong></p></div>
+      </section>
+      <section className="card" aria-label="Current follow-through state">
+        <div className="eyebrow">Current state · {currentState.label}</div>
+        <h2>{currentState.next}</h2>
+        <dl className="facts">
+          <div><dt>Next check</dt><dd>{new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(payload.case.nextWakeAt ?? payload.case.dueAt))}</dd></div>
+          <div><dt>Attempts</dt><dd>{String(payload.case.attemptCount ?? 0)} of 5 used</dd></div>
+          <div><dt>Channel</dt><dd>{payload.case.plan.channelType ?? "CONTROLLED_SANDBOX"}</dd></div>
+          <div><dt>Recipient</dt><dd>{safeRecipient}</dd></div>
+          <div><dt>Return path</dt><dd>{payload.case.plan.notificationRecipient ? "Case page + email" : "Durable case page"}</dd></div>
+        </dl>
       </section>
       {latestChannelEvent ? <section className="card" aria-label="Contact delivery status">
         <div className="eyebrow">Contact status</div>

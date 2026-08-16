@@ -4,6 +4,7 @@ import {
   notificationRecord,
   type NotificationRecord
 } from "../src/notifications";
+import { notificationSchema } from "@dueback/contracts";
 
 function fixture(): NotificationRecord {
   return notificationRecord({
@@ -58,5 +59,13 @@ describe("notification delivery", () => {
     await expect(service.deliver(fixture(), "owner@example.test")).resolves.toMatchObject({
       deliveryStatus: "FAILED"
     });
+  });
+
+  it.each(["BOUNCED", "SUPPRESSED"] as const)("accepts truthful %s delivery projection", (deliveryStatus) => {
+    expect(notificationSchema.parse({
+      ...fixture(),
+      deliveryChannel: "EMAIL",
+      deliveryStatus
+    }).deliveryStatus).toBe(deliveryStatus);
   });
 });

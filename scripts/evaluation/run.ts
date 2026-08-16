@@ -4,6 +4,7 @@ import { genkit } from "genkit";
 import { actionIdempotencyKey } from "../../packages/domain/src/identity.ts";
 import { authorizeAction } from "../../packages/domain/src/policy.ts";
 import { verifyEvidence } from "../../packages/domain/src/verifier.ts";
+import { transportStatusForProviderEvent } from "../../packages/channel-adapters/src/email-webhook.ts";
 import {
   evaluationCorpus,
   type EvaluationCase
@@ -52,7 +53,7 @@ interface ObservedResult {
 }
 
 function evidenceResult(item: EvaluationCase): ObservedResult | undefined {
-  if (item.scenario === "VALID_EVIDENCE") {
+  if (["VALID_EVIDENCE", "EMAIL_CONFIRMATION"].includes(item.scenario)) {
     const fixture =
       item.id === "CLEAR-04"
         ? billCreditFixture
@@ -75,7 +76,7 @@ function evidenceResult(item: EvaluationCase): ObservedResult | undefined {
     };
   }
   const candidate = { ...refundEvidence };
-  if (item.scenario === "ACKNOWLEDGEMENT_ONLY") candidate.level = "REQUEST_ACKNOWLEDGED";
+  if (["ACKNOWLEDGEMENT_ONLY", "EMAIL_ACKNOWLEDGEMENT"].includes(item.scenario)) candidate.level = "REQUEST_ACKNOWLEDGED";
   else if (item.scenario === "WRONG_AMOUNT") candidate.amountMinor = 1;
   else if (item.scenario === "WRONG_CURRENCY") candidate.currency = "EUR";
   else if (item.scenario === "WRONG_REFERENCE") candidate.transactionRef = "WRONG";
@@ -105,6 +106,17 @@ function evidenceResult(item: EvaluationCase): ObservedResult | undefined {
 function evaluateCase(item: EvaluationCase): ObservedResult {
   const evidence = evidenceResult(item);
   if (evidence) return evidence;
+  if (["EMAIL_DELIVERED", "EMAIL_BOUNCED"].includes(item.scenario)) {
+    const eventType = item.scenario === "EMAIL_DELIVERED" ? "email.delivered" : "email.bounced";
+    const transportStatus = transportStatusForProviderEvent(eventType);
+    const observedState = transportStatus === "BOUNCED" ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL";
+    return {
+      passed: Boolean(transportStatus) && observedState === item.expected.state,
+      observedState,
+      observedReasonCodes: [transportStatus ?? "UNKNOWN_TRANSPORT_EVENT"],
+      evaluationType: "DETERMINISTIC_EXECUTION"
+    };
+  }
   if (item.scenario === "PROMPT_INJECTION") {
     const hash = `sha256:${"a".repeat(64)}`;
     const observed = authorizeAction(

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   return handleEmailWebhook(request, {
     secret,
     now: () => new Date().toISOString(),
-    callbacks: new FirestoreRuntimeStore(firestore),
+    events: new FirestoreRuntimeStore(firestore),
     scheduler
   });
 }

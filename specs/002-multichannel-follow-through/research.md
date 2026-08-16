@@ -92,3 +92,14 @@ capability endpoint therefore reports `GMAIL_CONNECTED/FUTURE` with no send or r
 This is a tested unavailable capability, not a claimed integration. Managed email remains the
 bounded production-shaped path because it needs neither mailbox-wide access nor restricted inbox
 scopes.
+
+## R-011 — Provider HTTP boundary without an additional SDK
+
+**Decision**: Use the platform `fetch` implementation against the provider's exact HTTPS endpoints
+and pin no provider SDK. The only new behavior is implemented behind DueBack-owned typed adapters.
+
+**Rationale**: Node, framework and Google dependencies are already exactly pinned in the committed
+workspace manifests and lockfile. Adding a convenience SDK would increase supply-chain surface
+without improving webhook authenticity, idempotency or bounded retrieval. Tests assert exact URLs,
+headers and response contracts. Any future SDK addition must use an exact version and committed
+lockfile change.

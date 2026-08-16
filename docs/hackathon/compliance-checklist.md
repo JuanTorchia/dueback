@@ -22,6 +22,8 @@ Marcar únicamente con evidencia verificable.
 - [x] Usa infraestructura de Google Cloud. Evidencia: [arquitectura](../architecture/dueback.md) y [deploy reproducible](../../infra/cloud-run/deploy.sh).
 - [x] Ejecuta acciones autónomas más allá de responder en un chat. Evidencia: [walking skeleton](../../tests/e2e/refund-walking-skeleton.spec.ts).
 - [x] Tiene estado y recuperación ante fallos demostrable. Evidencia: [pruebas de durabilidad](../../tests/integration/durable-follow-through.test.ts).
+- [x] Los canales declaran capacidades y salud reales; uno no disponible no puede aprobarse. Evidencia: `channel-registry.test.ts`, `plan-controller.test.ts` y `channel-plan.spec.ts`.
+- [x] Email administrado tiene envío, webhook firmado, procesamiento inbound y false-DONE probados con fixtures. No se afirma entrega externa. Evidencia: `email-webhook.test.ts`, `email-inbound.test.ts` y auditoría del spec.
 - [x] APIs, datos y activos implementados tienen autorización/licencia documentada. Evidencia: [registro](../compliance/dependencies.md).
 - [x] Funciona en inglés como mínimo y procesa un fixture español. Evidencia: [fixtures](../../packages/test-fixtures/src/promises.ts).
 
@@ -38,6 +40,7 @@ Marcar únicamente con evidencia verificable.
 - [ ] Video muestra ejecución real sin editar.
 - [ ] Video muestra resultados observables: logs, cambios en datos o UI.
 - [ ] Video muestra evidencia de despliegue/backend en Google Cloud.
+- [ ] Si se muestra email como real, Gates A–C incluyen remitente/dominio/mailbox controlados y evidencia redactada; de otro modo el video conserva sandbox.
 - [ ] Entrega final antes del 31 de agosto, 17:00 PT.
 
 ## Bonificación

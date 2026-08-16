@@ -5,17 +5,17 @@ Run date: 2026-08-16. Runner: `pnpm evaluate`. Full per-case output:
 
 ## Answer first
 
-The versioned corpus contains 24 synthetic CC0 cases and the latest run reported 24 passing checks.
-This is **not** a claim of 100% model accuracy: 12 cases execute deterministic code paths and 12
+The versioned corpus contains 28 synthetic CC0 cases and the latest run reported 28 passing checks.
+This is **not** a claim of 100% model accuracy: 16 cases execute deterministic code paths and 12
 validate recorded fixture contracts. The run deliberately made zero Gemini calls, so no model cost,
 model latency, field accuracy, or production success rate is inferred from it.
 
 | Measurement              | Observed |
 | ------------------------ | -------: |
-| Corpus cases             |       24 |
-| Passed checks            |       24 |
+| Corpus cases             |       28 |
+| Passed checks            |       28 |
 | Failed checks            |        0 |
-| Deterministic executions |       12 |
+| Deterministic executions |       16 |
 | Fixture-contract checks  |       12 |
 | Gemini calls in this run |        0 |
 
@@ -30,6 +30,8 @@ product (`gemini-3.5-flash`), location, and cost basis.
   relative date, and contradiction.
 - 4 unmet promises: overdue, no response, changed offer, and missing reference.
 - 3 delivery/failure cases: duplicate task, retryable failure, and restart boundary.
+- 4 managed-email cases: transport delivery, bounce intervention, authenticated acknowledgement,
+  and matching merchant confirmation.
 - 3 adversarial cases: prompt injection, wrong-case evidence, and unsigned callback.
 
 Automated Vitest coverage separately executes callback freshness/replay, authorization, upload

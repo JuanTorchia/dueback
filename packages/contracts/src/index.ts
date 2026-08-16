@@ -48,6 +48,39 @@ export const actionReceiptSchema = z.object({
   reasonCodes: z.array(z.string().min(1).max(100)).max(10).optional()
 });
 
+export const messageThreadSchema = z.object({
+  threadId: opaqueIdSchema,
+  caseId: opaqueIdSchema,
+  channelType: channelTypeSchema,
+  replyRouteFingerprint: sha256Schema,
+  providerMessageId: z.string().min(1).max(300),
+  createdAt: isoDateSchema,
+  expiresAt: isoDateSchema
+});
+
+export const deliveryEventSchema = z.object({
+  deliveryEventId: opaqueIdSchema,
+  providerEventId: opaqueIdSchema,
+  providerMessageId: z.string().min(1).max(300),
+  caseId: opaqueIdSchema.optional(),
+  channelType: channelTypeSchema,
+  status: transportStatusSchema,
+  observedAt: isoDateSchema,
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+});
+
+export const providerEventSchema = z.object({
+  providerEventId: opaqueIdSchema,
+  provider: z.enum(["RESEND", "MERCHANT_SANDBOX", "PARTNER_FIXTURE"]),
+  eventType: z.string().min(1).max(100),
+  payloadHash: sha256Schema,
+  signatureValid: z.literal(true),
+  status: z.enum(["RESERVED", "ENQUEUED", "PROCESSED", "REJECTED", "FAILED"]),
+  receivedAt: isoDateSchema,
+  processedAt: isoDateSchema.optional(),
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+});
+
 export const inboundEnvelopeSchema = z.object({
   inboundId: opaqueIdSchema,
   providerEventId: opaqueIdSchema,
@@ -56,7 +89,7 @@ export const inboundEnvelopeSchema = z.object({
   caseId: opaqueIdSchema.optional(),
   correlationStatus: z.enum(["EXACT", "AMBIGUOUS", "UNKNOWN", "REJECTED"]),
   senderFingerprint: sha256Schema,
-  recipientRouteFingerprint: sha256Schema,
+  recipientRouteFingerprints: z.array(sha256Schema).min(1).max(10),
   messageId: z.string().min(1).max(500).optional(),
   inReplyTo: z.string().min(1).max(500).optional(),
   subject: z.string().max(300),
@@ -225,6 +258,9 @@ export const resolutionPlanSchema = z
     }
   });
 
+// ConversationPlan is the channel-complete name for the backwards-compatible ResolutionPlan.
+export const conversationPlanSchema = resolutionPlanSchema;
+
 export const actionEnvelopeSchema = z.object({
   actionId: opaqueIdSchema,
   idempotencyKey: sha256Schema,
@@ -290,8 +326,12 @@ export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
 export type ChannelType = z.infer<typeof channelTypeSchema>;
 export type ChannelCapability = z.infer<typeof channelCapabilitySchema>;
 export type ActionReceiptContract = z.infer<typeof actionReceiptSchema>;
+export type MessageThread = z.infer<typeof messageThreadSchema>;
+export type DeliveryEvent = z.infer<typeof deliveryEventSchema>;
+export type ProviderEvent = z.infer<typeof providerEventSchema>;
 export type InboundEnvelope = z.infer<typeof inboundEnvelopeSchema>;
 export type OutcomeContract = z.infer<typeof outcomeContractSchema>;
 export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
+export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
 export type EvidenceCandidateContract = z.infer<typeof evidenceCandidateSchema>;

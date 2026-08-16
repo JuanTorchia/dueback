@@ -3,7 +3,21 @@ import {
   parseEmailProviderEvent,
   verifyEmailWebhook
 } from "@dueback/channel-adapters/email-webhook";
-import type { CallbackRecordStore } from "./callback-controller";
+
+export interface EmailProviderEventStore {
+  reserveProviderEvent(input: {
+    providerEventId: string;
+    eventType: string;
+    payloadHash: string;
+    receivedAt: string;
+  }): Promise<"RESERVED" | "IN_FLIGHT" | "COMPLETED">;
+  markProviderEvent(
+    providerEventId: string,
+    status: "ENQUEUED" | "PROCESSED" | "FAILED",
+    observedAt: string,
+    reasonCodes?: readonly string[]
+  ): Promise<void>;
+}
 
 export interface InboundTaskScheduler {
   scheduleInbound(input: {
@@ -19,7 +33,7 @@ export async function handleEmailWebhook(
   dependencies: {
     readonly secret: string;
     readonly now: () => string;
-    readonly callbacks: CallbackRecordStore;
+    readonly events: EmailProviderEventStore;
     readonly scheduler: InboundTaskScheduler;
   }
 ): Promise<Response> {
@@ -36,8 +50,13 @@ export async function handleEmailWebhook(
   }
   try {
     const event = parseEmailProviderEvent(body);
-    const key = stableHash({ namespace: "dueback/email-provider-event/v1", id });
-    const reservation = await dependencies.callbacks.reserveCallback(key, now);
+    const payloadHash = stableHash(body);
+    const reservation = await dependencies.events.reserveProviderEvent({
+      providerEventId: id,
+      eventType: event.type,
+      payloadHash,
+      receivedAt: now
+    });
     if (reservation !== "RESERVED") {
       return Response.json({ providerEventId: id, status: reservation, duplicate: true }, { status: 202 });
     }
@@ -48,10 +67,12 @@ export async function handleEmailWebhook(
         eventType: event.type,
         wakeAt: now
       });
-      await dependencies.callbacks.completeCallback(key);
+      await dependencies.events.markProviderEvent(id, "ENQUEUED", now);
       return Response.json({ providerEventId: id, status: "ENQUEUED", duplicate: false }, { status: 202 });
     } catch (error) {
-      await dependencies.callbacks.failCallback(key);
+      await dependencies.events.markProviderEvent(id, "FAILED", now, [
+        error instanceof Error ? error.message : "EMAIL_TASK_SCHEDULE_FAILED"
+      ]);
       throw error;
     }
   } catch (error) {

@@ -16,6 +16,8 @@ export async function POST(request: Request) {
   }
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return Response.json({ error: "INBOUND_EMAIL_NOT_CONFIGURED" }, { status: 503 });
+  const store = new FirestoreRuntimeStore(firestore);
+  let providerEventId: string | undefined;
   try {
     const body = await request.json() as {
       providerEventId?: string;
@@ -25,19 +27,27 @@ export async function POST(request: Request) {
     if (!body.providerEventId || !body.providerEmailId || !body.eventType) {
       return Response.json({ error: "INBOUND_TASK_INVALID" }, { status: 400 });
     }
-    const store = new FirestoreRuntimeStore(firestore);
+    providerEventId = body.providerEventId;
+    const observedAt = new Date().toISOString();
     const transportStatus = transportStatusForProviderEvent(body.eventType);
     if (transportStatus) {
-      return Response.json({
-        status: await store.recordTransportEvent(
-          body.providerEmailId,
-          transportStatus,
-          new Date().toISOString()
-        ),
-        transportStatus
-      });
+      const actionStatus = await store.recordTransportEvent(
+        body.providerEmailId,
+        transportStatus,
+        observedAt
+      );
+      const notificationStatus = actionStatus === "UNKNOWN"
+        ? await store.recordNotificationTransportEvent(
+            body.providerEmailId,
+            transportStatus,
+            observedAt
+          )
+        : "UNKNOWN";
+      await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt);
+      return Response.json({ actionStatus, notificationStatus, transportStatus });
     }
     if (body.eventType !== "email.received") {
+      await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, ["NON_INBOUND_EVENT"]);
       return Response.json({ status: "IGNORED", reasonCodes: ["NON_INBOUND_EVENT"] });
     }
     const interventions = new InterventionService(store, store);
@@ -48,8 +58,24 @@ export async function POST(request: Request) {
       interventions
     );
     const email = await new ResendInboundEmailAdapter(apiKey).retrieve(body.providerEmailId);
-    return Response.json(await service.process(email, new Date().toISOString()));
+    await store.recordInboundEnvelope({
+      providerEventId: body.providerEventId,
+      providerEmailId: email.providerEmailId,
+      from: email.from,
+      to: email.to,
+      subject: email.subject,
+      text: email.text,
+      receivedAt: observedAt
+    });
+    const result = await service.process(email, observedAt);
+    await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, result.reasonCodes);
+    return Response.json(result);
   } catch (error) {
+    if (providerEventId) {
+      await store.markProviderEvent(providerEventId, "FAILED", new Date().toISOString(), [
+        error instanceof Error ? error.message : "INBOUND_PROCESSING_FAILED"
+      ]);
+    }
     return Response.json({ error: error instanceof Error ? error.message : "INBOUND_PROCESSING_FAILED" }, { status: 500 });
   }
 }

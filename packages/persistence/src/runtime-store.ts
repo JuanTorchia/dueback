@@ -226,19 +226,91 @@ export class FirestoreRuntimeStore
       receipt: { ...receipt, transportStatus, observedAt },
       deleteAt: firestoreDeleteAt(observedAt)
     }, { merge: true });
-    if (receipt.caseId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
-      const caseReference = this.db.collection("caseRuns").doc(receipt.caseId);
+    const caseId = receipt.caseId;
+    if (caseId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
+      const caseReference = this.db.collection("caseRuns").doc(caseId);
       await this.db.runTransaction(async (transaction) => {
         const current = await transaction.get(caseReference);
         if (!current.exists || ["DONE", "CANCELLED"].includes(String(current.get("state")))) return;
+        const correlationId = String(current.get("correlationId") ?? `corr_${caseId.slice(-24)}`);
+        const ownerId = String(current.get("ownerId"));
+        const interventionKey = stableHash({
+          namespace: "dueback/intervention/v1",
+          caseId,
+          kind: "EMAIL_ROUTE_UNAVAILABLE"
+        });
+        const notificationKey = stableHash({
+          namespace: "dueback/notification/v1",
+          caseId,
+          correlationId,
+          kind: "NEEDS_ATTENTION"
+        });
+        const interventionReference = this.db.collection("interventions").doc(interventionKey.slice(7));
+        const notificationReference = this.db.collection("notifications").doc(notificationKey.slice(7));
+        const [intervention, notification] = await Promise.all([
+          transaction.get(interventionReference),
+          transaction.get(notificationReference)
+        ]);
         transaction.update(caseReference, {
           state: "NEEDS_ATTENTION",
           version: Number(current.get("version")) + 1,
           lastError: `EMAIL_${transportStatus}`,
           deleteAt: firestoreDeleteAt(observedAt)
         });
+        if (!intervention.exists) {
+          transaction.create(interventionReference, {
+            interventionId: `intervention_${interventionKey.slice(7, 31)}`,
+            dedupeKey: interventionKey,
+            caseId,
+            ownerId,
+            correlationId,
+            kind: "EVIDENCE_CONFLICT",
+            reasonCodes: [`EMAIL_${transportStatus}`],
+            requestedField: "contact route",
+            status: "OPEN",
+            createdAt: observedAt,
+            deleteAt: firestoreDeleteAt(observedAt)
+          });
+        }
+        if (!notification.exists) {
+          transaction.create(notificationReference, {
+            notificationId: `notification_${notificationKey.slice(7, 31)}`,
+            dedupeKey: notificationKey,
+            caseId,
+            ownerId,
+            correlationId,
+            kind: "NEEDS_ATTENTION",
+            deepLinkPath: `/cases/${caseId}/result`,
+            createdAt: observedAt,
+            deliveryChannel: "IN_APP",
+            deliveryStatus: "RECORDED",
+            deleteAt: firestoreDeleteAt(observedAt)
+          });
+        }
       });
     }
+    return "RECORDED";
+  }
+
+  async recordNotificationTransportEvent(
+    providerMessageId: string,
+    transportStatus: "DELIVERED" | "BOUNCED" | "COMPLAINED" | "SUPPRESSED",
+    observedAt: string
+  ): Promise<"RECORDED" | "UNKNOWN" | "AMBIGUOUS"> {
+    const snapshot = await this.db.collection("notifications")
+      .where("deliveryId", "==", providerMessageId)
+      .limit(2)
+      .get();
+    if (snapshot.empty) return "UNKNOWN";
+    if (snapshot.size !== 1) return "AMBIGUOUS";
+    const document = snapshot.docs[0];
+    if (!document) return "UNKNOWN";
+    const deliveryStatus = transportStatus === "COMPLAINED" ? "SUPPRESSED" : transportStatus;
+    await document.ref.set({
+      deliveryStatus,
+      deliveredAt: observedAt,
+      deleteAt: firestoreDeleteAt(observedAt)
+    }, { merge: true });
     return "RECORDED";
   }
 
@@ -388,6 +460,80 @@ export class FirestoreRuntimeStore
 
   async failDelivery(key: string): Promise<void> {
     await this.db.collection("emailDeliveries").doc(key.slice(7)).delete();
+  }
+
+  async reserveProviderEvent(input: {
+    providerEventId: string;
+    eventType: string;
+    payloadHash: string;
+    receivedAt: string;
+  }): Promise<"RESERVED" | "IN_FLIGHT" | "COMPLETED"> {
+    const reference = this.db.collection("providerEvents")
+      .doc(stableHash(input.providerEventId).slice(7, 39));
+    return this.db.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (current.exists) {
+        const status = String(current.get("status"));
+        return status === "PROCESSED" ? "COMPLETED" : "IN_FLIGHT";
+      }
+      transaction.create(reference, {
+        ...input,
+        provider: "RESEND",
+        signatureValid: true,
+        status: "RESERVED",
+        reasonCodes: [],
+        deleteAt: firestoreDeleteAt(input.receivedAt)
+      });
+      return "RESERVED";
+    });
+  }
+
+  async markProviderEvent(
+    providerEventId: string,
+    status: "ENQUEUED" | "PROCESSED" | "FAILED",
+    observedAt: string,
+    reasonCodes: readonly string[] = []
+  ): Promise<void> {
+    await this.db.collection("providerEvents")
+      .doc(stableHash(providerEventId).slice(7, 39))
+      .set({
+        status,
+        processedAt: status === "PROCESSED" ? observedAt : null,
+        lastObservedAt: observedAt,
+        reasonCodes: [...reasonCodes].slice(0, 10),
+        deleteAt: firestoreDeleteAt(observedAt)
+      }, { merge: true });
+  }
+
+  async recordInboundEnvelope(input: {
+    providerEventId: string;
+    providerEmailId: string;
+    from: string;
+    to: readonly string[];
+    subject: string;
+    text: string;
+    receivedAt: string;
+  }): Promise<void> {
+    const inboundId = stableHash({
+      namespace: "dueback/inbound-envelope/v1",
+      providerEventId: input.providerEventId,
+      providerEmailId: input.providerEmailId
+    });
+    await this.db.collection("inboundEnvelopes").doc(inboundId.slice(7, 39)).set({
+      inboundId: `inbound_${inboundId.slice(7, 31)}`,
+      providerEventId: input.providerEventId,
+      providerEmailId: input.providerEmailId,
+      channelType: "MANAGED_EMAIL",
+      correlationStatus: "UNKNOWN",
+      senderFingerprint: stableHash(input.from.toLowerCase()),
+      recipientRouteFingerprints: input.to.map((recipient) => stableHash(recipient.toLowerCase())),
+      subject: input.subject,
+      text: input.text,
+      contentHash: stableHash(input.text),
+      providerSignatureValid: true,
+      receivedAt: input.receivedAt,
+      deleteAt: firestoreDeleteAt(input.receivedAt, 86_400_000)
+    });
   }
 
   async reserveCallback(

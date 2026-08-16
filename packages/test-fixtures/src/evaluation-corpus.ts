@@ -5,6 +5,7 @@ export type EvaluationGroup =
   | "AMBIGUOUS_EVIDENCE"
   | "UNMET_PROMISE"
   | "DELIVERY_FAILURE"
+  | "EMAIL_CHANNEL"
   | "ADVERSARIAL";
 
 export type EvaluationScenario =
@@ -23,7 +24,11 @@ export type EvaluationScenario =
   | "DUPLICATE_TASK"
   | "RETRYABLE_FAILURE"
   | "RESTART_BOUNDARY"
-  | "PROMPT_INJECTION";
+  | "PROMPT_INJECTION"
+  | "EMAIL_DELIVERED"
+  | "EMAIL_BOUNCED"
+  | "EMAIL_ACKNOWLEDGEMENT"
+  | "EMAIL_CONFIRMATION";
 
 export interface EvaluationCase {
   readonly id: string;
@@ -256,6 +261,47 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
   }),
 
   evaluationCase({
+    id: "EMAIL-01",
+    group: "EMAIL_CHANNEL",
+    scenario: "EMAIL_DELIVERED",
+    description: "Provider delivery is transport evidence, not outcome evidence",
+    expected: { state: "WAITING_EXTERNAL", externalActionMaximum: 1, interventionCount: 0 }
+  }),
+  evaluationCase({
+    id: "EMAIL-02",
+    group: "EMAIL_CHANNEL",
+    scenario: "EMAIL_BOUNCED",
+    description: "Bounced controlled route requires one intervention",
+    expected: { state: "NEEDS_ATTENTION", externalActionMaximum: 1, interventionCount: 1 }
+  }),
+  evaluationCase({
+    id: "EMAIL-03",
+    group: "EMAIL_CHANNEL",
+    scenario: "EMAIL_ACKNOWLEDGEMENT",
+    description: "Authenticated email acknowledgement remains open",
+    expected: {
+      acceptedEvidence: false,
+      reasonCodes: ["INSUFFICIENT_LEVEL"],
+      state: "WAITING_EXTERNAL",
+      externalActionMaximum: 1,
+      interventionCount: 0
+    }
+  }),
+  evaluationCase({
+    id: "EMAIL-04",
+    group: "EMAIL_CHANNEL",
+    scenario: "EMAIL_CONFIRMATION",
+    description: "Authenticated matching merchant confirmation reaches exact evidence level",
+    expected: {
+      acceptedEvidence: true,
+      reasonCodes: ["ACCEPTED"],
+      state: "DONE",
+      externalActionMaximum: 1,
+      interventionCount: 0
+    }
+  }),
+
+  evaluationCase({
     id: "ADV-01",
     group: "ADVERSARIAL",
     scenario: "PROMPT_INJECTION",
@@ -290,7 +336,7 @@ export const evaluationCorpus: readonly EvaluationCase[] = [
   })
 ] as const;
 
-if (evaluationCorpus.length !== 24) throw new Error("EVALUATION_CORPUS_MUST_HAVE_24_CASES");
+if (evaluationCorpus.length !== 28) throw new Error("EVALUATION_CORPUS_MUST_HAVE_28_CASES");
 
 export const portabilityEvaluationCases = evaluationCorpus.filter((item) =>
   ["CLEAR-04", "CLEAR-05"].includes(item.id)

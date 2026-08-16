@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   actionEnvelopeSchema,
+  actionReceiptSchema,
   channelCapabilitySchema,
+  deliveryEventSchema,
+  inboundEnvelopeSchema,
+  messageThreadSchema,
   outcomeContractSchema,
   promiseDraftSchema,
   resolutionPlanSchema
@@ -71,6 +75,67 @@ describe("boundary contracts", () => {
       reasonCodes: ["CONFIGURED"],
       checkedAt: "2026-08-16T00:00:00.000Z"
     }).status).toBe("AVAILABLE");
+  });
+
+  it("validates receipt, thread, delivery and inbound boundaries", () => {
+    const hash = `sha256:${"b".repeat(64)}`;
+    expect(actionReceiptSchema.parse({
+      receiptId: "receipt_12345678",
+      caseId: "case_12345678",
+      channelType: "MANAGED_EMAIL",
+      providerMessageId: "email_12345678",
+      recipientFingerprint: hash,
+      transportStatus: "ACCEPTED",
+      acceptedAt: "2026-08-16T00:00:00.000Z"
+    }).transportStatus).toBe("ACCEPTED");
+    expect(messageThreadSchema.parse({
+      threadId: "thread_12345678",
+      caseId: "case_12345678",
+      channelType: "MANAGED_EMAIL",
+      replyRouteFingerprint: hash,
+      providerMessageId: "email_12345678",
+      createdAt: "2026-08-16T00:00:00.000Z",
+      expiresAt: "2026-09-15T00:00:00.000Z"
+    }).channelType).toBe("MANAGED_EMAIL");
+    expect(deliveryEventSchema.parse({
+      deliveryEventId: "delivery_12345678",
+      providerEventId: "provider_event_12345678",
+      providerMessageId: "email_12345678",
+      channelType: "MANAGED_EMAIL",
+      status: "DELIVERED",
+      observedAt: "2026-08-16T00:01:00.000Z",
+      reasonCodes: []
+    }).status).toBe("DELIVERED");
+    expect(inboundEnvelopeSchema.parse({
+      inboundId: "inbound_12345678",
+      providerEventId: "provider_event_12345678",
+      providerEmailId: "email_12345678",
+      channelType: "MANAGED_EMAIL",
+      correlationStatus: "EXACT",
+      senderFingerprint: hash,
+      recipientRouteFingerprints: [hash],
+      subject: "Re: order",
+      text: "Request received",
+      contentHash: hash,
+      providerSignatureValid: true,
+      receivedAt: "2026-08-16T00:01:00.000Z"
+    }).correlationStatus).toBe("EXACT");
+  });
+
+  it("rejects invalid channel records instead of coercing them", () => {
+    expect(() => actionReceiptSchema.parse({
+      receiptId: "short",
+      acceptedAt: "not-a-date"
+    })).toThrow();
+    expect(() => deliveryEventSchema.parse({
+      deliveryEventId: "delivery_12345678",
+      providerEventId: "provider_event_12345678",
+      providerMessageId: "email_12345678",
+      channelType: "EMAILISH",
+      status: "DONE",
+      observedAt: "2026-08-16T00:01:00.000Z",
+      reasonCodes: []
+    })).toThrow();
   });
 
   it.each([

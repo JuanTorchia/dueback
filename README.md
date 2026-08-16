@@ -108,7 +108,7 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 ## Verification and measured evidence
 
 - `pnpm test`: package tests plus contract, integration, adversarial, and E2E runtime tests.
-- `pnpm evaluate`: versioned 24-case corpus with per-case output in
+- `pnpm evaluate`: versioned 28-case corpus with per-case output in
   [`docs/evaluation/results.json`](docs/evaluation/results.json).
 - `pnpm research:report`: validates exactly eight consented P01–P08 rows before generating study
   denominators and threshold results; it refuses the empty template.

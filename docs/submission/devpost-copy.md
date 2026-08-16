@@ -77,7 +77,7 @@ timestamps and enabled TTL for every in-scope collection group.
   are explicit and bounded.
 - Provider tokens, latency, status, price basis, and estimated Gemini cost are recorded without
   source content or personal data.
-- The 24-case synthetic corpus reports its full denominator and clearly distinguishes 12 executed
+- The 28-case synthetic corpus reports its full denominator and clearly distinguishes 16 executed
   deterministic checks from 12 fixture-contract checks; it is not presented as model accuracy.
 
 ## What we learned

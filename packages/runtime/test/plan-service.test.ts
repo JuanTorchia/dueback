@@ -104,6 +104,59 @@ describe("PlanService", () => {
     expect(revised.plan.planHash).not.toBe(hash);
   });
 
+  it("preserves the approved message contract and cadence across a return-channel revision", async () => {
+    const initial = caseDraft();
+    const configured: DraftCase = {
+      ...initial,
+      plan: {
+        ...initial.plan,
+        channelType: "MANAGED_EMAIL",
+        senderIdentity: "DueBack <followup@example.test>",
+        replyRoute: "case+opaque@inbound.example.test",
+        messageTemplateVersion: "follow-up/v1",
+        messageSubject: "Follow-up for ORDER-79",
+        messageBody: "Please confirm ORDER-79.",
+        followUpIntervalSeconds: 172800,
+        maxLogicalSends: 3
+      }
+    };
+    const service = new PlanService(new MemoryPlanStore(configured));
+    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+      notificationRecipient: "OWNER@EXAMPLE.TEST"
+    });
+    expect(revised.plan).toMatchObject({
+      channelType: "MANAGED_EMAIL",
+      messageTemplateVersion: "follow-up/v1",
+      messageSubject: "Follow-up for ORDER-79",
+      messageBody: "Please confirm ORDER-79.",
+      followUpIntervalSeconds: 172800,
+      maxLogicalSends: 3,
+      notificationRecipient: "owner@example.test"
+    });
+    expect(revised.plan.version).toBe(2);
+    expect(revised.plan.planHash).not.toBe(hash);
+  });
+
+  it("does not allow an activated plan to be silently revised", async () => {
+    const initial = caseDraft();
+    const service = new PlanService(new MemoryPlanStore({
+      ...initial,
+      state: "READY",
+      approval: {
+        approvalId: "approval_12345678",
+        ownerId: initial.ownerId,
+        caseId: initial.caseId,
+        planVersion: 1,
+        planHash: hash,
+        approvedAt: "2026-08-15T12:00:00.000Z",
+        expiresAt: initial.plan.expiresAt
+      }
+    }));
+    await expect(service.revise(initial.caseId, initial.ownerId, 1, {
+      allowedRecipient: "other@example.test"
+    })).rejects.toThrow("PLAN_NOT_EDITABLE");
+  });
+
   it("lets a person resolve every critical field exposed by intake", async () => {
     const initial = caseDraft();
     const blocked: DraftCase = {

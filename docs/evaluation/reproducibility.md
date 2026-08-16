@@ -340,3 +340,16 @@ Commit `c97f33e` declares and provisions `notifications(caseId, createdAt)`. Aft
 `READY`, the two previously failing live-Gemini mobile paths were rerun sequentially with one worker
 and retries disabled; both passed in 31.6 s and 21.9 s (53.9 s total). This verifies the fix against
 fresh public cases while preserving the initial deployment failure.
+
+## Multichannel deterministic completion gate
+
+The current un-deployed multichannel candidate passed typecheck, lint, the production build and
+`git diff --check`. Package suites executed 136 tests and the root contract/integration/adversarial
+suite executed 51 tests (187 total), all passing. Firestore Emulator separately executed four
+ownership and server-only collection rule tests, all passing.
+
+`pnpm evaluate` executed the versioned 28-case synthetic corpus: 28 passed, zero failed. Sixteen
+cases exercised deterministic code and twelve validated fixture contracts; four cases specifically
+cover managed-email delivery, bounce intervention, authenticated acknowledgement and matching
+merchant confirmation. This run made zero Gemini or external-provider calls and is not external
+delivery evidence.

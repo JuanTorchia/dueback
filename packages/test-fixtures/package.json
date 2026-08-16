@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/promises.ts",
     "./promise-manifests": "./src/promise-manifests.ts",
-    "./evaluation-corpus": "./src/evaluation-corpus.ts"
+    "./evaluation-corpus": "./src/evaluation-corpus.ts",
+    "./email-events": "./src/email-events.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

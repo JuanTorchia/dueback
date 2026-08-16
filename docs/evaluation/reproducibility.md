@@ -293,3 +293,21 @@ public browser run exposed two stale copy assertions after the intentional redes
 failure occurred. After updating those assertions in commit `421ee3c`, all six public browser tests
 passed sequentially with retries disabled: ambiguous recovery in 44.5 seconds, the complete mobile
 autonomous path in 31.3 seconds, and the four landing/intake resilience paths in 1.0–5.0 seconds.
+
+## Multichannel contact-plan deployment
+
+Commit `66dc598` was built by Cloud Build operation
+`42cc4953-1228-4d22-a570-90c8a3e23a6b` and deployed as `dueback-web-00028-87h` at 100% traffic.
+The approval view now exposes the active contact channel, recipient, subject, complete first
+follow-up, completion rule, and return path. It labels email as ready to connect, the controlled API
+as the live public demo channel, and web-form/WhatsApp as future adapters.
+
+The same commit adds an idempotent Resend-compatible company-action adapter with plain-text-only
+content, an approval-bound recipient, and a case-specific reply address. The public deployment
+intentionally remains in sandbox mode because no verified email sender, authorized recipient,
+reply domain, or authenticated inbound webhook is configured.
+
+Typecheck, lint, production build, 44 root tests, 16 web tests, 14 runtime tests, and seven channel
+adapter tests passed. In the first public run, five of six browser paths passed and the full path
+stopped on one superseded heading assertion after rendering the new UI. Commit `3be98fe` updated
+that test contract; the complete public autonomous path then passed without retries in 18.0 seconds.

@@ -11,6 +11,16 @@ export interface NotificationRecord {
   readonly kind: NotificationKind;
   readonly deepLinkPath: string;
   readonly createdAt: string;
+  readonly deliveryChannel?: "IN_APP" | "EMAIL";
+  readonly deliveryStatus?:
+    | "RECORDED"
+    | "ACCEPTED"
+    | "DELIVERED"
+    | "BOUNCED"
+    | "SUPPRESSED"
+    | "FAILED"
+    | "UNAVAILABLE";
+  readonly deliveryId?: string;
   readonly deliveredAt?: string;
 }
 
@@ -18,6 +28,14 @@ export interface NotificationStore {
   createIfAbsent(
     record: NotificationRecord
   ): Promise<{ record: NotificationRecord; duplicate: boolean }>;
+  updateDelivery?(
+    dedupeKey: string,
+    update: Pick<NotificationRecord, "deliveryChannel" | "deliveryStatus"> & {
+      deliveryId?: string;
+      deliveredAt?: string;
+    }
+  ): Promise<void>;
+  listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
 }
 
 export function notificationRecord(input: {
@@ -41,6 +59,8 @@ export function notificationRecord(input: {
     ownerId: input.ownerId,
     kind: input.kind,
     deepLinkPath: `/cases/${input.caseId}/result`,
-    createdAt: input.createdAt
+    createdAt: input.createdAt,
+    deliveryChannel: "IN_APP",
+    deliveryStatus: "RECORDED"
   };
 }

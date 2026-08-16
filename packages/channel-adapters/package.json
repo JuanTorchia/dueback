@@ -11,7 +11,8 @@
     "./company-email": "./src/company-email.ts",
     "./email-webhook": "./src/email-webhook.ts",
     "./inbound-email": "./src/inbound-email.ts",
-    "./outbound-email": "./src/outbound-email.ts"
+    "./outbound-email": "./src/outbound-email.ts",
+    "./partner-api": "./src/partner-api.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

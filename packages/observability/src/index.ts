@@ -14,8 +14,9 @@ export interface SafeEvent extends TraceContext {
 }
 
 const forbiddenKeys = new Set([
+  "address",
   "artifact",
-  "artifactContent",
+  "artifactcontent",
   "body",
   "document",
   "email",
@@ -23,8 +24,20 @@ const forbiddenKeys = new Set([
   "name",
   "prompt",
   "raw",
-  "sourceContent"
+  "recipient",
+  "replyroute",
+  "sender",
+  "sourcecontent",
+  "subject",
+  "text"
 ]);
+
+function isSensitiveKey(key: string): boolean {
+  const normalized = key.replace(/[^a-z0-9]/gi, "").toLowerCase();
+  return forbiddenKeys.has(normalized) || normalized.includes("authorization") ||
+    normalized.includes("secret") || normalized.includes("token") || normalized.includes("header") ||
+    normalized.endsWith("body") || normalized.endsWith("text");
+}
 
 export function safeEvent(event: SafeEvent): Readonly<Record<string, string | number>> {
   const serialized = Object.fromEntries(
@@ -38,7 +51,7 @@ export function redactUnknownFields(
 ): Readonly<Record<string, string | number | boolean>> {
   const safe: Record<string, string | number | boolean> = {};
   for (const [key, value] of Object.entries(input)) {
-    if (forbiddenKeys.has(key)) continue;
+    if (isSensitiveKey(key)) continue;
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       safe[key] = value;
     }

@@ -222,3 +222,18 @@
   recepción autenticada de respuestas. El sandbox continúa como único recorrido bidireccional P0.
 - Motivo: demuestra una acción externa útil y una expansión creíble sin sacrificar la demo durable,
   ni confundir capacidad de transporte con resolución comprobada.
+
+## D-020 — Gmail diferido y destinatarios externos bajo allowlist
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: rechazar Gmail para el MVP porque no existe evidencia de consentimiento verificado,
+  cifrado/renovación/revocación de tokens ni renovación durable de watches. La capacidad se publica
+  como `FUTURE`, sin autoridad de envío o lectura.
+- Límite de email administrado: el canal solo puede anunciarse disponible cuando existen envío,
+  recepción firmada y una allowlist explícita de dominios de destinatarios controlados. Una lista
+  vacía deniega todos los destinatarios.
+- Portabilidad: el segundo adaptador ejecutable es una API fixture HTTPS firmada, restringida a un
+  endpoint exacto. Demuestra el contrato común sin afirmar una integración comercial.
+- Motivo: maximiza una demostración honesta y segura sin solicitar acceso amplio al correo de las
+  personas ni permitir que el hackathon se convierta en una plataforma de correo arbitrario.

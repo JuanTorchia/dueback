@@ -85,3 +85,10 @@ Gmail proceeds only if all are true: incremental consent is usable in the public
 encryption/revocation/refresh are complete; requested scopes avoid broad reading or have an accepted
 verification plan; push watch renewal is durable; and the work does not threaten demo/submission.
 Otherwise the adapter remains specified and unavailable.
+
+**Gate result (2026-08-16)**: rejected for the hackathon MVP. No consent-screen verification,
+encrypted token lifecycle, revocation flow or durable Gmail watch-renewal evidence exists. The
+capability endpoint therefore reports `GMAIL_CONNECTED/FUTURE` with no send or receive authority.
+This is a tested unavailable capability, not a claimed integration. Managed email remains the
+bounded production-shaped path because it needs neither mailbox-wide access nor restricted inbox
+scopes.

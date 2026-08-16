@@ -144,12 +144,36 @@ export function assertLogicalActionBudget(actionOrdinal: number): void {
   }
 }
 
+export function parseAllowedRecipientDomains(value: string | undefined): readonly string[] {
+  if (!value) return [];
+  return [...new Set(value.split(",").map((domain) => domain.trim().toLowerCase()).filter(Boolean))];
+}
+
+export function assertControlledRecipient(
+  recipient: string,
+  allowedDomains: readonly string[]
+): void {
+  const normalized = recipient.trim().toLowerCase();
+  const separator = normalized.lastIndexOf("@");
+  if (separator < 1 || separator === normalized.length - 1) {
+    throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
+  }
+  const domain = normalized.slice(separator + 1);
+  if (allowedDomains.length === 0 || !allowedDomains.some((allowed) =>
+    domain === allowed || domain.endsWith(`.${allowed}`)
+  )) {
+    throw new Error("COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED");
+  }
+}
+
 const safeErrors = new Set([
   "AUTHENTICATION_REQUIRED",
   "CASE_OWNERSHIP_REQUIRED",
   "DAILY_CASE_BUDGET_EXHAUSTED",
   "MODEL_CALL_BUDGET_EXHAUSTED",
   "LOGICAL_ACTION_BUDGET_EXHAUSTED",
+  "COMPANY_EMAIL_RECIPIENT_INVALID",
+  "COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED",
   "FILE_TOO_LARGE",
   "UNSUPPORTED_MEDIA_TYPE",
   "MEDIA_TYPE_MISMATCH",

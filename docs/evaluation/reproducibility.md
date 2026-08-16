@@ -311,3 +311,20 @@ Typecheck, lint, production build, 44 root tests, 16 web tests, 14 runtime tests
 adapter tests passed. In the first public run, five of six browser paths passed and the full path
 stopped on one superseded heading assertion after rendering the new UI. Commit `3be98fe` updated
 that test contract; the complete public autonomous path then passed without retries in 18.0 seconds.
+
+## Multichannel implementation gate (local)
+
+Commit `290b0a1` adds the production-shaped managed-email reply pipeline: capability registry,
+approval-bound content, provider receipt and opaque reply route, signed webhook reservation,
+bounded provider retrieval, tool-less typed Gemini inbound extraction, exact case/sender
+correlation, and deterministic evidence reconciliation. The public revision remains on sandbox
+until controlled external credentials and a verified domain exist.
+
+The repository gate after that commit passed typecheck, lint, production build and all deterministic
+tests. Package suites reported 65 tests and the root integration/adversarial suite reported 44 tests
+(109 total). These are local deterministic executions, not a claim of live provider delivery.
+
+The external managed-email smoke is currently unmet because this workspace has no verified sender,
+inbound domain, authorized test recipient, provider API key or webhook signing secret. The runtime
+also requires an explicit recipient-domain allowlist; an empty list fails closed. Therefore Gates
+A–C are recorded as pending external prerequisites, not as successful email evidence.

@@ -34,4 +34,22 @@ describe("privacy-safe observability", () => {
       })
     ).toEqual({ caseId: "case_12345678", attempt: 2 });
   });
+
+  it("drops channel addresses, message content, headers and credentials regardless of casing", () => {
+    expect(redactUnknownFields({
+      channelType: "MANAGED_EMAIL",
+      deliveryStatus: "ACCEPTED",
+      Recipient: "person@example.test",
+      reply_route: "case+secret@example.test",
+      subject: "private order",
+      messageText: "private body",
+      authorizationHeader: "Bearer secret",
+      webhookToken: "secret",
+      providerMessageIdHash: "sha256:safe"
+    })).toEqual({
+      channelType: "MANAGED_EMAIL",
+      deliveryStatus: "ACCEPTED",
+      providerMessageIdHash: "sha256:safe"
+    });
+  });
 });

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   estimateGemini35FlashGlobalCost,
+  assertControlledRecipient,
   gemini35FlashGlobalPricing,
   modelBudgetKey,
   publicSecurityLimits,
-  redactedPublicError
+  redactedPublicError,
+  parseAllowedRecipientDomains
 } from "../lib/security-limits";
 
 describe("public evaluation budgets and model cost evidence", () => {
@@ -41,5 +43,18 @@ describe("public evaluation budgets and model cost evidence", () => {
       "MODEL_CALL_BUDGET_EXHAUSTED"
     );
     expect(redactedPublicError(new Error("source content"))).toBe("REQUEST_FAILED");
+  });
+
+  it("permits only explicit controlled recipient domains", () => {
+    const domains = parseAllowedRecipientDomains("example.com, DEMO.test,example.com");
+    expect(domains).toEqual(["example.com", "demo.test"]);
+    expect(() => { assertControlledRecipient("support@example.com", domains); }).not.toThrow();
+    expect(() => { assertControlledRecipient("support@eu.example.com", domains); }).not.toThrow();
+    expect(() => { assertControlledRecipient("support@evil-example.com", domains); }).toThrow(
+      "COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED"
+    );
+    expect(() => { assertControlledRecipient("support@example.com", []); }).toThrow(
+      "COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED"
+    );
   });
 });

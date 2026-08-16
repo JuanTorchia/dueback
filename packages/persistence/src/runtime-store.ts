@@ -210,6 +210,25 @@ export class FirestoreRuntimeStore
     });
   }
 
+  async updateDelivery(
+    dedupeKey: string,
+    update: Pick<NotificationRecord, "deliveryChannel" | "deliveryStatus"> & {
+      deliveryId?: string;
+      deliveredAt?: string;
+    }
+  ): Promise<void> {
+    await this.db.collection("notifications").doc(dedupeKey.slice(7)).set(update, { merge: true });
+  }
+
+  async listNotifications(caseId: string): Promise<readonly NotificationRecord[]> {
+    const snapshot = await this.db
+      .collection("notifications")
+      .where("caseId", "==", caseId)
+      .orderBy("createdAt", "asc")
+      .get();
+    return snapshot.docs.map((document) => document.data() as NotificationRecord);
+  }
+
   async createInterventionIfAbsent(
     record: InterventionRecord
   ): Promise<{ record: InterventionRecord; duplicate: boolean }> {

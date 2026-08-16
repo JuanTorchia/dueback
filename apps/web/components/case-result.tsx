@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
 import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
 import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
+import type { NotificationRecord } from "@dueback/runtime/notifications";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { CaseTimeline } from "./case-timeline";
 
@@ -11,6 +12,7 @@ interface ResultPayload {
   case: FollowThroughCase;
   evidence: EvidenceRecord[];
   events?: RuntimeTimelineEvent[];
+  notifications?: NotificationRecord[];
   error?: string;
 }
 
@@ -54,6 +56,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   const acknowledgement = payload.evidence.some(
     (item) => item.candidate.level === "REQUEST_ACKNOWLEDGED" && !item.verification.accepted
   );
+  const latestNotification = payload.notifications?.at(-1);
   return (
     <div className="result-grid">
       <p className="preview-label">
@@ -84,12 +87,14 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         <div className="claim-limit">
           Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received.
         </div>
-        <div className="notification-explainer">
+        <div className="notification-explainer" aria-live="polite">
           <strong>{done ? "Your case update is ready" : "You don’t need to keep refreshing"}</strong>
           <p>
             {done
-              ? "The live demo records the completion update here. Production email delivery is implemented but not enabled on this deployment."
-              : "This page checks the case automatically while it is open. A future verified email channel will bring decisions and results back to you."}
+              ? latestNotification
+                ? `Update ${(latestNotification.deliveryStatus ?? "RECORDED").toLowerCase()} via ${latestNotification.deliveryChannel === "EMAIL" ? "email" : "this case"}. Case truth does not depend on notification delivery.`
+                : "The verified result is recorded on this case even if a notification channel is unavailable."
+              : "You may close this page. DueBack records decisions and verified results durably; configured notifications are a return channel, never proof of completion."}
           </p>
         </div>
       </section>

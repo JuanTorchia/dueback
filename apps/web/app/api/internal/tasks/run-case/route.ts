@@ -13,6 +13,10 @@ import { InterventionService } from "@dueback/runtime/interventions";
 import { TaskScheduler } from "@dueback/runtime/task-scheduler";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleRunCaseTask } from "../../../../../lib/task-controller";
+import {
+  assertControlledRecipient,
+  parseAllowedRecipientDomains
+} from "../../../../../lib/security-limits";
 
 export const runtime = "nodejs";
 
@@ -22,6 +26,12 @@ export async function POST(request: Request) {
   const merchantUrl = process.env.MERCHANT_SANDBOX_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const actionSecret = process.env.MERCHANT_CALLBACK_SECRET;
+  const emailApiKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.COMPANY_EMAIL_FROM;
+  const emailReplyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
+  const allowedRecipientDomains = parseAllowedRecipientDomains(
+    process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
+  );
   if (!projectId || !workerUrl || !serviceAccountEmail)
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
@@ -36,14 +46,15 @@ export async function POST(request: Request) {
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(merchantUrl && actionSecret),
     managedEmailOutbound: Boolean(
-      process.env.RESEND_API_KEY &&
-      process.env.COMPANY_EMAIL_FROM &&
-      process.env.COMPANY_EMAIL_REPLY_DOMAIN
+      emailApiKey &&
+      emailFrom &&
+      emailReplyDomain &&
+      allowedRecipientDomains.length > 0
     ),
     managedEmailInbound: Boolean(
-      process.env.RESEND_API_KEY &&
+      emailApiKey &&
       process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
-      process.env.COMPANY_EMAIL_REPLY_DOMAIN
+      emailReplyDomain
     )
   });
   const sandboxCapability = capabilities.find((item) => item.channelType === "CONTROLLED_SANDBOX");
@@ -63,12 +74,17 @@ export async function POST(request: Request) {
     },
     {
       capability: emailCapability,
-      ...(process.env.RESEND_API_KEY && process.env.COMPANY_EMAIL_FROM && process.env.COMPANY_EMAIL_REPLY_DOMAIN
-        ? { adapter: new CompanyEmailActionAdapter({
-            apiKey: process.env.RESEND_API_KEY,
-            from: process.env.COMPANY_EMAIL_FROM,
-            replyDomain: process.env.COMPANY_EMAIL_REPLY_DOMAIN
-          }) }
+      ...(emailApiKey && emailFrom && emailReplyDomain
+        ? { adapter: {
+            execute(proposal, idempotencyKey, context) {
+              assertControlledRecipient(proposal.recipient, allowedRecipientDomains);
+              return new CompanyEmailActionAdapter({
+                apiKey: emailApiKey,
+                from: emailFrom,
+                replyDomain: emailReplyDomain
+              }).execute(proposal, idempotencyKey, context);
+            }
+          } }
         : {})
     }
   ]);

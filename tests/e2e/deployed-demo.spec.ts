@@ -33,14 +33,14 @@ test.describe("deployed mobile judge path", () => {
     await expect(page.getByRole("heading", { name: "Merchant confirmed the refund instruction" })).toBeVisible({
       timeout: 45_000
     });
-    await expect(page.getByText(/does not mean bank settlement/)).toBeVisible();
+    await expect(page.getByText(/Bank settlement: NOT VERIFIED/)).toBeVisible();
     await expect(page.getByText(/callback timing is accelerated/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Auditable timeline" })).toBeVisible();
     for (const details of await page.getByText("Technical details", { exact: true }).all()) {
       await details.click();
     }
-    await expect(page.getByText("CURRENT_PLAN_VERSION_APPROVED", { exact: true })).toBeVisible();
-    await expect(page.getByText("ACTION_ACCEPTED", { exact: true })).toBeVisible();
+    await expect(page.getByText(/reason: CURRENT_PLAN_VERSION_APPROVED/)).toBeVisible();
+    await expect(page.getByText(/reason: ACTION_ACCEPTED/)).toBeVisible();
     await expect(page.getByText(/^correlation: corr_/).first()).toBeVisible();
   });
 });

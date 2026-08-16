@@ -151,3 +151,17 @@ The follow-up accessibility/error-copy commit `d1ec263` was built as Cloud Build
 `59a54ae8-b4bb-4634-8aee-bca50ab35f79` and deployed as `dueback-web-00016-zjq` at 100% traffic.
 The public privacy route passed an HTTP content smoke check and the standard mobile judge journey
 passed again without retries in 40.2 seconds.
+
+## Synthetic persona panel hardening
+
+The explicitly synthetic three-persona audit is documented in
+`docs/research/persona-panel-2026-08-16.md`; it contributes no human metrics. Commit `82940e4` was
+built by Cloud Build operation `6121afe9-a010-48c3-b762-915e462c2ce7` and deployed as
+`dueback-web-00017-97s` at 100% traffic.
+
+The deployed ambiguous path passed in 31.4 seconds and demonstrated the new user-owned follow-up
+date, pre-consent simulator disclosure, and limited merchant-confirmation claim. A standard-path
+run then encountered one exhausted two-attempt Gemini request and is retained as a real transient
+failure; an immediate no-retry rerun passed end to end in 25.1 seconds. Axe 4.12.1 reported zero
+confirmed violations on the deployed intake page, 37 passed checks, and one manual contrast check
+for the aria-hidden decorative checkmark.

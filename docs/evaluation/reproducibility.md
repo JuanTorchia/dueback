@@ -238,3 +238,15 @@ The first public run passed the ambiguous, delayed-error, and combined-input pat
 path stopped only because its assertion expected the superseded commercial proof sentence; the new
 universal proof definition was visible. After updating that test contract, the same live-Gemini
 journey passed without retries in 24.7 seconds.
+
+## Guided first-use deployment
+
+Commit `a5e9585` was built by Cloud Build operation
+`bd47fcbc-1fbb-4eb8-9f64-89f6ec9e86be` and deployed as `dueback-web-00023-bgd` at 100% traffic.
+The mobile intake now exposes four accepted ways to begin before the input, provides four
+actionable commercial examples, and lets a first-time visitor populate a complete example with one
+tap. Mobile hero spacing was reduced so the live recipe and guidance appear in the initial viewport.
+
+Five public browser tests passed sequentially with retries disabled. The live-Gemini paths passed
+in 33.2 and 28.9 seconds; delayed-error recovery, combined text-and-image intake, and first-use
+example discovery passed in 4.4, 1.1, and 1.1 seconds respectively.

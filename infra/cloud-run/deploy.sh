@@ -72,7 +72,9 @@ gcloud builds submit --config=infra/cloud-run/cloudbuild.yaml --substitutions="_
 sandbox_image="${region}-docker.pkg.dev/${project_id}/${repository}/merchant-sandbox:${image_tag}"
 web_image="${region}-docker.pkg.dev/${project_id}/${repository}/web:${image_tag}"
 
-gcloud run deploy dueback-merchant-sandbox --image="${sandbox_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
+# The controlled sandbox emits signed callbacks after its 202 response. Keep CPU
+# allocated so Cloud Run does not suspend that bounded background delivery.
+gcloud run deploy dueback-merchant-sandbox --image="${sandbox_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --no-cpu-throttling --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 sandbox_url="$(gcloud run services describe dueback-merchant-sandbox --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
 gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"

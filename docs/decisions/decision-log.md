@@ -125,3 +125,18 @@
 - Confirmación de ausencia de sanciones o conflictos de interés.
 - Ejecución de la validación no asistida con ocho participantes.
 - URL pública del repositorio, video y envío final en Devpost.
+
+## D-013 — CPU explícita para callbacks del sandbox controlado
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: desplegar el Merchant Sandbox con CPU no limitada mientras la instancia está activa.
+  El sandbox devuelve HTTP 202 y emite callbacks firmados con demoras acotadas; esa tarea posterior
+  a la respuesta no puede depender de la asignación de CPU por solicitud.
+- Evidencia: la primera repetición doble contra `dueback-web-00014-pzv` dejó un caso en
+  `WAITING_EXTERNAL`: existían plan y recibo de acción, pero no evidencia ni callback. Cloud Run
+  mostraba el 202 del sandbox y ninguna solicitud posterior. Con
+  `run.googleapis.com/cpu-throttling: false`, dos recorridos nuevos pasaron sin retries y ambos
+  produjeron el ledger completo de cuatro eventos.
+- Alcance: esta decisión hace reproducible el servicio controlado de demostración; no convierte el
+  sandbox en una integración comercial ni prueba liquidación bancaria.

@@ -106,3 +106,24 @@ verification.
 An earlier Playwright instability was traced to the shared machine's `/tmp` filesystem being 100%
 full with unrelated caches. No unrelated files were deleted. `playwright.config.ts` now creates and
 uses a repository-private ignored temp directory; two sequential no-retry runs passed afterward.
+
+## Final deployed ledger verification
+
+Commit `149786c` was built by Cloud Build operation
+`e737fa64-5597-474d-8216-c0e6c41ac3b4` and deployed as Cloud Run revision
+`dueback-web-00014-pzv` at 100% traffic. The first two-run, no-retry verification exposed a genuine
+intermittency: one case remained `WAITING_EXTERNAL` because the controlled merchant had returned
+HTTP 202 and scheduled its callback after the response while Cloud Run CPU throttling was enabled.
+The failure is not counted as a pass.
+
+The reproducible sandbox deployment now uses `--no-cpu-throttling` for that explicitly bounded
+background callback delivery. Revision `dueback-merchant-sandbox-00006-dbl` reported the
+`run.googleapis.com/cpu-throttling: false` annotation and 100% traffic. After the correction, two
+fresh mobile journeys ran sequentially with Playwright retries disabled and both passed in 23.9 and
+22.2 seconds (47.5 seconds total runner time).
+
+Direct Firestore inspection of both resulting cases showed state `DONE`, version 4, one merchant
+receipt, and the same four-event ledger: `PLAN_APPROVED`, `ACTION_RESULT`, rejected
+`REQUEST_ACKNOWLEDGED` evidence with `INSUFFICIENT_LEVEL`, and accepted `MERCHANT_CONFIRMED`
+evidence. Each case preserved one correlation ID across all four events. This verifies the visible
+timeline from persisted state rather than a hard-coded UI narrative.

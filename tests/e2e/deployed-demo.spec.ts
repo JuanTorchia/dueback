@@ -41,7 +41,7 @@ test.describe("deployed mobile judge path", () => {
     await expect(page.getByText("This page, automatically")).toBeVisible();
     await expect(page.getByText("Your case update is ready")).toBeVisible();
     await expect(page.getByText(/callback timing is accelerated/)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Auditable timeline" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible();
     for (const details of await page.getByText("Technical details", { exact: true }).all()) {
       await details.click();
     }

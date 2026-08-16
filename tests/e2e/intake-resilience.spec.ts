@@ -65,7 +65,7 @@ test.describe("intake feedback and recovery", () => {
 
   test("teaches a first-time user with an actionable example", async ({ page }) => {
     await page.goto(`${deployedUrl}/intake`);
-    await expect(page.getByText("Start with anything you have")).toBeVisible();
+    await expect(page.getByText("Give DueBack the messy version.")).toBeVisible();
     await page.getByRole("button", { name: "Missing refund" }).click();
     await expect(
       page.getByRole("textbox", { name: "What happened, and what are you waiting for?" })

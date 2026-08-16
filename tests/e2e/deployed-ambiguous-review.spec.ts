@@ -51,7 +51,7 @@ test.describe("deployed ambiguous promise review", () => {
       await expect(due).not.toBeVisible({ timeout: 15_000 });
     }
 
-    const activate = page.getByRole("button", { name: "Approve and activate" });
+    const activate = page.getByRole("button", { name: "Approve and start follow-up" });
     await expect(activate).toBeEnabled();
     await activate.click();
     await expect(page).toHaveURL(/\/result/);

@@ -29,7 +29,7 @@ test.describe("deployed mobile judge path", () => {
         "Signed evidence from the responsible party confirming the exact outcome and reference."
       )
     ).toBeVisible();
-    await page.getByRole("button", { name: "Approve and activate" }).click();
+    await page.getByRole("button", { name: "Approve and start follow-up" }).click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
     await expect(page.getByRole("heading", { name: "Merchant confirmed the refund instruction" })).toBeVisible({

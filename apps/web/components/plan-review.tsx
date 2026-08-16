@@ -158,22 +158,27 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
 
   return (
     <div className="review-grid">
-      <section className="card">
+      <nav className="review-steps" aria-label="Case progress">
+        <div data-complete="true"><span>✓</span><strong>Evidence read</strong></div>
+        <div data-current="true"><span>2</span><strong>Review & approve</strong></div>
+        <div><span>3</span><strong>DueBack follows through</strong></div>
+      </nav>
+      <section className="card contract-card">
+        <div className="review-readiness" data-ready={!draft.activationBlocked}>
+          <span aria-hidden="true">{draft.activationBlocked ? "!" : "✓"}</span>
+          <div>
+            <strong>{draft.activationBlocked ? `${String(draft.blockingFields.length)} details need you` : "Ready for your approval"}</strong>
+            <p>{draft.activationBlocked ? "Confirm the highlighted information below." : "Gemini found the critical details. Check them before delegating."}</p>
+          </div>
+        </div>
         <div className="contract-heading">
           <div>
             <span className="status-dot" /> Outcome Contract · v{draft.plan.version}
           </div>
-          <code>{draft.plan.planHash.slice(0, 18)}…</code>
         </div>
+        <h2 className="contract-outcome">{outcome?.outcome ?? draft.plan.goal}</h2>
+        <p className="contract-owner">Responsible party · <strong>{outcome?.responsibleParty ?? draft.promiseDraft.promisor.value}</strong></p>
         <dl className="facts">
-          <div>
-            <dt>Responsible party</dt>
-            <dd>{outcome?.responsibleParty ?? draft.promiseDraft.promisor.value}{uncertainty(draft.promiseDraft.promisor)}</dd>
-          </div>
-          <div>
-            <dt>Outcome</dt>
-            <dd>{outcome?.outcome ?? draft.plan.goal}{uncertainty(draft.promiseDraft.result)}</dd>
-          </div>
           <div>
             <dt>Amount</dt>
             <dd>
@@ -206,11 +211,17 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
                 : "Choose when DueBack should follow up"}
             </dd>
           </div>
-          <div>
-            <dt>Done means</dt>
-            <dd>{outcome?.proofRequired ?? "The merchant confirms the promised refund in signed evidence."}</dd>
-          </div>
         </dl>
+        {uncertainty(draft.promiseDraft.promisor)}
+        {uncertainty(draft.promiseDraft.result)}
+        <div className="proof-callout">
+          <span aria-hidden="true">✓</span>
+          <div><strong>What counts as done</strong><p>{outcome?.proofRequired ?? "The merchant confirms the promised refund in signed evidence."}</p></div>
+        </div>
+        <details className="technical-details">
+          <summary>Technical contract details</summary>
+          <code>Plan v{draft.plan.version} · {draft.plan.planHash}</code>
+        </details>
         {draft.blockingFields.length > 0 ? (
           <p className="warning">Before activation, confirm: {draft.blockingFields.map((field) => fieldLabels[field] ?? field).join(", ")}.</p>
         ) : null}
@@ -243,27 +254,19 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
       </section>
 
       <section className="card boundaries">
-        <h2>Before you delegate</h2>
-        <p className="demo-warning"><strong>Demo only:</strong> this action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p>
-        <div>
-          <strong>DueBack may</strong>
-          <p>Send one follow-up to {draft.plan.allowedRecipient} after the due time.</p>
+        <div className="delegate-heading">
+          <span>Controlled delegation</span>
+          <h2>What DueBack will do</h2>
+          <p>One approved action. Clear limits. A verifiable finish.</p>
         </div>
-        <div>
-          <strong>DueBack will never</strong>
-          <p>Change the remedy, share extra data, spend money, or call this settled.</p>
+        <div className="permission-list">
+          <div><span className="permission-icon">→</span><div><strong>Action</strong><p>Send one follow-up after the due time.</p></div></div>
+          <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
+          <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
+          <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>Signed evidence matching this case, amount, currency, and reference. “Request received” is not completion.</p></div></div>
         </div>
-        <div>
-          <strong>Data shared</strong>
-          <p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p>
-        </div>
-        <div>
-          <strong>It can close only when</strong>
-          <p>
-            Signed merchant evidence confirms this exact case, amount, currency, and reference.
-            “Request received” is not completion. Merchant confirmation is not bank settlement.
-          </p>
-        </div>
+        <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
+        <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p>
         <button
           className="secondary"
           type="button"
@@ -272,7 +275,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
             void simulate();
           }}
         >
-          Simulate first
+          Preview the follow-up
         </button>
         {simulation ? (
           <p className="simulation">
@@ -291,7 +294,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
             });
           }}
         >
-          {draft.state === "READY" ? "Sandbox demo activated" : "Approve and activate sandbox demo"}
+          {draft.state === "READY" ? "Follow-up activated" : "Approve and start follow-up"}
         </button>
         {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : null}
         <button

@@ -11,8 +11,9 @@ export default async function ReviewPage({
     <main className="shell">
       <AppHeader />
       <section className="hero compact">
-        <div className="eyebrow">Review before anything happens</div>
-        <h1>Confirm the plan.</h1>
+        <div className="eyebrow">Step 2 · Nothing happens without you</div>
+        <h1>Review what DueBack understood.</h1>
+        <p className="lede">Correct anything that looks wrong, then choose exactly what the agent may do.</p>
       </section>
       <PlanReview caseId={caseId} />
     </main>

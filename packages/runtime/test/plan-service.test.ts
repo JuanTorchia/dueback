@@ -104,6 +104,27 @@ describe("PlanService", () => {
     expect(revised.plan.planHash).not.toBe(hash);
   });
 
+  it("switches channels only through trusted server configuration and invalidates approval fields", async () => {
+    const service = new PlanService(new MemoryPlanStore());
+    const revised = await service.selectChannel("case_12345678", "person_12345678", 1, {
+      channelType: "MANAGED_EMAIL",
+      allowedRecipient: "support@northstar.example",
+      senderIdentity: "DueBack <followup@dueback.example>",
+      replyRoute: "case+opaque@reply.dueback.example",
+      trustedIssuer: "managed-email:recipient-hash"
+    });
+    expect(revised.plan).toMatchObject({
+      version: 2,
+      channelType: "MANAGED_EMAIL",
+      allowedRecipient: "support@northstar.example",
+      senderIdentity: "DueBack <followup@dueback.example>",
+      replyRoute: "case+opaque@reply.dueback.example"
+    });
+    expect(revised.plan.evidenceRequirements[0]?.trustedIssuer)
+      .toBe("managed-email:recipient-hash");
+    expect(revised.plan.planHash).not.toBe(hash);
+  });
+
   it("preserves the approved message contract and cadence across a return-channel revision", async () => {
     const initial = caseDraft();
     const configured: DraftCase = {

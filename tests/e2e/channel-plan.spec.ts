@@ -92,4 +92,47 @@ test.describe("channel plan authorization", () => {
     await expect(page.getByRole("button", { name: "Approve and start follow-up" })).toBeDisabled();
     await expect(page.getByText(/cannot be activated until/)).toBeVisible();
   });
+
+  test("switches between available channels with a keyboard-operable authorization control", async ({ page }) => {
+    const initial = makeDraftCase();
+    let draft: DraftCase = { ...initial, plan: {
+      ...initial.plan,
+      channelType: "CONTROLLED_SANDBOX" as const,
+      senderIdentity: "DueBack controlled demo",
+      replyRoute: "Signed callback"
+    } };
+    await page.route("**/api/channels", (route) => route.fulfill({
+      status: 200, contentType: "application/json", body: JSON.stringify([
+        { channelType: "CONTROLLED_SANDBOX", status: "AVAILABLE", canSend: true, canReceive: true,
+          supportsThreading: false, supportsDeliveryReceipt: true, supportsAuthenticatedReply: true,
+          requiresUserOAuth: false, reasonCodes: [], checkedAt: "2026-08-16T12:00:00.000Z" },
+        { channelType: "MANAGED_EMAIL", status: "AVAILABLE", canSend: true, canReceive: true,
+          supportsThreading: true, supportsDeliveryReceipt: true, supportsAuthenticatedReply: true,
+          requiresUserOAuth: false, reasonCodes: [], checkedAt: "2026-08-16T12:00:00.000Z" }
+      ])
+    }));
+    await page.route("**/api/cases/case_12345678/plan", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(draft) });
+        return;
+      }
+      const command = route.request().postDataJSON() as { action: string };
+      expect(command.action).toBe("select-channel");
+      draft = { ...draft, plan: {
+        ...draft.plan, version: 2, planHash: `sha256:${"c".repeat(64)}`,
+        channelType: "MANAGED_EMAIL", allowedRecipient: "support@northstar.example",
+        senderIdentity: "DueBack <followup@dueback.example>",
+        replyRoute: "case+opaque@reply.dueback.example"
+      } };
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(draft) });
+    });
+    await page.goto(`${deployedUrl}/cases/case_12345678/review`);
+    const email = page.getByRole("button", { name: /Managed email Available/ });
+    await email.focus();
+    await page.keyboard.press("Enter");
+    await expect(email).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByText(/Contact channel changed.*version 2/)).toBeVisible();
+    await expect(page.getByText("case+opaque@reply.dueback.example")).toBeVisible();
+    await expect(page.getByRole("button", { name: /WhatsApp Not implemented/ })).toBeDisabled();
+  });
 });

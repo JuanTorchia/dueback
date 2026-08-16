@@ -33,6 +33,14 @@ export interface PlanRevision {
   readonly notificationRecipient?: string;
 }
 
+export interface TrustedChannelSelection {
+  readonly channelType: "CONTROLLED_SANDBOX" | "MANAGED_EMAIL" | "PARTNER_API";
+  readonly allowedRecipient: string;
+  readonly senderIdentity: string;
+  readonly replyRoute: string;
+  readonly trustedIssuer: string;
+}
+
 export interface PlanSimulation {
   readonly recipient: string;
   readonly channelType?: string;
@@ -84,7 +92,12 @@ function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDra
   });
 }
 
-function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: PlanRevision) {
+function revisedPlan(
+  current: ResolutionPlan,
+  draft: PromiseDraft,
+  revision: PlanRevision,
+  selectedChannel?: TrustedChannelSelection
+) {
   if (!draft.amountMinor || !draft.currency) throw new Error("REFUND_MONEY_FIELDS_REQUIRED");
   const hashable = {
     planId: current.planId,
@@ -93,10 +106,10 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
     version: current.version + 1,
     goal: revision.goal ?? draft.result.value,
     allowedActions: current.allowedActions,
-    allowedRecipient: revision.allowedRecipient ?? current.allowedRecipient,
-    ...(current.channelType ? { channelType: current.channelType } : {}),
-    ...(current.senderIdentity ? { senderIdentity: current.senderIdentity } : {}),
-    ...(current.replyRoute ? { replyRoute: current.replyRoute } : {}),
+    allowedRecipient: selectedChannel?.allowedRecipient ?? revision.allowedRecipient ?? current.allowedRecipient,
+    channelType: selectedChannel?.channelType ?? current.channelType,
+    senderIdentity: selectedChannel?.senderIdentity ?? current.senderIdentity,
+    replyRoute: selectedChannel?.replyRoute ?? current.replyRoute,
     ...(current.messageTemplateVersion
       ? { messageTemplateVersion: current.messageTemplateVersion }
       : {}),
@@ -106,7 +119,9 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
       ? { followUpIntervalSeconds: current.followUpIntervalSeconds }
       : {}),
     ...(current.maxLogicalSends ? { maxLogicalSends: current.maxLogicalSends } : {}),
-    ...(revision.allowedRecipient
+    ...(selectedChannel
+      ? {}
+      : revision.allowedRecipient
       ? { recipientConfirmedAt: new Date().toISOString() }
       : current.recipientConfirmedAt
         ? { recipientConfirmedAt: current.recipientConfirmedAt }
@@ -126,7 +141,9 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
         ...current.evidenceRequirements[0],
         amountMinor: draft.amountMinor.value,
         currency: draft.currency.value,
-        transactionRef: draft.transactionRef.value
+        transactionRef: draft.transactionRef.value,
+        trustedIssuer:
+          selectedChannel?.trustedIssuer ?? current.evidenceRequirements[0]?.trustedIssuer
       }
     ]
   };
@@ -190,6 +207,32 @@ export class PlanService {
         current.outcomeContract?.contractId ?? `outcome_${randomUUID()}`,
         promiseDraft
       ),
+      plan,
+      blockingFields,
+      activationBlocked: blockingFields.length > 0
+    };
+    await this.store.replace(caseId, expectedPlanVersion, next);
+    return next;
+  }
+
+  async selectChannel(
+    caseId: string,
+    ownerId: string,
+    expectedPlanVersion: number,
+    channel: TrustedChannelSelection
+  ): Promise<DraftCase> {
+    const current = await this.inspect(caseId, ownerId);
+    if (current.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
+    if (current.state !== "AWAITING_APPROVAL") throw new Error("PLAN_NOT_EDITABLE");
+    if (current.plan.channelType === channel.channelType) return current;
+    const plan = revisedPlan(current.plan, current.promiseDraft, {}, channel);
+    const blockingFields = blockingCriticalFields(
+      current.promiseDraft,
+      plan.followUpAt,
+      plan.allowedRecipient
+    );
+    const next: DraftCase = {
+      ...current,
       plan,
       blockingFields,
       activationBlocked: blockingFields.length > 0

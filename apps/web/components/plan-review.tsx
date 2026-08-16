@@ -30,7 +30,7 @@ export function PlanReview({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
-  const [activeCapability, setActiveCapability] = useState<ChannelCapability>();
+  const [capabilities, setCapabilities] = useState<ChannelCapability[]>([]);
   const statusRef = useRef<HTMLParagraphElement>(null);
 
   async function api(method: "GET" | "POST", body?: object): Promise<PlanResponse> {
@@ -59,11 +59,8 @@ export function PlanReview({
   useEffect(() => {
     void fetch("/api/channels", { cache: "no-store" })
       .then(async (response) => response.ok ? await response.json() as ChannelCapability[] : [])
-      .then((capabilities) => {
-        const channelType = contactMode === "email" ? "MANAGED_EMAIL" : "CONTROLLED_SANDBOX";
-        setActiveCapability(capabilities.find((item) => item.channelType === channelType));
-      });
-  }, [contactMode]);
+      .then(setCapabilities);
+  }, []);
 
   async function command(body: object) {
     setBusy(true);
@@ -75,6 +72,10 @@ export function PlanReview({
         setStatus(
           `Plan updated to version ${String(next.plan.version)}. Review the remaining highlighted fields.`
         );
+        window.setTimeout(() => statusRef.current?.focus(), 0);
+      }
+      if ("action" in body && body.action === "select-channel") {
+        setStatus(`Contact channel changed. Plan updated to version ${String(next.plan.version)}; review the new sender, recipient, and return path.`);
         window.setTimeout(() => statusRef.current?.focus(), 0);
       }
       if ("action" in body && body.action === "approve" && next.state === "READY") {
@@ -184,6 +185,17 @@ export function PlanReview({
   const amountValue = `${draft.promiseDraft.currency?.value ?? ""} ${((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}`.trim();
   const followUpSubject = draft.plan.messageSubject ?? `Follow-up for ${referenceValue}`;
   const followUpBody = draft.plan.messageBody;
+  const activeChannelType = draft.plan.channelType ??
+    (contactMode === "email" ? "MANAGED_EMAIL" : "CONTROLLED_SANDBOX");
+  const activeCapability = capabilities.find((item) => item.channelType === activeChannelType);
+  const chooseChannel = (channelType: "CONTROLLED_SANDBOX" | "MANAGED_EMAIL") => {
+    if (channelType === activeChannelType) return;
+    void command({
+      action: "select-channel",
+      expectedPlanVersion: draft.plan.version,
+      revision: { channelType }
+    });
+  };
 
   return (
     <div className="review-grid">
@@ -289,11 +301,27 @@ export function PlanReview({
           <div className="channel-plan-heading">
             <span>1</span><div><strong>How DueBack contacts them</strong><p>One channel is authorized for this case.</p></div>
           </div>
-          <div className="channel-options" role="list" aria-label="Contact channel availability">
-            <div role="listitem" data-active={contactMode === "email"}><span>✉</span><strong>Email</strong><small>{contactMode === "email" ? activeCapability?.status === "AVAILABLE" ? "Available now" : "Unavailable — setup required" : "Ready to connect"}</small></div>
-            <div role="listitem" data-active={contactMode === "sandbox"}><span>↗</span><strong>Demo API</strong><small>{contactMode === "sandbox" ? "Live now" : "Test mode"}</small></div>
-            <div role="listitem"><span>▤</span><strong>Web form</strong><small>Next adapter</small></div>
-            <div role="listitem"><span>◉</span><strong>WhatsApp</strong><small>Next adapter</small></div>
+          <div className="channel-options" role="group" aria-label="Choose a contact channel">
+            {(["MANAGED_EMAIL", "CONTROLLED_SANDBOX"] as const).map((channelType) => {
+              const capability = capabilities.find((item) => item.channelType === channelType);
+              const selected = activeChannelType === channelType;
+              const available = capability?.status === "AVAILABLE" && capability.canSend;
+              return <button
+                key={channelType}
+                type="button"
+                className="channel-option"
+                aria-pressed={selected}
+                disabled={busy || !available}
+                data-active={selected}
+                onClick={() => { chooseChannel(channelType); }}
+              >
+                <span aria-hidden="true">{channelType === "MANAGED_EMAIL" ? "✉" : "↗"}</span>
+                <strong>{channelType === "MANAGED_EMAIL" ? "Managed email" : "Demo API"}</strong>
+                <small>{selected ? "Selected" : available ? "Available" : "Unavailable — setup required"}</small>
+              </button>;
+            })}
+            <button type="button" className="channel-option" disabled><span aria-hidden="true">▤</span><strong>Web form</strong><small>Not implemented</small></button>
+            <button type="button" className="channel-option" disabled><span aria-hidden="true">◉</span><strong>WhatsApp</strong><small>Not implemented</small></button>
           </div>
         </div>
         <div className="message-preview">
@@ -314,19 +342,19 @@ export function PlanReview({
             </>}
           </div>
           <div className="follow-up-policy"><span>Up to {draft.plan.maxLogicalSends ?? 3} sends</span><span>Every {Math.round((draft.plan.followUpIntervalSeconds ?? 172800) / 86400)} days</span><span>Stops for decisions</span></div>
-          {contactMode === "email" ? (
+          {activeChannelType === "MANAGED_EMAIL" ? (
             <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
           ) : null}
         </div>
         <div className="permission-list">
           <div><span className="permission-icon">→</span><div><strong>Action</strong><p>Send one follow-up after the due time.</p></div></div>
           <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
-          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>{contactMode === "email" ? "Verified outbound email with a case-specific reply address. Automated reply processing requires the inbound webhook." : "Controlled HTTP merchant adapter in this public demo."}</p></div></div>
+          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>{activeChannelType === "MANAGED_EMAIL" ? "Verified outbound email with a case-specific reply address. Automated reply processing requires the inbound webhook." : "Controlled HTTP merchant adapter in this public demo."}</p></div></div>
           <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
           <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>Signed evidence matching this case, amount, currency, and reference. “Request received” is not completion.</p></div></div>
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
-        {contactMode === "sandbox" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
+        {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
         <div className="return-promise">
           <strong>3 · How the result comes back to you</strong>
           <p>The case page always updates. Add an email if you also want DueBack to bring decisions and verified results back after you close this tab.</p>

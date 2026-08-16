@@ -8,7 +8,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | ID | Status | Authoritative evidence / remaining gap |
 |---|---|---|
 | FR-001 | PASS | `plan-review.tsx` renders channel, identities, full message, shared data, timing, cadence, send cap, proof, expiry context and return email. |
-| FR-002 | PASS | `/api/channels`, `plan-controller.ts`, and its unavailable-channel test prevent activation when health is not `AVAILABLE`. |
+| FR-002 | PASS | `/api/channels`, the keyboard-operable channel selector, `plan-controller.ts`, and denial tests prevent selection or activation when health is not `AVAILABLE`. |
 | FR-003 | PASS | `PlanService.revise` creates a new hash/version and only permits `AWAITING_APPROVAL`; plan-service tests verify changed recipient/hash. |
 | FR-004 | PASS | Syntax validation, explicit anti-abuse confirmation, plan binding, allowlist and deterministic policy are independently enforced. |
 | FR-005 | PASS | Inbound/model candidates enter `InboundService` and deterministic evidence policy; neither can revise a plan or select a tool. |

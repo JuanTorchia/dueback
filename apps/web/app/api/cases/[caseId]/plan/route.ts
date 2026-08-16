@@ -6,6 +6,7 @@ import { authenticatedOwner, assertSameOrigin } from "../../../../../lib/authz";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handlePlanRequest } from "../../../../../lib/plan-controller";
 import { publicChannelCapabilities } from "@dueback/runtime/channel-registry";
+import { stableHash } from "@dueback/domain";
 
 export const runtime = "nodejs";
 function planService() {
@@ -49,6 +50,30 @@ function isChannelAvailable(channelType: string | undefined): boolean {
     item.channelType === channelType && item.status === "AVAILABLE" && item.canSend
   );
 }
+
+function resolveChannel(channelType: string) {
+  if (channelType === "CONTROLLED_SANDBOX") return {
+    channelType,
+    allowedRecipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
+    senderIdentity: "DueBack controlled demo",
+    replyRoute: "Signed callback",
+    trustedIssuer: "merchant-sandbox"
+  } as const;
+  if (channelType === "MANAGED_EMAIL") {
+    const recipient = process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid";
+    const replyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
+    const senderIdentity = process.env.COMPANY_EMAIL_FROM;
+    if (!replyDomain || !senderIdentity) return undefined;
+    return {
+      channelType,
+      allowedRecipient: recipient,
+      senderIdentity,
+      replyRoute: `case-specific@${replyDomain}`,
+      trustedIssuer: `managed-email:${stableHash({ namespace: "dueback/recipient/v1", recipient: recipient.toLowerCase() }).slice(7, 31)}`
+    } as const;
+  }
+  return undefined;
+}
 type Context = { params: Promise<{ caseId: string }> };
 
 export async function GET(request: Request, context: Context) {
@@ -57,7 +82,8 @@ export async function GET(request: Request, context: Context) {
     authenticate: authenticatedOwner,
     service: planService(),
     now: () => new Date().toISOString(),
-    isChannelAvailable
+    isChannelAvailable,
+    resolveChannel
   });
 }
 
@@ -68,6 +94,7 @@ export async function POST(request: Request, context: Context) {
     authenticate: authenticatedOwner,
     service: planService(),
     now: () => new Date().toISOString(),
-    isChannelAvailable
+    isChannelAvailable,
+    resolveChannel
   });
 }

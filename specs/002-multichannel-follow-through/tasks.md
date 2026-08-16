@@ -34,9 +34,9 @@ cannot activate and prior approval becomes stale.
 - [x] T017 [US1] Extend intake and plan construction with channel/message defaults in `packages/runtime/src/intake-service.ts` and `packages/runtime/src/plan-service.ts`
 - [x] T018 [US1] Expose truthful channel capabilities through `apps/web/app/api/channels/route.ts`
 - [x] T019 [US1] Validate all plan revisions and capability health in `apps/web/lib/plan-controller.ts`
-- [ ] T020 [US1] Build the modern channel selector, recipient editor, exact message preview, cadence, limits and return-path UX in `apps/web/components/plan-review.tsx`
+- [x] T020 [US1] Build the modern channel selector, recipient editor, exact message preview, cadence, limits and return-path UX in `apps/web/components/plan-review.tsx`
 - [x] T021 [US1] Add anti-abuse confirmation and activation blocking in `apps/web/components/plan-review.tsx`
-- [ ] T022 [P] [US1] Add responsive, keyboard and screen-reader styles in `apps/web/app/globals.css`
+- [x] T022 [P] [US1] Add responsive, keyboard and screen-reader styles in `apps/web/app/globals.css`
 - [x] T023 [US1] Add deterministic Playwright coverage for review/revision/approval in `tests/e2e/channel-plan.spec.ts`
 
 ## Phase 4: User Story 2 — Send One Authorized Email Reliably (P1)

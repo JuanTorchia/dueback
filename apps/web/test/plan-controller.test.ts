@@ -102,4 +102,26 @@ describe("plan API contract", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ state: "READY" });
   });
+
+  it("rejects a client-selected channel unless the server resolves it as available", async () => {
+    const service = new PlanService({
+      get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftCase),
+      replace: () => Promise.resolve()
+    });
+    const response = await handlePlanRequest(new Request(
+      "https://dueback.test/api/cases/case_12345678/plan",
+      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
+        action: "select-channel", expectedPlanVersion: 1,
+        revision: { channelType: "MANAGED_EMAIL", senderIdentity: "attacker@example.test" }
+      }) }
+    ), "case_12345678", {
+      authenticate: () => Promise.resolve({ uid: "person_12345678" }),
+      service,
+      now: () => "2026-08-16T12:00:00.000Z",
+      isChannelAvailable: () => false,
+      resolveChannel: () => undefined
+    });
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({ error: "CONTACT_CHANNEL_UNAVAILABLE" });
+  });
 });

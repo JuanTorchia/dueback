@@ -1,10 +1,11 @@
-import type { PlanService } from "@dueback/runtime/plan-service";
+import type { PlanService, TrustedChannelSelection } from "@dueback/runtime/plan-service";
 
 export interface PlanControllerDependencies {
   readonly authenticate: (request: Request) => Promise<{ uid: string }>;
   readonly service: PlanService;
   readonly now: () => string;
   readonly isChannelAvailable?: (channelType: string | undefined) => boolean;
+  readonly resolveChannel?: (channelType: string) => TrustedChannelSelection | undefined;
 }
 
 export async function handlePlanRequest(
@@ -25,6 +26,21 @@ export async function handlePlanRequest(
     };
     if (body.action === "simulate") {
       return Response.json(await dependencies.service.simulate(caseId, owner.uid));
+    }
+    if (body.action === "select-channel" && body.expectedPlanVersion !== undefined) {
+      const channelType = body.revision?.channelType;
+      const selected = typeof channelType === "string"
+        ? dependencies.resolveChannel?.(channelType)
+        : undefined;
+      if (!selected || !dependencies.isChannelAvailable?.(selected.channelType)) {
+        return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
+      }
+      return Response.json(await dependencies.service.selectChannel(
+        caseId,
+        owner.uid,
+        body.expectedPlanVersion,
+        selected
+      ));
     }
     if (body.action === "revise" && body.expectedPlanVersion !== undefined) {
       return Response.json(

@@ -367,3 +367,16 @@ The deployed channel suite verified available approval and unavailable-channel d
 keyboard-switch run exposed a stale accessible-name locator after the button correctly changed from
 “Available” to “Selected”; updating only that test locator produced a clean rerun in 3.5 seconds.
 No product code was changed to turn that result green.
+
+Commit `12b9387` was built by Cloud Build operation
+`fe21d2af-8e98-498c-a8f2-f9a38fee3c5f` and deployed as `dueback-web-00033-vgn` at 100% traffic.
+This revision adds persisted reconciliation identity for uncertain provider acceptance, independent
+reply-route plus `In-Reply-To` correlation, enriched action receipts, and common partner-adapter
+lifecycle coverage. The complete public suite then passed all nine paths sequentially with one
+worker and retries disabled in 1.3 minutes. Live-Gemini paths completed in 34.1 s and 24.3 s.
+
+The final local candidate passed lint, typecheck, production build and `git diff --check`. Package
+suites contain 141 passing tests and the root suite contains 52 passing tests (193 total), plus four
+separate passing Firestore Emulator rule tests. The cancelled intermediate Cloud Build operation
+`6322ae42-6c7f-46af-9c9f-e7083c8cf7e7` was superseded before deployment and is not evidence for
+the public revision.

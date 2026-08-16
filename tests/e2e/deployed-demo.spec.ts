@@ -31,7 +31,7 @@ test.describe("deployed mobile judge path", () => {
     await expect(page.getByText("Web form")).toBeVisible();
     await expect(page.getByText("WhatsApp")).toBeVisible();
     await expect(page.getByText("Controlled HTTP merchant adapter in this public demo.")).toBeVisible();
-    await expect(page.getByText("How you’ll know")).toBeVisible();
+    await expect(page.getByText("3 · How the result comes back to you")).toBeVisible();
     await expect(
       page.getByText(
         "Signed evidence from the responsible party confirming the exact outcome and reference."

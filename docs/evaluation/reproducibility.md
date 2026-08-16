@@ -265,3 +265,15 @@ Commit `e5cf0c2` was built by Cloud Build operation
 replaced the remaining ISO deadline in the review with a locale-formatted date. A mobile visual
 inspection confirmed the human date, and the complete standard live-Gemini journey passed again
 without retries in 24.3 seconds.
+
+## Benefit-led landing deployment
+
+Commit `feb2f55` was built by Cloud Build operation
+`6f3c8f4f-84e0-463d-9930-7e04bc3e06df` and deployed as `dueback-web-00026-jsq` at 100% traffic.
+The root route no longer redirects directly into intake. It now explains the concrete consumer
+problem, shows a representative case rejecting weak acknowledgement evidence, contrasts DueBack
+with a reminder, and defers evidence collection until after the value and boundaries are clear.
+The visual case is explicitly illustrative and contains no fabricated user, testimonial, or metric.
+
+All six public browser tests passed sequentially with retries disabled. The new value-comprehension
+path passed in 1.3 seconds; both live-Gemini paths and all intake resilience paths also passed.

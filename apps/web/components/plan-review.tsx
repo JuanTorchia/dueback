@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { DraftCase } from "@dueback/runtime/intake-service";
 import type { PlanSimulation } from "@dueback/runtime/plan-service";
 import { anonymousIdToken } from "../lib/firebase-client";
+import { errorCopy } from "../lib/error-copy";
 
 type PlanResponse = DraftCase & { error?: string };
 
@@ -89,7 +90,20 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     setSimulation((await response.json()) as PlanSimulation);
   }
 
-  if (error && !draft) return <div className="card error">{error}</div>;
+  if (error && !draft)
+    return (
+      <div className="card error" role="alert">
+        {errorCopy(error)}{" "}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.reload();
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
   if (!draft) return <div className="card">Building the cited Promise Contract…</div>;
   const fieldLabels: Record<string, string> = {
     promisor: "company name",
@@ -256,7 +270,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         >
           Delete this draft
         </button>
-        {error ? <p className="error">{error}</p> : null}
+        {error ? <p className="error" role="alert">{errorCopy(error)}</p> : null}
       </section>
     </div>
   );

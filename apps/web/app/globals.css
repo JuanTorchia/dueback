@@ -24,6 +24,14 @@ input,
 textarea {
   font: inherit;
 }
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
 a {
   color: inherit;
 }
@@ -167,7 +175,17 @@ textarea {
 }
 @media (max-width: 520px) {
   .hero {
-    padding-top: 44px;
+    padding-top: 24px;
+    padding-bottom: 18px;
+  }
+  h1 {
+    font-size: 40px;
+  }
+  .card {
+    padding: 18px;
+  }
+  textarea {
+    min-height: 120px;
   }
   .proof-strip {
     grid-template-columns: 1fr;

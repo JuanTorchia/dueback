@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
+import { errorCopy } from "../lib/error-copy";
 
 export function IntakeForm() {
   const router = useRouter();
@@ -104,7 +105,7 @@ export function IntakeForm() {
       </button>
       {error ? (
         <p className="error" role="alert">
-          {error}
+          {errorCopy(error)}
         </p>
       ) : null}
     </div>

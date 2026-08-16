@@ -10,6 +10,7 @@ import type {
 } from "@dueback/channel-adapters/outbound-email";
 import { firestoreDeleteAt } from "./expiry";
 import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
+import { stableHash } from "@dueback/domain";
 
 export class FirestoreRuntimeStore
   implements
@@ -99,15 +100,39 @@ export class FirestoreRuntimeStore
   }
 
   async succeed(idempotencyKey: string, receipt: ActionReceipt): Promise<void> {
-    await this.db
-      .collection("actionRecords")
-      .doc(idempotencyKey.slice(7))
-      .set({
+    const actionReference = this.db.collection("actionRecords").doc(idempotencyKey.slice(7));
+    const batch = this.db.batch();
+    batch.set(actionReference, {
         status: "SUCCEEDED",
         idempotencyKey,
         receipt,
         deleteAt: firestoreDeleteAt(new Date().toISOString())
       });
+    if (receipt.replyRoute && receipt.caseId) {
+      const routeKey = stableHash({
+        namespace: "dueback/reply-route/v1",
+        replyRoute: receipt.replyRoute.toLowerCase()
+      });
+      batch.set(this.db.collection("messageThreads").doc(routeKey.slice(7)), {
+        routeKey,
+        replyRoute: receipt.replyRoute.toLowerCase(),
+        caseId: receipt.caseId,
+        channelType: receipt.channelType ?? "MANAGED_EMAIL",
+        providerMessageId: receipt.providerMessageId ?? receipt.receiptId,
+        createdAt: receipt.acceptedAt,
+        deleteAt: firestoreDeleteAt(receipt.acceptedAt)
+      });
+    }
+    await batch.commit();
+  }
+
+  async caseForReplyRoute(replyRoute: string): Promise<string | undefined> {
+    const routeKey = stableHash({
+      namespace: "dueback/reply-route/v1",
+      replyRoute: replyRoute.toLowerCase()
+    });
+    const document = await this.db.collection("messageThreads").doc(routeKey.slice(7)).get();
+    return document.exists ? document.get("caseId") as string : undefined;
   }
 
   async fail(idempotencyKey: string, reasonCode: string): Promise<void> {

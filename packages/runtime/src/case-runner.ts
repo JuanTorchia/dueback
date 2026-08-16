@@ -61,6 +61,9 @@ function actionProposal(item: FollowThroughCase): ProposedAction {
     planHash: item.plan.planHash,
     actionType: "SEND_FOLLOW_UP",
     recipient: item.plan.allowedRecipient,
+    ...(item.plan.channelType ? { channelType: item.plan.channelType } : {}),
+    ...(item.plan.messageSubject ? { subject: item.plan.messageSubject } : {}),
+    ...(item.plan.messageBody ? { body: item.plan.messageBody } : {}),
     sharedFields
   };
 }
@@ -113,6 +116,7 @@ export class CaseRunner {
           planHash: item.plan.planHash,
           allowedActions: item.plan.allowedActions,
           allowedRecipient: item.plan.allowedRecipient,
+          ...(item.plan.channelType ? { allowedChannel: item.plan.channelType } : {}),
           sharedFields: item.plan.sharedFields,
           approval: item.approval
         },

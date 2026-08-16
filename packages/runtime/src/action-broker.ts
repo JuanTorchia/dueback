@@ -4,6 +4,11 @@ import type { ApprovedActionPolicy, AuthorizationDecision, ProposedAction } from
 export interface ActionReceipt {
   readonly receiptId: string;
   readonly acceptedAt: string;
+  readonly caseId?: string;
+  readonly channelType?: string;
+  readonly providerMessageId?: string;
+  readonly replyRoute?: string;
+  readonly recipientFingerprint?: string;
 }
 
 export type Reservation =

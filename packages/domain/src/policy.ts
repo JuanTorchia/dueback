@@ -6,6 +6,7 @@ export interface ApprovedActionPolicy {
   readonly planHash: string;
   readonly allowedActions: readonly string[];
   readonly allowedRecipient: string;
+  readonly allowedChannel?: string;
   readonly sharedFields: readonly string[];
   readonly approval: ApprovalBoundary;
 }
@@ -16,6 +17,9 @@ export interface ProposedAction {
   readonly planHash: string;
   readonly actionType: string;
   readonly recipient: string;
+  readonly channelType?: string;
+  readonly subject?: string;
+  readonly body?: string;
   readonly sharedFields: Readonly<Record<string, string>>;
 }
 
@@ -26,6 +30,7 @@ export type AuthorizationReason =
   | "APPROVAL_EXPIRED"
   | "ACTION_NOT_ALLOWED"
   | "RECIPIENT_NOT_ALLOWED"
+  | "CHANNEL_NOT_ALLOWED"
   | "FIELD_NOT_ALLOWED";
 
 export interface AuthorizationDecision {
@@ -58,6 +63,9 @@ export function authorizeAction(
   }
   if (!policy.allowedActions.includes(proposal.actionType)) reasons.push("ACTION_NOT_ALLOWED");
   if (proposal.recipient !== policy.allowedRecipient) reasons.push("RECIPIENT_NOT_ALLOWED");
+  if (policy.allowedChannel && proposal.channelType !== policy.allowedChannel) {
+    reasons.push("CHANNEL_NOT_ALLOWED");
+  }
   if (Object.keys(proposal.sharedFields).some((field) => !policy.sharedFields.includes(field))) {
     reasons.push("FIELD_NOT_ALLOWED");
   }

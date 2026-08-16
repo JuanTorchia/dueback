@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     "./extract-promise": "./src/extract-promise.ts",
-    "./reconcile-evidence": "./src/reconcile-evidence.ts"
+    "./reconcile-evidence": "./src/reconcile-evidence.ts",
+    "./extract-inbound": "./src/extract-inbound.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

@@ -32,9 +32,9 @@ describe("company email action adapter", () => {
     const body = typeof init?.body === "string" ? JSON.parse(init.body) as unknown : {};
     expect(body).toMatchObject({
       to: ["support@example.com"],
-      reply_to: "case+case_12345678@inbound.example.com",
       subject: "Follow-up for ORDER-79"
     });
+    expect((body as { reply_to?: string }).reply_to).toMatch(/^case\+[a-f0-9]{32}@inbound\.example\.com$/);
   });
 
   it("rejects a non-email recipient before calling the provider", async () => {

@@ -54,7 +54,20 @@ const service = new IntakeService(
   process.env.COMPANY_CONTACT_MODE === "email"
     ? process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid"
     : process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
-  { consume: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now) }
+  { consume: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now) },
+  process.env.COMPANY_CONTACT_MODE === "email"
+    ? {
+        channelType: "MANAGED_EMAIL",
+        senderIdentity: process.env.COMPANY_EMAIL_FROM ?? "Email sender not configured",
+        replyRoute: process.env.COMPANY_EMAIL_REPLY_DOMAIN
+          ? `case-specific@${process.env.COMPANY_EMAIL_REPLY_DOMAIN}`
+          : "Reply domain not configured"
+      }
+    : {
+        channelType: "CONTROLLED_SANDBOX",
+        senderIdentity: "DueBack controlled demo",
+        replyRoute: "Signed callback"
+      }
 );
 
 export async function POST(request: Request) {

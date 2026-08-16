@@ -4,6 +4,67 @@ export const opaqueIdSchema = z.string().min(8).max(128);
 export const isoDateSchema = z.iso.datetime({ offset: true });
 export const sha256Schema = z.string().regex(/^sha256:[a-f0-9]{64}$/);
 export const currencySchema = z.string().regex(/^[A-Z]{3}$/);
+export const channelTypeSchema = z.enum([
+  "CONTROLLED_SANDBOX",
+  "MANAGED_EMAIL",
+  "GMAIL_CONNECTED",
+  "PARTNER_API"
+]);
+
+export const channelCapabilitySchema = z.object({
+  channelType: channelTypeSchema,
+  status: z.enum(["AVAILABLE", "DEGRADED", "UNAVAILABLE", "FUTURE"]),
+  canSend: z.boolean(),
+  canReceive: z.boolean(),
+  supportsThreading: z.boolean(),
+  supportsDeliveryReceipt: z.boolean(),
+  supportsAuthenticatedReply: z.boolean(),
+  requiresUserOAuth: z.boolean(),
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10),
+  checkedAt: isoDateSchema
+});
+
+export const transportStatusSchema = z.enum([
+  "ACCEPTED",
+  "DELIVERED",
+  "BOUNCED",
+  "COMPLAINED",
+  "SUPPRESSED",
+  "FAILED",
+  "UNKNOWN"
+]);
+
+export const actionReceiptSchema = z.object({
+  receiptId: opaqueIdSchema,
+  caseId: opaqueIdSchema.optional(),
+  channelType: channelTypeSchema.optional(),
+  providerMessageId: z.string().min(1).max(300).optional(),
+  replyRoute: z.string().min(1).max(320).optional(),
+  recipientFingerprint: sha256Schema.optional(),
+  transportStatus: transportStatusSchema.optional(),
+  acceptedAt: isoDateSchema,
+  observedAt: isoDateSchema.optional(),
+  correlationId: opaqueIdSchema.optional(),
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10).optional()
+});
+
+export const inboundEnvelopeSchema = z.object({
+  inboundId: opaqueIdSchema,
+  providerEventId: opaqueIdSchema,
+  providerEmailId: opaqueIdSchema,
+  channelType: channelTypeSchema,
+  caseId: opaqueIdSchema.optional(),
+  correlationStatus: z.enum(["EXACT", "AMBIGUOUS", "UNKNOWN", "REJECTED"]),
+  senderFingerprint: sha256Schema,
+  recipientRouteFingerprint: sha256Schema,
+  messageId: z.string().min(1).max(500).optional(),
+  inReplyTo: z.string().min(1).max(500).optional(),
+  subject: z.string().max(300),
+  text: z.string().max(100_000),
+  contentHash: sha256Schema,
+  providerSignatureValid: z.boolean(),
+  receivedAt: isoDateSchema
+});
 
 export const evidenceLevelSchema = z.enum([
   "PROMISE_RECORDED",
@@ -99,6 +160,15 @@ export const resolutionPlanSchema = z
       .min(1)
       .max(2),
     allowedRecipient: z.string().min(1).max(320),
+    channelType: channelTypeSchema.optional(),
+    senderIdentity: z.string().min(1).max(320).optional(),
+    replyRoute: z.string().min(1).max(320).optional(),
+    messageTemplateVersion: z.string().min(1).max(80).optional(),
+    messageSubject: z.string().min(1).max(300).optional(),
+    messageBody: z.string().min(1).max(10_000).optional(),
+    followUpIntervalSeconds: z.int().positive().max(30 * 24 * 60 * 60).optional(),
+    maxLogicalSends: z.int().positive().max(3).optional(),
+    recipientConfirmedAt: isoDateSchema.optional(),
     sharedFields: z.array(z.string().min(1).max(80)).max(12),
     followUpAt: isoDateSchema.optional(),
     evidenceRequirements: z
@@ -162,6 +232,7 @@ export const actionEnvelopeSchema = z.object({
   planVersion: z.int().positive(),
   planHash: sha256Schema,
   actionType: z.enum(["SEND_FOLLOW_UP", "CHECK_STATUS"]),
+  channelType: channelTypeSchema.optional(),
   recipient: z.string().min(1).max(320),
   sharedFields: z.record(z.string(), z.string().max(500)),
   requestedAt: isoDateSchema
@@ -201,10 +272,24 @@ export const notificationSchema = z.object({
   correlationId: opaqueIdSchema,
   kind: z.enum(["APPROVAL_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED"]),
   deepLinkPath: z.string().startsWith("/cases/"),
-  createdAt: isoDateSchema
+  createdAt: isoDateSchema,
+  deliveryChannel: z.enum(["IN_APP", "EMAIL"]).optional(),
+  deliveryStatus: z.enum([
+    "RECORDED",
+    "ACCEPTED",
+    "DELIVERED",
+    "BOUNCED",
+    "SUPPRESSED",
+    "FAILED",
+    "UNAVAILABLE"
+  ]).optional()
 });
 
 export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
+export type ChannelType = z.infer<typeof channelTypeSchema>;
+export type ChannelCapability = z.infer<typeof channelCapabilitySchema>;
+export type ActionReceiptContract = z.infer<typeof actionReceiptSchema>;
+export type InboundEnvelope = z.infer<typeof inboundEnvelopeSchema>;
 export type OutcomeContract = z.infer<typeof outcomeContractSchema>;
 export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;

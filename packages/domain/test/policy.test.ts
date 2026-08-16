@@ -8,6 +8,7 @@ const policy: ApprovedActionPolicy = {
   planHash: "sha256:plan",
   allowedActions: ["SEND_FOLLOW_UP"],
   allowedRecipient: "merchant@example.test",
+  allowedChannel: "MANAGED_EMAIL",
   sharedFields: ["transactionRef"],
   approval: {
     ownerId: "person_1",
@@ -23,6 +24,7 @@ const proposal: ProposedAction = {
   planHash: "sha256:plan",
   actionType: "SEND_FOLLOW_UP",
   recipient: "merchant@example.test",
+  channelType: "MANAGED_EMAIL",
   sharedFields: { transactionRef: "ORDER-79" }
 };
 
@@ -36,6 +38,7 @@ describe("authorizeAction", () => {
 
   it.each([
     ["external recipient", { recipient: "attacker@example.test" }, "RECIPIENT_NOT_ALLOWED"],
+    ["unapproved channel", { channelType: "PARTNER_API" }, "CHANNEL_NOT_ALLOWED"],
     ["unapproved field", { sharedFields: { inventory: "all" } }, "FIELD_NOT_ALLOWED"],
     ["unapproved action", { actionType: "ISSUE_PAYMENT" }, "ACTION_NOT_ALLOWED"],
     ["different owner", { ownerId: "person_2" }, "OWNER_MISMATCH"],

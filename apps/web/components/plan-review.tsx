@@ -24,6 +24,7 @@ export function PlanReview({
   const [reference, setReference] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [legitimateContact, setLegitimateContact] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
@@ -169,7 +170,8 @@ export function PlanReview({
     command({ action: "revise", expectedPlanVersion: draft.plan.version, revision });
   const referenceValue = draft.promiseDraft.transactionRef.value;
   const amountValue = `${draft.promiseDraft.currency?.value ?? ""} ${((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}`.trim();
-  const followUpSubject = `Follow-up for ${referenceValue}`;
+  const followUpSubject = draft.plan.messageSubject ?? `Follow-up for ${referenceValue}`;
+  const followUpBody = draft.plan.messageBody;
 
   return (
     <div className="review-grid">
@@ -286,15 +288,20 @@ export function PlanReview({
           <div className="message-preview-heading"><span>2</span><div><strong>The first follow-up</strong><p>This exact scope is bound to your approval.</p></div></div>
           <dl>
             <div><dt>To</dt><dd>{draft.plan.allowedRecipient}</dd></div>
+            <div><dt>From</dt><dd>{draft.plan.senderIdentity ?? "DueBack controlled demo"}</dd></div>
+            <div><dt>Replies</dt><dd>{draft.plan.replyRoute ?? "Signed callback"}</dd></div>
             <div><dt>Subject</dt><dd>{followUpSubject}</dd></div>
           </dl>
           <div className="email-body">
-            <p>Hello,</p>
-            <p>DueBack is following up on an outcome requested by your customer.</p>
-            <p><strong>Reference:</strong> {referenceValue}<br /><strong>Amount:</strong> {amountValue}</p>
-            <p>Please reply with the current status and verifiable confirmation when the outcome is complete.</p>
-            <p className="email-rule">An acknowledgement that the request was received will not be treated as completion.</p>
+            {followUpBody ? <p className="preserve-lines">{followUpBody}</p> : <>
+              <p>Hello,</p>
+              <p>DueBack is following up on an outcome requested by your customer.</p>
+              <p><strong>Reference:</strong> {referenceValue}<br /><strong>Amount:</strong> {amountValue}</p>
+              <p>Please reply with the current status and verifiable confirmation when the outcome is complete.</p>
+              <p className="email-rule">An acknowledgement that the request was received will not be treated as completion.</p>
+            </>}
           </div>
+          <div className="follow-up-policy"><span>Up to {draft.plan.maxLogicalSends ?? 3} sends</span><span>Every {Math.round((draft.plan.followUpIntervalSeconds ?? 172800) / 86400)} days</span><span>Stops for decisions</span></div>
           {contactMode === "email" ? (
             <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
           ) : null}
@@ -309,6 +316,10 @@ export function PlanReview({
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
         {contactMode === "sandbox" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
         <div className="return-promise"><strong>3 · How the result comes back to you</strong><p>The case page updates automatically. Decisions and verified results can also use the outbound notification adapter when a verified user address is configured.</p></div>
+        <label className="legitimate-contact">
+          <input type="checkbox" checked={legitimateContact} onChange={(event) => { setLegitimateContact(event.target.checked); }} />
+          <span><strong>I’m authorized to contact this recipient</strong><small>This is a legitimate follow-up about my own case—not bulk outreach, threats, or unsolicited marketing.</small></span>
+        </label>
         <button
           className="secondary"
           type="button"
@@ -327,7 +338,7 @@ export function PlanReview({
         <button
           className="primary"
           type="button"
-          disabled={busy || draft.activationBlocked || draft.state === "READY"}
+          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact}
           onClick={() => {
             void command({
               action: "approve",
@@ -338,7 +349,7 @@ export function PlanReview({
         >
           {draft.state === "READY" ? "Follow-up activated" : "Approve and start follow-up"}
         </button>
-        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : null}
+        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : !legitimateContact ? <p className="button-help">Confirm that this is an authorized, legitimate contact before activation.</p> : null}
         <button
           className="text-button"
           type="button"

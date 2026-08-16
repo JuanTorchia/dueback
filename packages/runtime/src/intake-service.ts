@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
-import type { OutcomeContract, PromiseDraft, ResolutionPlan } from "@dueback/contracts";
+import type { ChannelType, OutcomeContract, PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { caseDedupeKey, stableHash } from "@dueback/domain";
 
 export interface IntakeArtifact {
@@ -103,6 +103,11 @@ function buildPlan(input: {
   readonly draft: PromiseDraft;
   readonly recipient: string;
   readonly now: string;
+  readonly channel: {
+    readonly channelType: ChannelType;
+    readonly senderIdentity: string;
+    readonly replyRoute: string;
+  };
 }): ResolutionPlan {
   const { draft } = input;
   if (!draft.amountMinor || !draft.currency) throw new Error("REFUND_MONEY_FIELDS_REQUIRED");
@@ -114,6 +119,22 @@ function buildPlan(input: {
     goal: draft.result.value,
     allowedActions: ["SEND_FOLLOW_UP"] as const,
     allowedRecipient: input.recipient,
+    channelType: input.channel.channelType,
+    senderIdentity: input.channel.senderIdentity,
+    replyRoute: input.channel.replyRoute,
+    messageTemplateVersion: "company-follow-up/v1",
+    messageSubject: `Follow-up for ${draft.transactionRef.value}`,
+    messageBody: [
+      "Hello,",
+      "",
+      "DueBack is following up on an outcome requested by your customer.",
+      `Reference: ${draft.transactionRef.value}`,
+      `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`,
+      "Please reply with the current status and verifiable confirmation when the outcome is complete.",
+      "An acknowledgement that the request was received will not be treated as completion."
+    ].join("\n"),
+    followUpIntervalSeconds: 2 * 24 * 60 * 60,
+    maxLogicalSends: 3,
     sharedFields: ["transactionRef", "amountMinor", "currency"],
     ...(draft.dueAt?.uncertainty === "NONE" ? { followUpAt: draft.dueAt.value } : {}),
     evidenceRequirements: [
@@ -123,7 +144,12 @@ function buildPlan(input: {
         currency: draft.currency.value,
         transactionRef: draft.transactionRef.value,
         maxAgeSeconds: 30 * 24 * 60 * 60,
-        trustedIssuer: "merchant-sandbox"
+        trustedIssuer: input.channel.channelType === "MANAGED_EMAIL"
+          ? `managed-email:${stableHash({
+              namespace: "dueback/recipient/v1",
+              recipient: input.recipient.toLowerCase()
+            }).slice(7, 31)}`
+          : "merchant-sandbox"
       }
     ],
     expiresAt: new Date(Date.parse(input.now) + 7 * 24 * 60 * 60 * 1000).toISOString()
@@ -136,7 +162,16 @@ export class IntakeService {
     private readonly store: IntakeStore,
     private readonly extractor: PromiseExtractor,
     private readonly merchantRecipient: string,
-    private readonly budget?: NewCaseBudget
+    private readonly budget?: NewCaseBudget,
+    private readonly channel: {
+      readonly channelType: ChannelType;
+      readonly senderIdentity: string;
+      readonly replyRoute: string;
+    } = {
+      channelType: "CONTROLLED_SANDBOX",
+      senderIdentity: "DueBack controlled demo",
+      replyRoute: "Signed callback"
+    }
   ) {}
 
   async intake(
@@ -160,7 +195,8 @@ export class IntakeService {
       ownerId: artifact.ownerId,
       draft: promiseDraft,
       recipient: this.merchantRecipient,
-      now
+      now,
+      channel: this.channel
     });
     const blockingFields = blockingCriticalFields(
       promiseDraft,

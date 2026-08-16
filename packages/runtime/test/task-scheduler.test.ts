@@ -24,4 +24,25 @@ describe("TaskScheduler", () => {
       })
     ).resolves.toMatchObject({ duplicate: true });
   });
+
+  it("deduplicates inbound provider events with a separate worker URL", async () => {
+    const client = {
+      queuePath: () => "projects/demo/locations/us-central1/queues/cases",
+      createTask: vi.fn().mockRejectedValue({ code: 6 })
+    } as unknown as CloudTasksClient;
+    const scheduler = new TaskScheduler(client, {
+      projectId: "demo",
+      location: "us-central1",
+      queue: "cases",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      inboundWorkerUrl: "https://dueback.test/api/internal/tasks/process-inbound",
+      serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
+    });
+    await expect(scheduler.scheduleInbound({
+      providerEventId: "event_123",
+      providerEmailId: "email_123",
+      eventType: "email.received",
+      wakeAt: "2026-08-16T00:00:00.000Z"
+    })).resolves.toMatchObject({ duplicate: true });
+  });
 });

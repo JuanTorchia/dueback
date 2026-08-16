@@ -1,0 +1,71 @@
+import { describe, expect, it, vi } from "vitest";
+import { InboundService } from "../src/inbound-service";
+import type { FollowThroughCase } from "../src/case-runner";
+import type { EvidenceService } from "../src/evidence-service";
+import type { InterventionService } from "../src/interventions";
+import { makeDraft } from "./support";
+
+const draft = makeDraft();
+const item: FollowThroughCase = {
+  caseId: draft.caseId,
+  ownerId: draft.ownerId,
+  state: "WAITING_EXTERNAL",
+  version: 2,
+  plan: draft.plan,
+  approval: {
+    ownerId: draft.ownerId,
+    planVersion: draft.plan.version,
+    planHash: draft.plan.planHash,
+    expiresAt: draft.plan.expiresAt
+  },
+  actionOrdinal: 1,
+  dueAt: "2026-08-15T00:00:00.000Z"
+};
+
+const email = {
+  providerEmailId: "email_123",
+  from: "merchant@controlled.test",
+  to: ["case+route@inbound.example.test"],
+  subject: "Re: refund",
+  text: "We received request ORDER-79"
+};
+
+describe("inbound service", () => {
+  it("routes an acknowledgement through deterministic evidence reconciliation", async () => {
+    const reconcile = vi.fn(() => Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] } }));
+    const service = new InboundService(
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "REQUEST_ACKNOWLEDGED", changedTerms: [], uncertainty: "NONE" }) },
+      { reconcile } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toEqual({ status: "INSUFFICIENT" });
+    expect(reconcile).toHaveBeenCalledOnce();
+  });
+
+  it("rejects unknown routing without invoking the model", async () => {
+    const interpret = vi.fn();
+    const service = new InboundService(
+      { get: () => Promise.resolve(undefined), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(undefined) },
+      { interpret },
+      { reconcile: vi.fn() } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] });
+    expect(interpret).not.toHaveBeenCalled();
+  });
+
+  it("escalates an unexpected sender before interpreting content", async () => {
+    const interpret = vi.fn();
+    const raise = vi.fn(() => Promise.resolve({}));
+    const service = new InboundService(
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { interpret },
+      { reconcile: vi.fn() } as unknown as EvidenceService,
+      { raise } as unknown as InterventionService
+    );
+    await expect(service.process({ ...email, from: "attacker@example.test" }, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "NEEDS_ATTENTION" });
+    expect(interpret).not.toHaveBeenCalled();
+    expect(raise).toHaveBeenCalledOnce();
+  });
+});

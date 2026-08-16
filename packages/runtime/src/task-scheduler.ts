@@ -6,6 +6,7 @@ export interface TaskSchedulerConfig {
   readonly location: string;
   readonly queue: string;
   readonly workerUrl: string;
+  readonly inboundWorkerUrl?: string;
   readonly serviceAccountEmail: string;
 }
 
@@ -56,6 +57,40 @@ export class TaskScheduler {
     } catch (error) {
       const code = (error as { code?: number }).code;
       if (code === 6) return { taskName, duplicate: true };
+      throw error;
+    }
+  }
+
+  async scheduleInbound(input: {
+    readonly providerEventId: string;
+    readonly providerEmailId: string;
+    readonly eventType: string;
+    readonly wakeAt: string;
+  }): Promise<{ taskName: string; duplicate: boolean }> {
+    if (!this.config.inboundWorkerUrl) throw new Error("INBOUND_WORKER_NOT_CONFIGURED");
+    const parent = this.client.queuePath(
+      this.config.projectId,
+      this.config.location,
+      this.config.queue
+    );
+    const stableName = stableHash({ namespace: "dueback/inbound-task/v1", ...input }).slice(7, 39);
+    const taskName = `${parent}/tasks/inbound-${stableName}`;
+    const task: protos.google.cloud.tasks.v2.ITask = {
+      name: taskName,
+      scheduleTime: { seconds: Math.floor(Date.parse(input.wakeAt) / 1000) },
+      httpRequest: {
+        httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
+        url: this.config.inboundWorkerUrl,
+        headers: { "Content-Type": "application/json" },
+        body: Buffer.from(JSON.stringify(input)).toString("base64"),
+        oidcToken: { serviceAccountEmail: this.config.serviceAccountEmail }
+      }
+    };
+    try {
+      const [created] = await this.client.createTask({ parent, task });
+      return { taskName: created.name ?? taskName, duplicate: false };
+    } catch (error) {
+      if ((error as { code?: number }).code === 6) return { taskName, duplicate: true };
       throw error;
     }
   }

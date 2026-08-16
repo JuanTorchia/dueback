@@ -37,6 +37,7 @@ test.describe("deployed mobile judge path", () => {
         "Signed evidence from the responsible party confirming the exact outcome and reference."
       )
     ).toBeVisible();
+    await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();

@@ -13,7 +13,9 @@
     "./interventions": "./src/interventions.ts",
     "./case-control": "./src/case-control.ts",
     "./evidence-service": "./src/evidence-service.ts",
-    "./timeline": "./src/timeline.ts"
+    "./timeline": "./src/timeline.ts",
+    "./channel-registry": "./src/channel-registry.ts",
+    "./inbound-service": "./src/inbound-service.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

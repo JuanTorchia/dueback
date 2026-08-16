@@ -34,6 +34,9 @@ export interface PlanRevision {
 
 export interface PlanSimulation {
   readonly recipient: string;
+  readonly channelType?: string;
+  readonly subject?: string;
+  readonly body?: string;
   readonly action: string;
   readonly sharedFields: readonly string[];
   readonly completionLevel: string;
@@ -90,6 +93,23 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
     goal: revision.goal ?? draft.result.value,
     allowedActions: current.allowedActions,
     allowedRecipient: revision.allowedRecipient ?? current.allowedRecipient,
+    ...(current.channelType ? { channelType: current.channelType } : {}),
+    ...(current.senderIdentity ? { senderIdentity: current.senderIdentity } : {}),
+    ...(current.replyRoute ? { replyRoute: current.replyRoute } : {}),
+    ...(current.messageTemplateVersion
+      ? { messageTemplateVersion: current.messageTemplateVersion }
+      : {}),
+    ...(current.messageSubject ? { messageSubject: current.messageSubject } : {}),
+    ...(current.messageBody ? { messageBody: current.messageBody } : {}),
+    ...(current.followUpIntervalSeconds
+      ? { followUpIntervalSeconds: current.followUpIntervalSeconds }
+      : {}),
+    ...(current.maxLogicalSends ? { maxLogicalSends: current.maxLogicalSends } : {}),
+    ...(revision.allowedRecipient
+      ? { recipientConfirmedAt: new Date().toISOString() }
+      : current.recipientConfirmedAt
+        ? { recipientConfirmedAt: current.recipientConfirmedAt }
+        : {}),
     sharedFields: current.sharedFields,
     ...(revision.followUpAt || revision.dueAt || current.followUpAt
       ? { followUpAt: revision.followUpAt ?? revision.dueAt ?? current.followUpAt }
@@ -131,6 +151,9 @@ export class PlanService {
     const draft = await this.inspect(caseId, ownerId);
     return {
       recipient: draft.plan.allowedRecipient,
+      ...(draft.plan.channelType ? { channelType: draft.plan.channelType } : {}),
+      ...(draft.plan.messageSubject ? { subject: draft.plan.messageSubject } : {}),
+      ...(draft.plan.messageBody ? { body: draft.plan.messageBody } : {}),
       action: draft.plan.allowedActions[0] ?? "NONE",
       sharedFields: draft.plan.sharedFields,
       completionLevel: draft.plan.evidenceRequirements[0]?.minimumLevel ?? "UNDEFINED",

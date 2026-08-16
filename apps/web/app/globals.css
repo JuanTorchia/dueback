@@ -1326,6 +1326,49 @@ summary {
   background: #fff7ed;
   color: #7c2d12;
 }
+.preserve-lines {
+  white-space: pre-line;
+}
+.follow-up-policy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+}
+.follow-up-policy span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #edf5f0;
+  color: var(--green-dark);
+  font-size: 9px;
+  font-weight: 750;
+}
+.legitimate-contact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 13px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: white;
+}
+.legitimate-contact input {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--green);
+}
+.legitimate-contact span {
+  display: grid;
+  gap: 3px;
+}
+.legitimate-contact small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.35;
+}
 .permission-list {
   display: grid;
   gap: 0;

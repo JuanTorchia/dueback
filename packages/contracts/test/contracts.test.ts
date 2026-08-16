@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { actionEnvelopeSchema, outcomeContractSchema, promiseDraftSchema } from "../src/index";
+import {
+  actionEnvelopeSchema,
+  channelCapabilitySchema,
+  outcomeContractSchema,
+  promiseDraftSchema,
+  resolutionPlanSchema
+} from "../src/index";
 
 describe("boundary contracts", () => {
   it("rejects a free-form model draft without provenance", () => {
@@ -18,6 +24,53 @@ describe("boundary contracts", () => {
         caseId: "case_123"
       })
     ).toThrow();
+  });
+
+  it("accepts legacy plans while validating multichannel plans", () => {
+    const base = {
+      planId: "plan_12345678",
+      caseId: "case_12345678",
+      ownerId: "person_12345678",
+      version: 1,
+      planHash: `sha256:${"a".repeat(64)}`,
+      goal: "USD 79 refund",
+      allowedActions: ["SEND_FOLLOW_UP"],
+      allowedRecipient: "support@example.test",
+      sharedFields: ["transactionRef", "amountMinor", "currency"],
+      evidenceRequirements: [{
+        minimumLevel: "MERCHANT_CONFIRMED",
+        amountMinor: 7900,
+        currency: "USD",
+        transactionRef: "ORDER-79",
+        maxAgeSeconds: 3600,
+        trustedIssuer: "merchant-sandbox"
+      }],
+      expiresAt: "2026-08-22T00:00:00.000Z"
+    };
+    expect(resolutionPlanSchema.parse(base).channelType).toBeUndefined();
+    expect(resolutionPlanSchema.parse({
+      ...base,
+      channelType: "MANAGED_EMAIL",
+      messageTemplateVersion: "follow-up/v1",
+      messageSubject: "Follow-up for ORDER-79",
+      messageBody: "Please confirm the promised outcome.",
+      maxLogicalSends: 3
+    }).channelType).toBe("MANAGED_EMAIL");
+  });
+
+  it("requires truthful channel capability fields", () => {
+    expect(channelCapabilitySchema.parse({
+      channelType: "CONTROLLED_SANDBOX",
+      status: "AVAILABLE",
+      canSend: true,
+      canReceive: true,
+      supportsThreading: false,
+      supportsDeliveryReceipt: true,
+      supportsAuthenticatedReply: true,
+      requiresUserOAuth: false,
+      reasonCodes: ["CONFIGURED"],
+      checkedAt: "2026-08-16T00:00:00.000Z"
+    }).status).toBe("AVAILABLE");
   });
 
   it.each([

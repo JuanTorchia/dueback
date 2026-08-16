@@ -1,3 +1,4 @@
+import { stableHash } from "@dueback/domain";
 import type { ProposedAction } from "@dueback/domain";
 import type { ActionReceipt, ClosedActionAdapter } from "@dueback/runtime/action-broker";
 
@@ -46,8 +47,15 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proposal.recipient)) {
       throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
     }
-    const message = messageFor(proposal, context.caseId);
-    const replyLocalPart = context.caseId.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);
+    const message = proposal.subject && proposal.body
+      ? { subject: proposal.subject, text: proposal.body }
+      : messageFor(proposal, context.caseId);
+    const routeToken = stableHash({
+      namespace: "dueback/email-reply-route/v1",
+      caseId: context.caseId,
+      idempotencyKey
+    }).slice(7, 39);
+    const replyRoute = `case+${routeToken}@${this.config.replyDomain}`;
     const response = await this.request("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -58,7 +66,7 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
       body: JSON.stringify({
         from: this.config.from,
         to: [proposal.recipient],
-        reply_to: `case+${replyLocalPart}@${this.config.replyDomain}`,
+        reply_to: replyRoute,
         subject: message.subject,
         text: message.text
       })
@@ -66,7 +74,18 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
     if (!response.ok) throw new Error(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
     const result = (await response.json()) as { id?: string };
     if (!result.id) throw new Error("COMPANY_EMAIL_RECEIPT_MISSING");
-    return { receiptId: result.id, acceptedAt: new Date().toISOString() };
+    return {
+      receiptId: result.id,
+      providerMessageId: result.id,
+      caseId: context.caseId,
+      channelType: "MANAGED_EMAIL",
+      replyRoute,
+      recipientFingerprint: stableHash({
+        namespace: "dueback/recipient/v1",
+        recipient: proposal.recipient.toLowerCase()
+      }),
+      acceptedAt: new Date().toISOString()
+    };
   }
 }
 

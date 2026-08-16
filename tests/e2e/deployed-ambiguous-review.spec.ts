@@ -52,6 +52,7 @@ test.describe("deployed ambiguous promise review", () => {
     }
 
     const activate = page.getByRole("button", { name: "Approve and start follow-up" });
+    await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await expect(activate).toBeEnabled();
     await activate.click();
     await expect(page).toHaveURL(/\/result/);

@@ -153,3 +153,16 @@
   privacidad/borrado preactivación. El estudio humano sigue pendiente.
 - Motivo: presentar simulaciones de IA como ocho participantes violaría la regla de no inventar
   métricas y dañaría la credibilidad del proyecto ante el jurado.
+
+## D-015 — Panel de personas sintéticas con verificación reproducible
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: usar agentes con historias divergentes únicamente como auditoría heurística. Cada
+  hallazgo debe etiquetarse como reproducción, inspección o predicción y solo puede impulsar código
+  si se confirma contra la aplicación o el repositorio.
+- Cambios aceptados: separar fecha prometida de fecha de seguimiento, advertir sandbox antes del
+  permiso, limitar el claim final, conservar solo citas textuales verificadas, anunciar cambios a
+  tecnología asistiva, simplificar timeline y mejorar reflow/táctil móvil.
+- Exclusión: el panel no produce usuarios, preferencias, citas, tiempos ni tasas y no satisface el
+  estudio de ocho adultos.

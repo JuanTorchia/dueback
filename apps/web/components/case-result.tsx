@@ -61,10 +61,10 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         accelerated.
       </p>
       <section className={`card outcome ${done ? "verified" : "waiting"}`}>
-        <div className="eyebrow">{done ? "Proof of Done" : "Still working"}</div>
+        <div className="eyebrow">{done ? "Evidence accepted" : "Still working"}</div>
         <h2>
           {done
-            ? "Merchant-confirmed refund"
+            ? "Merchant confirmed the refund instruction"
             : acknowledgement
               ? "Not done — request received only"
               : "Waiting for sufficient proof"}
@@ -75,7 +75,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
             : "DueBack keeps the case open until evidence meets the approved contract."}
         </p>
         <div className="claim-limit">
-          Merchant-confirmed does not mean bank settlement. Funds settlement has not been verified.
+          Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received.
         </div>
       </section>
       <section className="card">

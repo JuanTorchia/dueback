@@ -53,16 +53,20 @@ export interface NewCaseBudget {
   consume(ownerId: string, now: string): Promise<void>;
 }
 
-export function blockingCriticalFields(draft: PromiseDraft): string[] {
+export function blockingCriticalFields(draft: PromiseDraft, followUpAt?: string): string[] {
   const fields: [string, { uncertainty: string } | undefined][] = [
     ["promisor", draft.promisor],
     ["result", draft.result],
     ["amountMinor", draft.amountMinor],
     ["currency", draft.currency],
-    ["transactionRef", draft.transactionRef],
-    ["dueAt", draft.dueAt ?? draft.dueCondition]
+    ["transactionRef", draft.transactionRef]
   ];
-  return fields.filter(([, field]) => !field || field.uncertainty !== "NONE").map(([name]) => name);
+  const blocked = fields
+    .filter(([, field]) => !field || field.uncertainty !== "NONE")
+    .map(([name]) => name);
+  const extractedDeadline = draft.dueAt?.uncertainty === "NONE" ? draft.dueAt.value : undefined;
+  if (!followUpAt && !extractedDeadline) blocked.push("followUpAt");
+  return blocked;
 }
 
 function buildPlan(input: {
@@ -83,6 +87,7 @@ function buildPlan(input: {
     allowedActions: ["SEND_FOLLOW_UP"] as const,
     allowedRecipient: input.recipient,
     sharedFields: ["transactionRef", "amountMinor", "currency"],
+    ...(draft.dueAt?.uncertainty === "NONE" ? { followUpAt: draft.dueAt.value } : {}),
     evidenceRequirements: [
       {
         minimumLevel: "MERCHANT_CONFIRMED" as const,
@@ -122,7 +127,14 @@ export class IntakeService {
 
     const promiseDraft = promiseDraftSchema.parse(await this.extractor.extract(artifact));
     const caseId = `case_${randomUUID()}`;
-    const blockingFields = blockingCriticalFields(promiseDraft);
+    const plan = buildPlan({
+      caseId,
+      ownerId: artifact.ownerId,
+      draft: promiseDraft,
+      recipient: this.merchantRecipient,
+      now
+    });
+    const blockingFields = blockingCriticalFields(promiseDraft, plan.followUpAt);
     const draft: DraftCase = {
       caseId,
       ownerId: artifact.ownerId,
@@ -130,13 +142,7 @@ export class IntakeService {
       dedupeKey,
       state: "AWAITING_APPROVAL",
       promiseDraft,
-      plan: buildPlan({
-        caseId,
-        ownerId: artifact.ownerId,
-        draft: promiseDraft,
-        recipient: this.merchantRecipient,
-        now
-      }),
+      plan,
       activationBlocked: blockingFields.length > 0,
       blockingFields,
       createdAt: now

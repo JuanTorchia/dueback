@@ -26,6 +26,7 @@ export interface PlanRevision {
   readonly currency?: string;
   readonly transactionRef?: string;
   readonly dueAt?: string;
+  readonly followUpAt?: string;
   readonly goal?: string;
   readonly expiresAt?: string;
 }
@@ -89,6 +90,9 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
     allowedActions: current.allowedActions,
     allowedRecipient: current.allowedRecipient,
     sharedFields: current.sharedFields,
+    ...(revision.followUpAt || revision.dueAt || current.followUpAt
+      ? { followUpAt: revision.followUpAt ?? revision.dueAt ?? current.followUpAt }
+      : {}),
     expiresAt: revision.expiresAt ?? current.expiresAt,
     evidenceRequirements: [
       {
@@ -110,8 +114,8 @@ export class PlanService {
 
   private async schedule(draft: DraftCase, now: string): Promise<void> {
     if (!this.scheduler) return;
-    const promisedAt = draft.promiseDraft.dueAt?.value;
-    const wakeAt = promisedAt && Date.parse(promisedAt) > Date.parse(now) ? promisedAt : now;
+    const requestedAt = draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value;
+    const wakeAt = requestedAt && Date.parse(requestedAt) > Date.parse(now) ? requestedAt : now;
     await this.scheduler.scheduleCase({ caseId: draft.caseId, expectedVersion: 1, wakeAt });
   }
 
@@ -144,7 +148,7 @@ export class PlanService {
     if (current.state !== "AWAITING_APPROVAL") throw new Error("PLAN_NOT_EDITABLE");
     const promiseDraft = revisedDraft(current.promiseDraft, revision);
     const plan = revisedPlan(current.plan, promiseDraft, revision);
-    const blockingFields = blockingCriticalFields(promiseDraft);
+    const blockingFields = blockingCriticalFields(promiseDraft, plan.followUpAt);
     const next: DraftCase = {
       ...current,
       promiseDraft,

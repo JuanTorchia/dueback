@@ -74,11 +74,11 @@ export function CaseResultPreview() {
     <div className="result-grid">
       <p className="preview-label">Controlled development preview — synthetic data</p>
       <section className="card outcome verified">
-        <div className="eyebrow">Proof of Done</div>
-        <h2>Merchant-confirmed refund</h2>
+        <div className="eyebrow">Evidence accepted</div>
+        <h2>Merchant confirmed the refund instruction</h2>
         <p>The merchant signed evidence matching this case, amount, currency, and reference.</p>
         <div className="claim-limit">
-          Merchant-confirmed does not mean bank settlement. Funds settlement has not been verified.
+          Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received.
         </div>
       </section>
       <section className="card">

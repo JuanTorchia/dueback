@@ -251,11 +251,30 @@ textarea {
   font-size: 12px;
   font-weight: 400;
 }
+.source-excerpts {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+.technical-details code {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+}
 .button-help {
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.4;
+}
+.demo-warning {
+  padding: 12px;
+  border: 2px solid #c2410c;
+  border-radius: 10px;
+  background: #fff7ed;
+  color: #7c2d12 !important;
+}
+.sr-status {
+  min-height: 1px;
 }
 .warning,
 .simulation {
@@ -327,6 +346,23 @@ summary {
   }
   .contract-heading {
     flex-direction: column;
+  }
+  .facts div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .inline-edit {
+    flex-direction: column;
+  }
+  .inline-edit button,
+  .secondary,
+  .text-button,
+  .button-link {
+    min-height: 44px;
+  }
+  .facts dd,
+  code {
+    overflow-wrap: anywhere;
   }
 }
 .result-grid {

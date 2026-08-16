@@ -4,7 +4,7 @@ export default function IntakePage() {
   return (
     <main className="shell">
       <div className="brand">
-        <span className="brand-mark">✓</span> DueBack
+        <span className="brand-mark" aria-hidden="true">✓</span> DueBack
       </div>
       <section className="hero">
         <div className="eyebrow">Proof of Done</div>
@@ -15,10 +15,10 @@ export default function IntakePage() {
         </p>
       </section>
       <IntakeForm />
-      <div className="proof-strip" aria-label="DueBack principles">
-        <div>Gemini reads messy promises</div>
-        <div>You approve every boundary</div>
-        <div>Rules—not the model—decide done</div>
+      <div className="proof-strip" role="list" aria-label="DueBack principles">
+        <div role="listitem">Gemini reads messy promises</div>
+        <div role="listitem">You approve every boundary</div>
+        <div role="listitem">Rules—not the model—decide done</div>
       </div>
     </main>
   );

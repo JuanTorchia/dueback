@@ -5,6 +5,7 @@ import {
   extractPromiseWithGateway,
   extractPromiseWithMetricsGateway,
   extractionSystemInstruction,
+  verifiedSourceExcerpt,
   type PromiseModelGateway
 } from "../src/extract-promise";
 
@@ -78,6 +79,15 @@ describe("extractPromise", () => {
       "<untrusted-source>"
     );
     expect(prompt).not.toHaveProperty("tools");
+  });
+
+  it("retains only exact bounded excerpts from the source", () => {
+    const source = "The approved amount is USD 59.";
+    expect(verifiedSourceExcerpt(source, "approved amount is USD 59")).toBe(
+      "approved amount is USD 59"
+    );
+    expect(verifiedSourceExcerpt(source, "approved amount is USD 79")).toBeUndefined();
+    expect(verifiedSourceExcerpt(undefined, "USD 59")).toBeUndefined();
   });
 
   it("rejects citations pointing to a different artifact", async () => {

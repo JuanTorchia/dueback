@@ -42,10 +42,11 @@ export function IntakeForm() {
 
   const ready = mode === "paste" ? text.trim().length > 0 : file !== undefined;
   return (
-    <div className="card" data-testid="intake-form" data-hydrated={hydrated}>
-      <div className="tabs" aria-label="Promise input method">
+    <div className="card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
+      <div className="tabs" role="group" aria-label="Promise input method">
         <button
           className="tab"
+          aria-pressed={mode === "paste"}
           data-active={mode === "paste"}
           onClick={() => {
             setMode("paste");
@@ -56,6 +57,7 @@ export function IntakeForm() {
         </button>
         <button
           className="tab"
+          aria-pressed={mode === "upload"}
           data-active={mode === "upload"}
           onClick={() => {
             setMode("upload");
@@ -103,6 +105,9 @@ export function IntakeForm() {
       >
         {busy ? "Finding the promise…" : "Build my resolution plan"}
       </button>
+      <p className="sr-status" role="status" aria-live="polite">
+        {busy ? "DueBack is finding and checking the promise." : ""}
+      </p>
       {error ? (
         <p className="error" role="alert">
           {errorCopy(error)}

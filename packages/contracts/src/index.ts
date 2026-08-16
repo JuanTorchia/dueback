@@ -16,6 +16,7 @@ export const evidenceLevelSchema = z.enum([
 export const fieldProvenanceSchema = z.object({
   artifactId: opaqueIdSchema,
   locator: z.string().min(1).max(256),
+  excerpt: z.string().min(1).max(160).optional(),
   excerptHash: sha256Schema,
   confidence: z.enum(["HIGH", "MEDIUM", "LOW", "UNKNOWN"])
 });
@@ -53,6 +54,7 @@ export const resolutionPlanSchema = z
       .max(2),
     allowedRecipient: z.string().min(1).max(320),
     sharedFields: z.array(z.string().min(1).max(80)).max(12),
+    followUpAt: isoDateSchema.optional(),
     evidenceRequirements: z
       .array(
         z.object({

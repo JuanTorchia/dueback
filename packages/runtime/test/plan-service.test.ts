@@ -111,7 +111,7 @@ describe("PlanService", () => {
         transactionRef: { ...initial.promiseDraft.transactionRef, uncertainty: "AMBIGUOUS" },
         dueAt: undefined
       },
-      blockingFields: ["promisor", "result", "amountMinor", "currency", "transactionRef", "dueAt"],
+      blockingFields: ["promisor", "result", "amountMinor", "currency", "transactionRef", "followUpAt"],
       activationBlocked: true
     };
     const service = new PlanService(new MemoryPlanStore(blocked));
@@ -122,12 +122,13 @@ describe("PlanService", () => {
       amountMinor: 5900,
       currency: "USD",
       transactionRef: "REF-1001",
-      dueAt: "2026-08-20T00:00:00.000Z"
+      followUpAt: "2026-08-20T00:00:00.000Z"
     });
 
     expect(revised.activationBlocked).toBe(false);
     expect(revised.blockingFields).toEqual([]);
     expect(revised.plan.goal).toBe("USD 59 refund");
+    expect(revised.plan.followUpAt).toBe("2026-08-20T00:00:00.000Z");
     expect(revised.plan.evidenceRequirements[0]).toMatchObject({
       amountMinor: 5900,
       currency: "USD",

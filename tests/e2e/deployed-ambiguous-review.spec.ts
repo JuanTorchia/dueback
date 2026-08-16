@@ -44,10 +44,10 @@ test.describe("deployed ambiguous promise review", () => {
     await confirmIfShown(page, "Currency", "USD", "Confirm currency");
     await confirmIfShown(page, "Order or case reference", "ORDER-79", "Confirm reference");
 
-    const due = page.getByLabel("Promised due date");
+    const due = page.getByLabel("Follow-up date");
     if (await due.isVisible()) {
       await due.fill("2026-08-15T12:00");
-      await page.getByRole("button", { name: "Confirm due date" }).click();
+      await page.getByRole("button", { name: "Confirm follow-up date" }).click();
       await expect(due).not.toBeVisible({ timeout: 15_000 });
     }
 
@@ -56,7 +56,7 @@ test.describe("deployed ambiguous promise review", () => {
     await activate.click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Merchant-confirmed refund" })).toBeVisible({
+    await expect(page.getByRole("heading", { name: "Merchant confirmed the refund instruction" })).toBeVisible({
       timeout: 45_000
     });
   });

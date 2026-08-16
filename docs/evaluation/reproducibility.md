@@ -194,3 +194,20 @@ lint, and the production build. After deployment, both mobile journeys passed se
 retries disabled in 30.8 and 28.8 seconds (one minute total runner time). The initially invoked
 browser test still referenced the superseded accessible field name and was stopped after that
 selector failure; updating the test contract produced the clean run reported here.
+
+## Intake latency remediation
+
+Commit `c4068cc` was built by Cloud Build operation
+`3f1609ea-541a-475c-acae-c88f5b572205` and deployed as `dueback-web-00020-cr7` at 100% traffic.
+The intake now displays an honest elapsed-time state, changes its explanation after 15 and 30
+seconds, prevents duplicate submission, preserves the source after failure, supports removing a
+selected file, and maps rejected file classes to actionable messages. Screen-reader announcements
+occur only when the phase changes; the per-second visual counter is hidden from assistive
+technology.
+
+The first four-test public run produced three passes and one test-selector failure because Next.js
+also exposes an empty route-announcer with `role=alert`; the product error was visible and correct.
+After scoping the assertion to the product alert, both deterministic resilience tests passed with
+retries disabled in 4.3 seconds and 834 ms. They verify delayed-response feedback and recovery plus
+combined text-and-image intake. The two live-Gemini paths in the preceding run passed in 30.5 and
+26.9 seconds.

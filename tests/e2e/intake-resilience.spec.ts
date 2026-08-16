@@ -27,7 +27,7 @@ test.describe("intake feedback and recovery", () => {
     await expect(page.getByText("Gemini is reading your evidence")).toBeVisible();
     await expect(page.getByText(/usually 10–25 seconds/)).toBeVisible();
     await expect(page.getByRole("button", { name: "Building your plan…" })).toBeDisabled();
-    await expect(page.getByRole("alert")).toContainText("could not complete");
+    await expect(page.locator("p.error[role='alert']")).toContainText("could not complete");
     await expect(source).toHaveValue(promise);
     await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
   });

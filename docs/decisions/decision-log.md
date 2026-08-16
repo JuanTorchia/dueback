@@ -166,3 +166,17 @@
   tecnología asistiva, simplificar timeline y mejorar reflow/táctil móvil.
 - Exclusión: el panel no produce usuarios, preferencias, citas, tiempos ni tasas y no satisface el
   estudio de ocho adultos.
+
+## D-016 — La extracción debe convertirse en trabajo durable
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada para la siguiente iteración
+- Evidencia: auditores sintéticos midieron entre 17 y 25 segundos percibidos para llegar a revisión;
+  el código mantiene abierto `POST /api/intake` durante la llamada Gemini y hasta dos intentos.
+- Decisión inmediata: mostrar espera honesta con tiempo observado, estados de demora, contenido
+  preservado, errores accionables y pruebas browser deterministas de demora/fallo y fuente combinada.
+- Decisión estructural: reemplazar el request largo por creación rápida de un caso `ANALYZING`,
+  procesamiento idempotente mediante Cloud Tasks y una ruta de progreso reanudable. Las etapas de UI
+  deberán provenir de estado persistido real, no de animaciones que simulen avance.
+- Motivo: reduce abandono y convierte la latencia de Gemini en una demostración visible de ejecución
+  durable para la categoría Taskmaster.

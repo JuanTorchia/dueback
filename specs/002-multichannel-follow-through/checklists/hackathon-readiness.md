@@ -1,5 +1,9 @@
 # Hackathon Readiness Checklist: Multichannel Follow-Through
 
+The requirement-by-requirement evidence audit is maintained in
+[`completion-audit.md`](completion-audit.md). A checked implementation task does not override a
+`PARTIAL` or `EXTERNAL` result in that audit.
+
 - [ ] Gemini contribution is visible in initial and inbound extraction
 - [ ] Genkit flow is real, typed and tool-less
 - [ ] Cloud Run, Firestore and Cloud Tasks evidence appears in demo

@@ -1,0 +1,85 @@
+# Completion audit — Multichannel Follow-Through
+
+Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is not completion.
+`EXTERNAL` requires evidence that cannot be manufactured from deterministic fixtures.
+
+## Functional requirements
+
+| ID | Status | Authoritative evidence / remaining gap |
+|---|---|---|
+| FR-001 | PASS | `plan-review.tsx` renders channel, identities, full message, shared data, timing, cadence, send cap, proof, expiry context and return email. |
+| FR-002 | PASS | `/api/channels`, `plan-controller.ts`, and its unavailable-channel test prevent activation when health is not `AVAILABLE`. |
+| FR-003 | PASS | `PlanService.revise` creates a new hash/version and only permits `AWAITING_APPROVAL`; plan-service tests verify changed recipient/hash. |
+| FR-004 | PASS | Syntax validation, explicit anti-abuse confirmation, plan binding, allowlist and deterministic policy are independently enforced. |
+| FR-005 | PASS | Inbound/model candidates enter `InboundService` and deterministic evidence policy; neither can revise a plan or select a tool. |
+| FR-006 | PASS | Approval checks the live capability registry server-side; UI also blocks an unavailable active channel. |
+| FR-007 | PARTIAL | Plain-text, controlled-recipient and opaque reply-route adapter is tested; verified-domain external smoke is missing. |
+| FR-008 | PASS | `ActionBroker` calls `authorizeAction` immediately before reservation/budget/provider execution. |
+| FR-009 | PASS | Local stable action key and Firestore reservation are independent of provider idempotency. |
+| FR-010 | PARTIAL | Unknown acceptance remains `IN_FLIGHT` and is never blindly resent; provider-side reconciliation/manual resolution is not implemented. |
+| FR-011 | PARTIAL | Receipt/thread persistence covers provider ID, channel, case, fingerprint, time and delivery state; explicit correlation/action identity is stored adjacent rather than inside the receipt. |
+| FR-012 | PASS | Transport projection is separate from evidence reconciliation; receipt/ACK tests cannot produce `DONE`. |
+| FR-013 | PARTIAL | Bounce/complaint/suppression halt the case with `NEEDS_ATTENTION`; one deduplicated actionable intervention for every transport failure is not yet persisted. |
+| FR-014 | PASS | Cloud Tasks backoff and `CaseRunner` attempt cap transition exhausted work to one intervention. |
+| FR-015 | PASS | Signed provider webhook reserves then schedules bounded Cloud Task processing; handler does not call Gemini inline. |
+| FR-016 | PASS | Original-body signature, timestamp tolerance, stable ID and replay reservation have deterministic tests. |
+| FR-017 | PARTIAL | Opaque reply route and exact sender are enforced; provider `Message-ID`/`In-Reply-To` are normalized but not used as a second correlation key. |
+| FR-018 | PASS | Inbound Gemini flow is tool-less, typed and instructed to treat all text as data; addresses and content never grant authority. |
+| FR-019 | PASS | Exact provider endpoint, ten-second abort, text/metadata limits and unsafe-ID rejection are tested. |
+| FR-020 | PASS | Gemini emits only typed candidates; deterministic services own lifecycle transitions. |
+| FR-021 | PASS | Evidence levels and deterministic verifier distinguish ACK, commitment, merchant confirmation and settlement. |
+| FR-022 | PASS | ACK/auto-reply classifications remain insufficient; deployed sandbox visibly rejects `REQUEST_ACKNOWLEDGED`. |
+| FR-023 | PASS | Proposal changes/uncertainty raise an intervention and never reach evidence reconciliation. |
+| FR-024 | PASS | Signature, state, case, sender, freshness, completeness and exact-field checks fail closed. |
+| FR-025 | PASS | Result UI says merchant-confirmed and explicitly says bank settlement is not verified. |
+| FR-026 | PARTIAL | Result/timeline show working, retry, insufficient, attention, stopped and accepted states; every named transport phase is not yet shown in a single state component. |
+| FR-027 | PARTIAL | Channel, safe recipient, controls and return path are visible; attempt allowance and exact next wake time need a clearer result projection. |
+| FR-028 | PASS | Cloud Tasks/Firestore continuation survives tab reload and public deployed E2E proves it. |
+| FR-029 | PASS | Notification record has stable dedupe identity and owned deep link; duplicate evidence tests create one record. |
+| FR-030 | PARTIAL | Schema/store support all states; current outbound adapter records accepted/failed/unavailable, but provider delivery/bounce webhook projection for user notifications is incomplete. |
+| FR-031 | PASS | Control service and race tests prevent sends after stop/delete and terminal inbound is rejected before model execution. |
+| FR-032 | PARTIAL | History remains immutable, but an explicit reopen flow with fresh approval is not implemented. |
+| FR-033 | PASS | Capability schema/endpoint report send, receive, threading, receipts, authenticated replies, OAuth and health. |
+| FR-034 | PASS | Public labels and capability reason codes distinguish sandbox, managed email, Gmail and controlled partner fixture. |
+| FR-035 | PASS | Sandbox and email implement `ClosedActionAdapter` and return the shared receipt shape. |
+| FR-036 | PARTIAL | Signed partner fixture passes common adapter conformance; common lifecycle/retry integration coverage is missing. |
+| FR-037 | PASS | Gmail gate is rejected/documented and capability remains `FUTURE` with no authority. |
+| FR-038 | PASS | Research specifies a managed reply route if Gmail is later accepted; no broad inbox scope is requested now. |
+| FR-039 | PASS | Email requires explicit controlled-domain allowlist; public UI requires legitimate-contact confirmation and sends max three times. |
+| FR-040 | PASS | Transactional budgets exist per owner/recipient/domain/channel; case and notification caps are separately enforced. |
+| FR-041 | PASS | Observability redaction tests exclude content, headers, credentials and addresses while allowing hashes/statuses. |
+| FR-042 | PASS | Raw inbound content is processed in memory, not persisted; related provider/thread records receive TTL. |
+| FR-043 | PASS | Secret Manager/deploy configuration keeps secrets server-side; `.env.example` contains no values. |
+| FR-044 | PASS | Review requires visible legitimate-relationship authorization before activation. |
+| FR-045 | PASS | Closed action enum and adapters cannot browse, pay, threaten, post, bypass CAPTCHA or mutate remedies. |
+| FR-046 | PARTIAL | Broad deterministic coverage exists; transport intervention dedupe, explicit reopen and provider-event DLQ cases remain. |
+| FR-047 | EXTERNAL | No controlled mailbox/domain/provider credentials exist, so no external email smoke result can be claimed. |
+| FR-048 | PASS | Public Firebase-anonymous sandbox judge path needs no paid credential and remains deployed. |
+| FR-049 | EXTERNAL | Script and shot list exist; the final public continuous video has not been recorded/published. |
+| FR-050 | PARTIAL | Architecture, secrets, retention, abuse, reproduction, limitations and rollback are documented; provider-console webhook/domain steps need final screenshots/values once provisioned. |
+
+## Success criteria
+
+| ID | Status | Authoritative evidence / remaining gap |
+|---|---|---|
+| SC-001 | EXTERNAL | Requires consented first-time human participants; synthetic agents are explicitly excluded. |
+| SC-002 | PASS | Revision/hash/stale-approval tests cover current authorizing fields and server blocks editing an active plan. |
+| SC-003 | EXTERNAL | Deterministic authorization passes, but the required controlled external-email corpus does not exist. |
+| SC-004 | PASS | Duplicate delivery and uncertain-acceptance tests execute one logical provider call; deployed sandbox ledger also shows one receipt. |
+| SC-005 | PARTIAL | Accepted events reserve and enqueue or return a visible error; explicit dead-letter projection is missing. |
+| SC-006 | PARTIAL | Invalid signature, replay, stale, unknown/ambiguous route, terminal case and unexpected sender are tested; full published corpus/report is missing. |
+| SC-007 | PASS | Deterministic and deployed paths observe zero completion from delivery/ACK alone. |
+| SC-008 | PARTIAL | Deployed sandbox continues after tab closure; managed-email bidirectional external case is missing. |
+| SC-009 | PASS | Notification dedupe key and repeated-event tests yield one logical notification. |
+| SC-010 | PARTIAL | Fresh deployed runs complete in 21.9–31.6 seconds, but the final continuous under-four-minute video is missing. |
+| SC-011 | EXTERNAL | Sandbox IDs/timing are documented; managed-email smoke evidence is missing. |
+| SC-012 | PARTIAL | Capability and server denial tests pass; deterministic browser coverage of unavailable-channel activation is missing. |
+
+## Non-code completion gates
+
+- External email: verified sender, inbound domain, controlled mailbox, API key and webhook secret.
+- Human study: consented adults following the published no-coaching protocol.
+- Participant attestation: sanctions/conflict-of-interest confirmation by the entrant.
+- Submission: public repository access, continuous public video, Devpost fields and final submission.
+
+No fixture, synthetic persona or local mock may be substituted for these gates.

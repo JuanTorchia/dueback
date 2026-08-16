@@ -5,7 +5,11 @@ import { authenticatedOwner, assertSameOrigin } from "../../../lib/authz";
 import { firestore } from "../../../lib/firebase-admin";
 import { handleIntake } from "../../../lib/intake-controller";
 import { consumeNewCaseBudget } from "../../../lib/security-limits";
-import { recordModelCallOutcome, reserveModelCallBudget } from "../../../lib/security-limits";
+import {
+  modelBudgetKey,
+  recordModelCallOutcome,
+  reserveModelCallBudget
+} from "../../../lib/security-limits";
 
 export const runtime = "nodejs";
 
@@ -13,9 +17,12 @@ const service = new IntakeService(
   new FirestoreIntakeStore(firestore),
   {
     async extract(artifact) {
+      // Budgets are per person and artifact. The artifact id is content-derived,
+      // so using it alone would let one tester exhaust the fixture for everyone.
+      const budgetKey = modelBudgetKey(artifact.ownerId, artifact.artifactId);
       for (let attempt = 1; attempt <= 2; attempt += 1) {
         const observedAt = new Date().toISOString();
-        await reserveModelCallBudget(firestore, artifact.artifactId, artifact.ownerId, observedAt);
+        await reserveModelCallBudget(firestore, budgetKey, artifact.ownerId, observedAt);
         const started = performance.now();
         try {
           const result = await extractPromiseWithMetricsFlow({
@@ -25,7 +32,7 @@ const service = new IntakeService(
                 ? { kind: "text", content: artifact.content }
                 : { kind: "media", ...artifact.content }
           });
-          await recordModelCallOutcome(firestore, artifact.artifactId, {
+          await recordModelCallOutcome(firestore, budgetKey, {
             latencyMs: performance.now() - started,
             status: "SUCCEEDED",
             observedAt: new Date().toISOString(),
@@ -33,7 +40,7 @@ const service = new IntakeService(
           });
           return result.draft;
         } catch (error) {
-          await recordModelCallOutcome(firestore, artifact.artifactId, {
+          await recordModelCallOutcome(firestore, budgetKey, {
             latencyMs: performance.now() - started,
             status: "FAILED",
             observedAt: new Date().toISOString()

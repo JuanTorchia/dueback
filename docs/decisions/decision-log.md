@@ -140,3 +140,16 @@
   produjeron el ledger completo de cuatro eventos.
 - Alcance: esta decisión hace reproducible el servicio controlado de demostración; no convierte el
   sandbox en una integración comercial ni prueba liquidación bancaria.
+
+## D-014 — Informes sintéticos como piloto, nunca como evidencia humana
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: los ocho archivos de `user-testing-feedback/` no se incorporan al CSV ni a las métricas
+  SC-001/SC-002 porque su propio README declara personas, citas y tiempos sintéticos. Se utilizan
+  únicamente para formular hipótesis de bugs que deben confirmarse contra código o ejecución.
+- Resultado: se confirmaron y corrigieron el presupuesto global por contenido, la carrera de
+  identidad, los campos bloqueantes sin editor, la incertidumbre invisible y la ausencia de
+  privacidad/borrado preactivación. El estudio humano sigue pendiente.
+- Motivo: presentar simulaciones de IA como ocho participantes violaría la regla de no inventar
+  métricas y dañaría la credibilidad del proyecto ante el jurado.

@@ -37,6 +37,18 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     return document.exists ? (document.data() as DraftCase) : undefined;
   }
 
+  async deleteDraft(caseId: string, ownerId: string): Promise<void> {
+    const draftRef = this.db.collection("caseDrafts").doc(caseId);
+    await this.db.runTransaction(async (transaction) => {
+      const current = await transaction.get(draftRef);
+      if (!current.exists) return;
+      const draft = current.data() as DraftCase;
+      if (draft.ownerId !== ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
+      transaction.delete(draftRef);
+      transaction.delete(this.db.collection("intakeDedupe").doc(draft.dedupeKey.slice(7)));
+    });
+  }
+
   async replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
     const reference = this.db.collection("caseDrafts").doc(caseId);
     const runReference = this.db.collection("caseRuns").doc(caseId);

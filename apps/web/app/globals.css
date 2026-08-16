@@ -222,6 +222,23 @@ textarea {
   margin: 0;
   font-weight: 700;
 }
+.field-warning {
+  display: grid;
+  gap: 4px;
+  margin-top: 7px;
+  padding: 9px;
+  border-radius: 9px;
+  background: #fff4d9;
+  color: #70510e;
+  font-size: 12px;
+  font-weight: 400;
+}
+.button-help {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
 .warning,
 .simulation {
   padding: 11px;
@@ -243,7 +260,8 @@ summary {
   margin-top: 10px;
 }
 .inline-edit input {
-  width: 120px;
+  min-width: 0;
+  flex: 1;
   padding: 9px;
   border: 1px solid var(--line);
   border-radius: 9px;

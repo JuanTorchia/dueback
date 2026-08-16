@@ -18,6 +18,10 @@ export const gemini35FlashGlobalPricing = Object.freeze({
   source: "https://cloud.google.com/gemini-enterprise-agent-platform/generative-ai/pricing"
 });
 
+export function modelBudgetKey(ownerId: string, artifactId: string): string {
+  return `${ownerId}:${artifactId}`;
+}
+
 export function estimateGemini35FlashGlobalCost(input: {
   inputTokens?: number | undefined;
   outputTokens?: number | undefined;

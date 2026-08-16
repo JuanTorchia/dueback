@@ -68,6 +68,11 @@ class MemoryPlanStore implements PlanStore {
     this.draft = next;
     return Promise.resolve();
   }
+  deleteDraft(_caseId: string, ownerId: string): Promise<void> {
+    if (this.draft.ownerId !== ownerId) return Promise.reject(new Error("CASE_OWNERSHIP_REQUIRED"));
+    this.draft = undefined as unknown as DraftCase;
+    return Promise.resolve();
+  }
 }
 
 describe("PlanService", () => {
@@ -87,6 +92,47 @@ describe("PlanService", () => {
     expect(revised.plan.version).toBe(2);
     expect(revised.plan.planHash).not.toBe(hash);
     expect(revised.plan.evidenceRequirements[0]?.amountMinor).toBe(5900);
+  });
+
+  it("lets a person resolve every critical field exposed by intake", async () => {
+    const initial = caseDraft();
+    const blocked: DraftCase = {
+      ...initial,
+      promiseDraft: {
+        ...initial.promiseDraft,
+        promisor: { ...initial.promiseDraft.promisor, uncertainty: "AMBIGUOUS" },
+        result: { ...initial.promiseDraft.result, uncertainty: "AMBIGUOUS" },
+        amountMinor: initial.promiseDraft.amountMinor
+          ? { ...initial.promiseDraft.amountMinor, uncertainty: "CONTRADICTORY" }
+          : undefined,
+        currency: initial.promiseDraft.currency
+          ? { ...initial.promiseDraft.currency, uncertainty: "AMBIGUOUS" }
+          : undefined,
+        transactionRef: { ...initial.promiseDraft.transactionRef, uncertainty: "AMBIGUOUS" },
+        dueAt: undefined
+      },
+      blockingFields: ["promisor", "result", "amountMinor", "currency", "transactionRef", "dueAt"],
+      activationBlocked: true
+    };
+    const service = new PlanService(new MemoryPlanStore(blocked));
+
+    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+      promisor: "Northstar Store",
+      result: "USD 59 refund",
+      amountMinor: 5900,
+      currency: "USD",
+      transactionRef: "REF-1001",
+      dueAt: "2026-08-20T00:00:00.000Z"
+    });
+
+    expect(revised.activationBlocked).toBe(false);
+    expect(revised.blockingFields).toEqual([]);
+    expect(revised.plan.goal).toBe("USD 59 refund");
+    expect(revised.plan.evidenceRequirements[0]).toMatchObject({
+      amountMinor: 5900,
+      currency: "USD",
+      transactionRef: "REF-1001"
+    });
   });
 
   it("binds approval and schedules the first durable wake-up", async () => {
@@ -123,5 +169,12 @@ describe("PlanService", () => {
         now: "2026-08-15T12:00:00.000Z"
       })
     ).rejects.toThrow("STALE_PLAN_APPROVAL");
+  });
+
+  it("deletes a pre-activation draft owned by the person", async () => {
+    const store = new MemoryPlanStore();
+    const service = new PlanService(store);
+    await expect(service.deleteDraft("case_12345678", "person_12345678")).resolves.toBeUndefined();
+    await expect(store.get()).resolves.toBeUndefined();
   });
 });

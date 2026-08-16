@@ -23,6 +23,9 @@ export async function anonymousIdToken(): Promise<string> {
   const config = await publicConfig();
   const app = getApps().length > 0 ? getApp() : initializeApp(config);
   const auth = getAuth(app);
+  // Wait for persisted anonymous auth to hydrate after navigation. Signing in
+  // before hydration can create a second owner and strand the case just made.
+  await auth.authStateReady();
   const credential = auth.currentUser ? { user: auth.currentUser } : await signInAnonymously(auth);
   return credential.user.getIdToken();
 }

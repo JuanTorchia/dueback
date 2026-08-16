@@ -8,6 +8,7 @@ import type { DraftCase, PlanApproval } from "./intake-service";
 export interface PlanStore {
   get(caseId: string): Promise<DraftCase | undefined>;
   replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void>;
+  deleteDraft?(caseId: string, ownerId: string): Promise<void>;
 }
 
 export interface ActivationScheduler {
@@ -19,6 +20,8 @@ export interface ActivationScheduler {
 }
 
 export interface PlanRevision {
+  readonly promisor?: string;
+  readonly result?: string;
   readonly amountMinor?: number;
   readonly currency?: string;
   readonly transactionRef?: string;
@@ -60,6 +63,8 @@ function correction<T>(
 function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDraft {
   return promiseDraftSchema.parse({
     ...current,
+    ...(revision.promisor === undefined ? {} : { promisor: correction(revision.promisor, "promisor") }),
+    ...(revision.result === undefined ? {} : { result: correction(revision.result, "result") }),
     ...(revision.amountMinor === undefined
       ? {}
       : { amountMinor: correction(revision.amountMinor, "amountMinor") }),
@@ -80,7 +85,7 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
     caseId: current.caseId,
     ownerId: current.ownerId,
     version: current.version + 1,
-    goal: revision.goal ?? current.goal,
+    goal: revision.goal ?? draft.result.value,
     allowedActions: current.allowedActions,
     allowedRecipient: current.allowedRecipient,
     sharedFields: current.sharedFields,
@@ -199,5 +204,12 @@ export class PlanService {
     const next: DraftCase = { ...current, state: "CANCELLED" };
     await this.store.replace(caseId, expectedPlanVersion, next);
     return next;
+  }
+
+  async deleteDraft(caseId: string, ownerId: string): Promise<void> {
+    const current = await this.inspect(caseId, ownerId);
+    if (current.state === "READY") throw new Error("USE_ACTIVE_CASE_CONTROLS");
+    if (!this.store.deleteDraft) throw new Error("DRAFT_DELETION_UNAVAILABLE");
+    await this.store.deleteDraft(caseId, ownerId);
   }
 }

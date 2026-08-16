@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   estimateGemini35FlashGlobalCost,
   gemini35FlashGlobalPricing,
+  modelBudgetKey,
   publicSecurityLimits,
   redactedPublicError
 } from "../lib/security-limits";
@@ -15,6 +16,12 @@ describe("public evaluation budgets and model cost evidence", () => {
       logicalExternalActionsPerCase: 3,
       notificationsPerCase: 3
     });
+  });
+
+  it("isolates content-derived artifact budgets by owner", () => {
+    const artifactId = "artifact_same_content";
+    expect(modelBudgetKey("owner_a", artifactId)).not.toBe(modelBudgetKey("owner_b", artifactId));
+    expect(modelBudgetKey("owner_a", artifactId)).toBe(modelBudgetKey("owner_a", artifactId));
   });
 
   it("estimates standard global cost only from observed token counts", () => {

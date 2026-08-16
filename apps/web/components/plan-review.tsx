@@ -11,6 +11,11 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
   const [draft, setDraft] = useState<DraftCase>();
   const [simulation, setSimulation] = useState<PlanSimulation>();
   const [amount, setAmount] = useState("");
+  const [company, setCompany] = useState("");
+  const [result, setResult] = useState("");
+  const [currency, setCurrency] = useState("");
+  const [reference, setReference] = useState("");
+  const [dueAt, setDueAt] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
 
@@ -53,6 +58,27 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     }
   }
 
+  async function deleteDraft() {
+    setBusy(true);
+    setError(undefined);
+    try {
+      const token = await anonymousIdToken();
+      const response = await fetch(`/api/cases/${caseId}/plan`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete" })
+      });
+      if (!response.ok) {
+        const body = (await response.json()) as { error?: string };
+        throw new Error(body.error ?? "DRAFT_DELETE_FAILED");
+      }
+      window.location.assign("/intake");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "DRAFT_DELETE_FAILED");
+      setBusy(false);
+    }
+  }
+
   async function simulate() {
     const token = await anonymousIdToken();
     const response = await fetch(`/api/cases/${caseId}/plan`, {
@@ -65,7 +91,24 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
 
   if (error && !draft) return <div className="card error">{error}</div>;
   if (!draft) return <div className="card">Building the cited Promise Contract…</div>;
-  const requirement = draft.plan.evidenceRequirements[0];
+  const fieldLabels: Record<string, string> = {
+    promisor: "company name",
+    result: "promised result",
+    amountMinor: "amount",
+    currency: "currency",
+    transactionRef: "order or case reference",
+    dueAt: "due date"
+  };
+  const uncertainty = (field: { uncertainty: string; provenance: readonly { locator: string; confidence: string }[] } | undefined) =>
+    field && field.uncertainty !== "NONE" ? (
+      <div className="field-warning" role="note">
+        <strong>{field.uncertainty === "CONTRADICTORY" ? "Conflicting information" : "Needs confirmation"}</strong>
+        <span>Compare this candidate with the original promise before approving.</span>
+        <span>Source: {field.provenance.map((item) => `${item.locator} (${item.confidence.toLowerCase()})`).join(", ")}</span>
+      </div>
+    ) : null;
+  const saveRevision = (revision: Record<string, unknown>) =>
+    command({ action: "revise", expectedPlanVersion: draft.plan.version, revision });
 
   return (
     <div className="review-grid">
@@ -79,22 +122,23 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         <dl className="facts">
           <div>
             <dt>Company</dt>
-            <dd>{draft.promiseDraft.promisor.value}</dd>
+            <dd>{draft.promiseDraft.promisor.value}{uncertainty(draft.promiseDraft.promisor)}</dd>
           </div>
           <div>
             <dt>Promised result</dt>
-            <dd>{draft.plan.goal}</dd>
+            <dd>{draft.plan.goal}{uncertainty(draft.promiseDraft.result)}</dd>
           </div>
           <div>
             <dt>Amount</dt>
             <dd>
               {draft.promiseDraft.currency?.value}{" "}
               {((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}
+              {uncertainty(draft.promiseDraft.amountMinor)}
             </dd>
           </div>
           <div>
             <dt>Reference</dt>
-            <dd>{draft.promiseDraft.transactionRef.value}</dd>
+            <dd>{draft.promiseDraft.transactionRef.value}{uncertainty(draft.promiseDraft.transactionRef)}</dd>
           </div>
           <div>
             <dt>Due</dt>
@@ -102,20 +146,24 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
               {draft.promiseDraft.dueAt?.value ??
                 draft.promiseDraft.dueCondition?.value ??
                 "Needs your input"}
+              {uncertainty(draft.promiseDraft.dueAt ?? draft.promiseDraft.dueCondition)}
             </dd>
           </div>
           <div>
             <dt>Done means</dt>
-            <dd>{requirement?.minimumLevel ?? "Undefined"}</dd>
+            <dd>The merchant confirms the promised refund in signed evidence.</dd>
           </div>
         </dl>
         {draft.blockingFields.length > 0 ? (
-          <p className="warning">Resolve before activation: {draft.blockingFields.join(", ")}</p>
+          <p className="warning">Before activation, confirm: {draft.blockingFields.map((field) => fieldLabels[field] ?? field).join(", ")}.</p>
         ) : null}
-        <details>
-          <summary>Correct the amount</summary>
+        {draft.blockingFields.includes("promisor") ? <details open><summary>Confirm the company name</summary><div className="inline-edit"><input aria-label="Company name" value={company} placeholder={draft.promiseDraft.promisor.value} onChange={(event) => { setCompany(event.target.value); }} /><button type="button" disabled={busy || !company.trim()} onClick={() => void saveRevision({ promisor: company.trim() })}>Confirm company</button></div></details> : null}
+        {draft.blockingFields.includes("result") ? <details open><summary>Confirm the promised result</summary><div className="inline-edit"><input aria-label="Promised result" value={result} placeholder={draft.promiseDraft.result.value} onChange={(event) => { setResult(event.target.value); }} /><button type="button" disabled={busy || !result.trim()} onClick={() => void saveRevision({ result: result.trim() })}>Confirm result</button></div></details> : null}
+        {draft.blockingFields.includes("amountMinor") ? <details open>
+          <summary>Confirm the correct amount</summary>
           <div className="inline-edit">
             <input
+              aria-label="Correct amount"
               inputMode="decimal"
               placeholder="79.00"
               value={amount}
@@ -126,18 +174,15 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
             <button
               type="button"
               disabled={busy || !amount}
-              onClick={() => {
-                void command({
-                  action: "revise",
-                  expectedPlanVersion: draft.plan.version,
-                  revision: { amountMinor: Math.round(Number(amount) * 100) }
-                });
-              }}
+              onClick={() => void saveRevision({ amountMinor: Math.round(Number(amount) * 100) })}
             >
               Save new version
             </button>
           </div>
-        </details>
+        </details> : null}
+        {draft.blockingFields.includes("currency") ? <details open><summary>Confirm the currency</summary><div className="inline-edit"><input aria-label="Currency" value={currency} maxLength={3} placeholder={draft.promiseDraft.currency?.value ?? "USD"} onChange={(event) => { setCurrency(event.target.value.toUpperCase()); }} /><button type="button" disabled={busy || !/^[A-Z]{3}$/.test(currency)} onClick={() => void saveRevision({ currency })}>Confirm currency</button></div></details> : null}
+        {draft.blockingFields.includes("transactionRef") ? <details open><summary>Confirm the order or case reference</summary><div className="inline-edit"><input aria-label="Order or case reference" value={reference} placeholder={draft.promiseDraft.transactionRef.value} onChange={(event) => { setReference(event.target.value); }} /><button type="button" disabled={busy || !reference.trim()} onClick={() => void saveRevision({ transactionRef: reference.trim() })}>Confirm reference</button></div></details> : null}
+        {draft.blockingFields.includes("dueAt") ? <details open><summary>Enter the promised due date</summary><div className="inline-edit"><input aria-label="Promised due date" type="datetime-local" value={dueAt} onChange={(event) => { setDueAt(event.target.value); }} /><button type="button" disabled={busy || !dueAt} onClick={() => void saveRevision({ dueAt: new Date(dueAt).toISOString() })}>Confirm due date</button></div></details> : null}
       </section>
 
       <section className="card boundaries">
@@ -152,13 +197,13 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         </div>
         <div>
           <strong>Data shared</strong>
-          <p>{draft.plan.sharedFields.join(", ")}</p>
+          <p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p>
         </div>
         <div>
           <strong>It can close only when</strong>
           <p>
-            Signed evidence matches this case, amount, currency, reference, freshness, and{" "}
-            {requirement?.minimumLevel}.
+            Signed merchant evidence confirms this exact case, amount, currency, and reference.
+            “Request received” is not completion. Merchant confirmation is not bank settlement.
           </p>
         </div>
         <button
@@ -173,8 +218,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         </button>
         {simulation ? (
           <p className="simulation">
-            Simulation only: {simulation.action} → {simulation.recipient}. External action
-            performed: no.
+            Preview only. DueBack would send one follow-up to {simulation.recipient}. Nothing was sent.
           </p>
         ) : null}
         <button
@@ -191,6 +235,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         >
           {draft.state === "READY" ? "Plan activated" : "Approve and activate"}
         </button>
+        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : null}
         <button
           className="text-button"
           type="button"
@@ -200,6 +245,16 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
           }}
         >
           Reject this plan
+        </button>
+        <button
+          className="text-button danger"
+          type="button"
+          disabled={busy || draft.state === "READY"}
+          onClick={() => {
+            if (window.confirm("Delete this draft and its structured data?")) void deleteDraft();
+          }}
+        >
+          Delete this draft
         </button>
         {error ? <p className="error">{error}</p> : null}
       </section>

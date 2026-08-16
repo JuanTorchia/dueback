@@ -92,7 +92,7 @@ export function IntakeForm() {
       )}
       <p className="privacy">
         DueBack processes only what you share. Raw files expire within 24 hours. Nothing is sent to
-        a company before you review and activate a versioned plan.
+        a company before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
       </p>
       <button
         className="primary"

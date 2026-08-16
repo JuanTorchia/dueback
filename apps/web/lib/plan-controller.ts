@@ -55,6 +55,10 @@ export async function handlePlanRequest(
         await dependencies.service.reject(caseId, owner.uid, body.expectedPlanVersion)
       );
     }
+    if (body.action === "delete") {
+      await dependencies.service.deleteDraft(caseId, owner.uid);
+      return Response.json({ status: "DRAFT_DELETED" }, { status: 202 });
+    }
     return Response.json({ error: "INVALID_PLAN_COMMAND" }, { status: 400 });
   } catch (cause) {
     const error = cause instanceof Error ? cause.message : "PLAN_COMMAND_FAILED";

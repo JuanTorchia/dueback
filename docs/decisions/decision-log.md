@@ -108,11 +108,20 @@
 - Motivo: cumple el gate técnico para continuar a excepciones, portabilidad y evaluación sin
   inventar una integración comercial productiva.
 
+## D-012 — Los índices de lectura forman parte del despliegue
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: declarar y provisionar el índice compuesto de Firestore para
+  `interventions(caseId, createdAt)` como parte de la infraestructura reproducible.
+- Evidencia: la primera verificación Playwright móvil alcanzó la pantalla de resultado desplegada y
+  expuso `FAILED_PRECONDITION` antes de que existiera el índice. El fallo se conservó, el índice se
+  añadió a `infra/firestore/firestore.indexes.json` y el script de Cloud Run ahora lo crea si falta.
+- Motivo: una consulta que funciona solo después de una acción manual en consola no satisface el
+  criterio de reproducibilidad ni la preparación para producción.
+
 ## Decisiones pendientes
 
 - Confirmación de ausencia de sanciones o conflictos de interés.
-- Validación del problema y usuario inicial de Purchase Rescue.
-- Confirmación final de categoría oficial.
-- Framework de agentes de Google.
-- Servicios de Google Cloud.
-- Premio objetivo principal.
+- Ejecución de la validación no asistida con ocho participantes.
+- URL pública del repositorio, video y envío final en Devpost.

@@ -1,0 +1,77 @@
+# DueBack Architecture and Trust Boundaries
+
+Last verified: 2026-08-16. This diagram describes the implemented system, not a roadmap.
+
+```mermaid
+flowchart LR
+  P[Person / mobile browser]
+  A[Firebase Anonymous Auth]
+  W[DueBack Web\nCloud Run]
+  G[Genkit + Gemini 3.5 Flash\nVertex AI global]
+  F[(Firestore)]
+  Q[Cloud Tasks\ndueback-cases]
+  B[Deterministic policy\nAction Broker]
+  M[Merchant Sandbox\nCloud Run - controlled]
+  V[Signed callback verifier]
+  N[Notification ledger]
+
+  P -->|paste or bounded upload| W
+  P -->|Firebase ID token| A
+  A -->|verified owner| W
+  W -->|untrusted source; no tools| G
+  G -->|typed candidate + provenance| W
+  W -->|draft, approval hash, state| F
+  W -->|versioned task + correlation ID| Q
+  Q -->|OIDC delivery| W
+  W --> B
+  B -->|closed fields + idempotency key| M
+  M -->|HMAC, timestamp, correlation ID| V
+  V -->|candidate only| W
+  W -->|deterministic evidence decision| F
+  F --> N
+```
+
+## Authority model
+
+Gemini extracts typed candidates and citations. It has no action credentials and cannot authorize a
+recipient, mutate a plan, advance lifecycle state, or declare completion. Approval binds owner,
+case, plan version, canonical hash, and expiry. The Action Broker compares the proposed action to
+that immutable boundary and derives one stable idempotency key.
+
+The verifier—not Gemini—compares case identity, evidence level, amount, currency, transaction
+reference, subject/bill period/tracking when applicable, freshness, issuer, and signature. An
+acknowledgement stays open. `DONE` requires sufficient evidence.
+
+## Trust boundaries
+
+| Boundary                | Untrusted input                           | Enforced control                                                                                |
+| ----------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Browser → product       | token, text, file, command                | Firebase verification, owner check, same-origin mutation, MIME/content and size limits          |
+| Product → model         | uploaded source and embedded instructions | extractor has no tools; typed schema; provenance normalization; uncertainty blocks activation   |
+| Task → worker           | duplicate or stale delivery               | Cloud Tasks OIDC, case version, bounded attempts, stable task name                              |
+| Worker → counterparty   | proposed recipient, fields, action        | deterministic policy, approval expiry, closed adapter, idempotency ledger                       |
+| Counterparty → callback | body, timestamp, replay, case claim       | separate HMAC secret, five-minute freshness, replay reservation, schema validation              |
+| Candidate → lifecycle   | insufficient or mismatched evidence       | deterministic verifier; conflicts produce one intervention; terminal cases reject late evidence |
+| Artifact access         | copied or modified link                   | HMAC grant bound to owner/case/artifact, maximum ten-minute lifetime                            |
+
+## Durable state
+
+Firestore stores plan drafts, case runs, action reservations/receipts, evidence, interventions,
+notification records, callback replay reservations, daily security budgets, and deletion
+tombstones. Cloud Tasks carries case ID, expected version, wake time, and correlation ID. Every
+retry is bounded; a stale delivery is a no-op.
+
+Requested deletion removes the readable draft and case root transactionally, then removes its
+subcollections and related notifications/interventions. The retained tombstone contains only
+hashes, reason, request time, and purge time. The project does not claim forensic erasure or backup
+deletion.
+
+## Implemented limitations
+
+- Merchant Sandbox is a separate, real HTTP service but not a real merchant.
+- `MERCHANT_CONFIRMED` does not prove bank settlement, bill posting, shipment delivery, or receipt.
+- Email transport code exists but is disabled unless an authorized provider key and verified sender
+  are configured; the deployed return channel is the case URL.
+- The public MVP handles paste/upload. Inbound email, WhatsApp, arbitrary browsing, banks, and
+  production merchant integrations are not implemented.
+- Bill-credit and replacement are contract/portability fixtures, not separate production channels.

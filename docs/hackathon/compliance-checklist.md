@@ -14,25 +14,25 @@ Marcar únicamente con evidencia verificable.
 
 ## Producto
 
-- [ ] El trabajo concursante comenzó dentro del periodo permitido.
-- [ ] Se documentó cualquier componente preexistente.
-- [ ] Se seleccionó exactamente una categoría.
-- [ ] Usa Gemini 3.5 o superior.
-- [ ] Usa ADK, GenAI SDK, Antigravity SDK o GenKit.
-- [ ] Usa al menos un servicio de infraestructura de Google Cloud.
-- [ ] Ejecuta acciones autónomas más allá de responder en un chat.
-- [ ] Tiene manejo de estado y recuperación ante fallos demostrable.
-- [ ] Todas las APIs, datos y activos tienen autorización/licencia.
-- [ ] Funciona en inglés como mínimo.
+- [x] El trabajo concursante comenzó dentro del periodo permitido. Evidencia: [registro de procedencia](../compliance/dependencies.md).
+- [x] Se documentó cualquier componente preexistente. Evidencia: [registro de procedencia](../compliance/dependencies.md); no se incorporó una app preexistente.
+- [x] Se seleccionó exactamente una categoría: Taskmaster. Evidencia: [README](../../README.md).
+- [x] Usa Gemini 3.5 o superior. Evidencia: `gemini-3.5-flash` en [flujo Genkit](../../packages/genkit-flows/src/extract-promise.ts).
+- [x] Usa Genkit. Evidencia: [decisión D-010](../decisions/decision-log.md) y dependencias fijadas.
+- [x] Usa infraestructura de Google Cloud. Evidencia: [arquitectura](../architecture/dueback.md) y [deploy reproducible](../../infra/cloud-run/deploy.sh).
+- [x] Ejecuta acciones autónomas más allá de responder en un chat. Evidencia: [walking skeleton](../../tests/e2e/refund-walking-skeleton.spec.ts).
+- [x] Tiene estado y recuperación ante fallos demostrable. Evidencia: [pruebas de durabilidad](../../tests/integration/durable-follow-through.test.ts).
+- [x] APIs, datos y activos implementados tienen autorización/licencia documentada. Evidencia: [registro](../compliance/dependencies.md).
+- [x] Funciona en inglés como mínimo y procesa un fixture español. Evidencia: [fixtures](../../packages/test-fixtures/src/promises.ts).
 
 ## Evidencia y entrega
 
-- [ ] Aplicación alojada o instrucciones de acceso para jueces.
-- [ ] Acceso gratuito y sin restricciones hasta finalizar la evaluación.
+- [x] Aplicación alojada e instrucciones de acceso para jueces. Evidencia: [README](../../README.md#judge-access).
+- [x] Acceso gratuito sin credenciales pagas ni datos personales; se mantendrá disponible durante la evaluación. Evidencia: URL pública y Firebase anonymous en [README](../../README.md#judge-access).
 - [ ] Repositorio accesible para los jueces.
-- [ ] README con instalación y ejecución reproducibles.
-- [ ] Diagrama de arquitectura actualizado.
-- [ ] Descripción de funciones, tecnologías, datos y aprendizajes.
+- [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
+- [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).
+- [x] Descripción de funciones, tecnologías, datos y limitaciones. Evidencia: [README](../../README.md).
 - [ ] Video público de máximo cuatro minutos.
 - [ ] Video en inglés o con subtítulos en inglés.
 - [ ] Video muestra ejecución real sin editar.

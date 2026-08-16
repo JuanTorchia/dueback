@@ -36,6 +36,15 @@ done
 gcloud firestore databases describe --database='(default)' --project="${project_id}" >/dev/null 2>&1 || \
   gcloud firestore databases create --database='(default)' --location="${region}" --type=firestore-native --project="${project_id}"
 
+if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --filter='name:collectionGroups/interventions/' --format='value(name)')" ]]; then
+  gcloud firestore indexes composite create \
+    --project="${project_id}" \
+    --collection-group=interventions \
+    --query-scope=collection \
+    --field-config=field-path=caseId,order=ascending \
+    --field-config=field-path=createdAt,order=ascending >/dev/null
+fi
+
 gcloud tasks queues describe dueback-cases --location="${region}" --project="${project_id}" >/dev/null 2>&1 || \
   gcloud tasks queues create dueback-cases --location="${region}" --max-dispatches-per-second=2 --max-concurrent-dispatches=2 --max-attempts=5 --min-backoff=10s --max-backoff=300s --project="${project_id}"
 

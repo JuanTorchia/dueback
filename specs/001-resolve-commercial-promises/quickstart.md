@@ -10,7 +10,7 @@ tasks land; placeholders MUST be resolved before the MVP is considered complete.
 - A Google Cloud project with billing enabled.
 - Application-default credentials authorized for the development project.
 - Gemini 3.5+ available through Vertex AI in the selected region.
-- Cloud Run, Firestore, Cloud Tasks, Cloud Storage, Secret Manager, Artifact Registry, and Vertex AI
+- Cloud Run, Firestore, Cloud Tasks, Secret Manager, Artifact Registry, Identity Platform, and Vertex AI
   APIs enabled for the deployed path.
 
 Copy `.env.example` to a local ignored environment file and fill only development identifiers. Never
@@ -23,8 +23,8 @@ pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
 pnpm test
-pnpm test:contract
-pnpm test:adversarial
+pnpm build
+pnpm evaluate
 ```
 
 Expected: all deterministic domain, schema, policy, verifier, signature, replay, and adapter tests
@@ -33,8 +33,8 @@ pass without cloud credentials except tests explicitly marked as cloud integrati
 ## Start the controlled environment
 
 ```bash
-pnpm dev:merchant
-pnpm dev:web
+pnpm --filter @dueback/merchant-sandbox dev
+pnpm --filter @dueback/web dev
 ```
 
 Expected:
@@ -52,13 +52,13 @@ Expected:
    `MERCHANT_CONFIRMED`, and expiry.
 5. Approve the displayed plan version/hash.
 6. Trigger the accelerated, visibly labeled due time.
-7. Observe the controlled merchant receive one request and return `REQUEST_RECEIVED`.
+7. Observe the controlled merchant receive one request and return `REQUEST_ACKNOWLEDGED`.
 8. Verify the case remains open and explains that acknowledgement is insufficient.
 9. Trigger a duplicate task delivery; verify the merchant still shows one logical request.
 10. Trigger the configured recoverable failure and retry; verify prior state survives.
-11. Emit a signed `REFUND_APPROVED` callback with the correct amount, currency, reference, and case.
+11. Emit a signed `MERCHANT_CONFIRMED` callback with the correct amount, currency, reference, and case.
 12. Verify the case becomes `DONE` at `MERCHANT_CONFIRMED`, explicitly not `FUNDS_SETTLED`.
-13. Inspect the product timeline, merchant receipt, and correlated cloud logs using the same `run_id`.
+13. Inspect the product timeline, merchant receipt, and records using the same `correlationId`.
 
 ## Negative evidence scenarios
 
@@ -87,9 +87,9 @@ prompt injection in source artifact
 ## Deployed smoke test
 
 ```bash
-pnpm deploy:demo
-pnpm test:e2e --project=deployed
-pnpm eval:corpus
+bash infra/cloud-run/deploy.sh
+DUEBACK_DEPLOYED_URL='https://your-web-service.run.app' pnpm test:deployed
+pnpm evaluate
 ```
 
 Expected artifacts:
@@ -98,7 +98,7 @@ Expected artifacts:
 - Restricted/internal task and callback endpoints.
 - Merchant Sandbox URL labeled controlled.
 - Evaluation results containing all 24 cases and all failures.
-- Cloud log query or trace link keyed by `run_id`.
+- Firestore evidence and notification records keyed by `correlationId`.
 
 ## Demo fallback
 

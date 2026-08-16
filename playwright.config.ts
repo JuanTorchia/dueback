@@ -1,4 +1,10 @@
 import { defineConfig } from "@playwright/test";
+import { mkdirSync } from "node:fs";
+import { resolve } from "node:path";
+
+const privateTemp = resolve(".playwright-tmp");
+mkdirSync(privateTemp, { recursive: true });
+process.env.TMPDIR = privateTemp;
 
 export default defineConfig({
   testDir: "tests/e2e",

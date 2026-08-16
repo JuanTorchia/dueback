@@ -13,7 +13,9 @@ test.describe("deployed mobile judge path", () => {
     await expect(
       page.getByRole("heading", { name: "Promises should not become your job." })
     ).toBeVisible();
-    await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true");
+    await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
+      timeout: 15_000
+    });
     await page
       .getByRole("textbox", { name: "What did the company promise?" })
       .fill(

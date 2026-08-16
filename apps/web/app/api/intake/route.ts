@@ -13,32 +13,35 @@ const service = new IntakeService(
   new FirestoreIntakeStore(firestore),
   {
     async extract(artifact) {
-      const observedAt = new Date().toISOString();
-      await reserveModelCallBudget(firestore, artifact.artifactId, artifact.ownerId, observedAt);
-      const started = performance.now();
-      try {
-        const result = await extractPromiseWithMetricsFlow({
-          artifactId: artifact.artifactId,
-          source:
-            typeof artifact.content === "string"
-              ? { kind: "text", content: artifact.content }
-              : { kind: "media", ...artifact.content }
-        });
-        await recordModelCallOutcome(firestore, artifact.artifactId, {
-          latencyMs: performance.now() - started,
-          status: "SUCCEEDED",
-          observedAt: new Date().toISOString(),
-          usage: result.usage
-        });
-        return result.draft;
-      } catch (error) {
-        await recordModelCallOutcome(firestore, artifact.artifactId, {
-          latencyMs: performance.now() - started,
-          status: "FAILED",
-          observedAt: new Date().toISOString()
-        });
-        throw error;
+      for (let attempt = 1; attempt <= 2; attempt += 1) {
+        const observedAt = new Date().toISOString();
+        await reserveModelCallBudget(firestore, artifact.artifactId, artifact.ownerId, observedAt);
+        const started = performance.now();
+        try {
+          const result = await extractPromiseWithMetricsFlow({
+            artifactId: artifact.artifactId,
+            source:
+              typeof artifact.content === "string"
+                ? { kind: "text", content: artifact.content }
+                : { kind: "media", ...artifact.content }
+          });
+          await recordModelCallOutcome(firestore, artifact.artifactId, {
+            latencyMs: performance.now() - started,
+            status: "SUCCEEDED",
+            observedAt: new Date().toISOString(),
+            usage: result.usage
+          });
+          return result.draft;
+        } catch (error) {
+          await recordModelCallOutcome(firestore, artifact.artifactId, {
+            latencyMs: performance.now() - started,
+            status: "FAILED",
+            observedAt: new Date().toISOString()
+          });
+          if (attempt === 2) throw error;
+        }
       }
+      throw new Error("MODEL_RETRY_EXHAUSTED");
     }
   },
   process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",

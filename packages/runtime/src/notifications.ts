@@ -38,6 +38,45 @@ export interface NotificationStore {
   listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
 }
 
+export interface NotificationDeliveryAdapter {
+  deliver(
+    notification: NotificationRecord,
+    recipient: string
+  ): Promise<{ receipt: { deliveryId: string; acceptedAt: string }; duplicate: boolean }>;
+}
+
+export class NotificationDeliveryService {
+  constructor(
+    private readonly store: NotificationStore,
+    private readonly adapter?: NotificationDeliveryAdapter
+  ) {}
+
+  async deliver(record: NotificationRecord, recipient: string | undefined): Promise<NotificationRecord> {
+    if (!recipient || !this.adapter) {
+      await this.store.updateDelivery?.(record.dedupeKey, {
+        deliveryChannel: "IN_APP",
+        deliveryStatus: "UNAVAILABLE"
+      });
+      return { ...record, deliveryChannel: "IN_APP", deliveryStatus: "UNAVAILABLE" };
+    }
+    try {
+      const result = await this.adapter.deliver(record, recipient);
+      const update = {
+        deliveryChannel: "EMAIL" as const,
+        deliveryStatus: "ACCEPTED" as const,
+        deliveryId: result.receipt.deliveryId,
+        deliveredAt: result.receipt.acceptedAt
+      };
+      await this.store.updateDelivery?.(record.dedupeKey, update);
+      return { ...record, ...update };
+    } catch {
+      const update = { deliveryChannel: "EMAIL" as const, deliveryStatus: "FAILED" as const };
+      await this.store.updateDelivery?.(record.dedupeKey, update);
+      return { ...record, ...update };
+    }
+  }
+}
+
 export function notificationRecord(input: {
   caseId: string;
   ownerId: string;

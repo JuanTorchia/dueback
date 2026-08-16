@@ -169,6 +169,7 @@ export const resolutionPlanSchema = z
     followUpIntervalSeconds: z.int().positive().max(30 * 24 * 60 * 60).optional(),
     maxLogicalSends: z.int().positive().max(3).optional(),
     recipientConfirmedAt: isoDateSchema.optional(),
+    notificationRecipient: z.email().max(320).optional(),
     sharedFields: z.array(z.string().min(1).max(80)).max(12),
     followUpAt: isoDateSchema.optional(),
     evidenceRequirements: z

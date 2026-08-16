@@ -80,7 +80,22 @@ sandbox_url="$(gcloud run services describe dueback-merchant-sandbox --region="$
 gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 web_url="$(gcloud run services describe dueback-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
-gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${web_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
+gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${web_url},DUEBACK_PUBLIC_BASE_URL=${web_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
+
+# Managed email is opt-in and fail-closed. The sandbox deploy remains reproducible without these
+# external credentials. To enable it, provision both named secrets and set every bounded channel
+# variable below; otherwise the capability endpoint reports email as unavailable.
+if gcloud secrets describe dueback-resend-api-key --project="${project_id}" >/dev/null 2>&1 && \
+   gcloud secrets describe dueback-email-webhook-signing --project="${project_id}" >/dev/null 2>&1 && \
+   [[ -n "${COMPANY_EMAIL_FROM:-}" && -n "${COMPANY_EMAIL_REPLY_DOMAIN:-}" && \
+      -n "${COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS:-}" ]]; then
+  gcloud run services update dueback-web \
+    --region="${region}" \
+    --project="${project_id}" \
+    --update-secrets="RESEND_API_KEY=dueback-resend-api-key:latest,EMAIL_WEBHOOK_SIGNING_SECRET=dueback-email-webhook-signing:latest" \
+    --update-env-vars="COMPANY_CONTACT_MODE=email,COMPANY_EMAIL_FROM=${COMPANY_EMAIL_FROM},DUEBACK_NOTIFICATION_FROM=${DUEBACK_NOTIFICATION_FROM:-${COMPANY_EMAIL_FROM}},COMPANY_EMAIL_REPLY_DOMAIN=${COMPANY_EMAIL_REPLY_DOMAIN},COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS=${COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS}" \
+    >/dev/null
+fi
 gcloud run services update dueback-merchant-sandbox --region="${region}" --update-env-vars="DUEBACK_CALLBACK_URL=${web_url}/api/callbacks/merchant" --project="${project_id}" >/dev/null
 gcloud run services add-iam-policy-binding dueback-web --region="${region}" --member="serviceAccount:${tasks_sa}" --role=roles/run.invoker --project="${project_id}" >/dev/null
 

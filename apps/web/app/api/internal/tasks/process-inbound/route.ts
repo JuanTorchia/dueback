@@ -5,6 +5,7 @@ import { EvidenceService } from "@dueback/runtime/evidence-service";
 import { InboundService } from "@dueback/runtime/inbound-service";
 import { InterventionService } from "@dueback/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
+import { notificationDelivery } from "../../../../../lib/notification-delivery";
 
 export const runtime = "nodejs";
 
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     const service = new InboundService(
       store,
       { interpret: (input) => extractInboundFlow(input) },
-      new EvidenceService(store, store, store),
+      new EvidenceService(store, store, store, notificationDelivery(store)),
       interventions
     );
     const email = await new ResendInboundEmailAdapter(apiKey).retrieve(body.providerEmailId);

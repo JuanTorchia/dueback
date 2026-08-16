@@ -24,6 +24,7 @@ export function PlanReview({
   const [reference, setReference] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [notificationRecipient, setNotificationRecipient] = useState("");
   const [legitimateContact, setLegitimateContact] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -315,7 +316,25 @@ export function PlanReview({
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
         {contactMode === "sandbox" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
-        <div className="return-promise"><strong>3 · How the result comes back to you</strong><p>The case page updates automatically. Decisions and verified results can also use the outbound notification adapter when a verified user address is configured.</p></div>
+        <div className="return-promise">
+          <strong>3 · How the result comes back to you</strong>
+          <p>The case page always updates. Add an email if you also want DueBack to bring decisions and verified results back after you close this tab.</p>
+          <div className="inline-edit">
+            <input
+              type="email"
+              aria-label="Email for DueBack case updates"
+              value={notificationRecipient}
+              placeholder={draft.plan.notificationRecipient ?? "you@example.com"}
+              onChange={(event) => { setNotificationRecipient(event.target.value); }}
+            />
+            <button
+              type="button"
+              disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationRecipient)}
+              onClick={() => void saveRevision({ notificationRecipient: notificationRecipient.trim() })}
+            >Save update email</button>
+          </div>
+          <small>{draft.plan.notificationRecipient ? `Updates configured for ${draft.plan.notificationRecipient}.` : "Optional. DueBack works without inbox access."}</small>
+        </div>
         <label className="legitimate-contact">
           <input type="checkbox" checked={legitimateContact} onChange={(event) => { setLegitimateContact(event.target.checked); }} />
           <span><strong>I’m authorized to contact this recipient</strong><small>This is a legitimate follow-up about my own case—not bulk outreach, threats, or unsolicited marketing.</small></span>

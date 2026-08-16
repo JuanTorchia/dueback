@@ -8,7 +8,8 @@ import {
 import {
   notificationRecord,
   type NotificationRecord,
-  type NotificationStore
+  type NotificationStore,
+  type NotificationDeliveryService
 } from "./notifications";
 import {
   interventionRecord,
@@ -46,7 +47,8 @@ export class EvidenceService {
   constructor(
     private readonly cases: EvidenceCaseStore,
     private readonly notifications: NotificationStore,
-    private readonly interventions?: InterventionStore
+    private readonly interventions?: InterventionStore,
+    private readonly delivery?: NotificationDeliveryService
   ) {}
 
   async reconcile(
@@ -107,10 +109,13 @@ export class EvidenceService {
       const persistedIntervention = this.interventions
         ? await this.interventions.createInterventionIfAbsent(intervention)
         : { record: intervention };
+      const deliveredNotification = this.delivery
+        ? await this.delivery.deliver(persistedNotification.record, item.plan.notificationRecipient)
+        : persistedNotification.record;
       return {
         status: "INSUFFICIENT",
         verification,
-        notification: persistedNotification.record,
+        notification: deliveredNotification,
         intervention: persistedIntervention.record
       };
     }
@@ -122,6 +127,9 @@ export class EvidenceService {
       correlationId
     });
     const persisted = await this.notifications.createIfAbsent(record);
-    return { status: "VERIFIED", verification, notification: persisted.record };
+    const delivered = this.delivery
+      ? await this.delivery.deliver(persisted.record, item.plan.notificationRecipient)
+      : persisted.record;
+    return { status: "VERIFIED", verification, notification: delivered };
   }
 }

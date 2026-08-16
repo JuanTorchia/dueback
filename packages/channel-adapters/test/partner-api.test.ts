@@ -13,11 +13,14 @@ const proposal = {
 
 describe("controlled partner API fixture", () => {
   it("sends the common envelope with idempotency and a body signature", async () => {
-    const request = vi.fn((_input: string | URL | Request, _init?: RequestInit) =>
-      Promise.resolve(new Response(JSON.stringify({
+    const request = vi.fn((input: string | URL | Request, init?: RequestInit) => {
+      void input;
+      void init;
+      return Promise.resolve(new Response(JSON.stringify({
         receiptId: "partner_receipt_1",
         acceptedAt: "2026-08-16T10:00:00.000Z"
-      }))));
+      })));
+    });
     const adapter = new PartnerApiFixtureAdapter({
       endpoint: "https://fixture.example/v1/dueback/actions",
       signingSecret: "fixture-secret",

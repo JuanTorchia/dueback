@@ -2,6 +2,7 @@ import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
 import { EvidenceService } from "@dueback/runtime/evidence-service";
 import { handleMerchantCallback } from "../../../../lib/callback-controller";
 import { firestore } from "../../../../lib/firebase-admin";
+import { notificationDelivery } from "../../../../lib/notification-delivery";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,6 @@ export async function POST(request: Request) {
     secret,
     now: () => new Date().toISOString(),
     callbacks: store,
-    evidence: new EvidenceService(store, store, store)
+    evidence: new EvidenceService(store, store, store, notificationDelivery(store))
   });
 }

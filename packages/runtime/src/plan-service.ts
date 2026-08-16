@@ -30,6 +30,7 @@ export interface PlanRevision {
   readonly goal?: string;
   readonly expiresAt?: string;
   readonly allowedRecipient?: string;
+  readonly notificationRecipient?: string;
 }
 
 export interface PlanSimulation {
@@ -109,6 +110,11 @@ function revisedPlan(current: ResolutionPlan, draft: PromiseDraft, revision: Pla
       ? { recipientConfirmedAt: new Date().toISOString() }
       : current.recipientConfirmedAt
         ? { recipientConfirmedAt: current.recipientConfirmedAt }
+        : {}),
+    ...(revision.notificationRecipient
+      ? { notificationRecipient: revision.notificationRecipient.trim().toLowerCase() }
+      : current.notificationRecipient
+        ? { notificationRecipient: current.notificationRecipient }
         : {}),
     sharedFields: current.sharedFields,
     ...(revision.followUpAt || revision.dueAt || current.followUpAt

@@ -25,7 +25,7 @@ pnpm evaluate
 ```
 
 Observed result: all commands exited successfully. Package tests and the root suite passed; the root
-suite reported 12 files and 40 tests. The evaluation runner reported 24/24 expected outcomes, split
+suite reported 13 files and 44 tests after study-report coverage was added. The evaluation runner reported 24/24 expected outcomes, split
 between 12 deterministic executions and 12 fixture-contract checks. The full per-case output is in
 [`results.json`](results.json); this is not presented as 24 live model calls.
 
@@ -90,3 +90,19 @@ the development project reports those TTL configurations. The same audit added a
 four-call model budget plus observed latency/token/cost-basis records. Cost uses provider token
 counts and the official Gemini 3.5 Flash standard-global prices observed on 2026-08-16; absent token
 counts produce no estimate.
+
+The hardened image was built by Cloud Build operation
+`8ef99d2d-b4e6-4bab-87dd-9c5daf493bcb` and deployed as Cloud Run revision
+`dueback-web-00013-7ph` at 100% traffic. Fourteen in-scope Firestore collection groups reported TTL
+state `ACTIVE`. Two fresh mobile journeys then ran sequentially with Playwright retries disabled and
+both passed in 31.2 and 21.5 seconds (53.8 seconds total runner time).
+
+The two newest model-usage records showed one successful call each, provider token counts, measured
+latencies of 10,642 ms and 15,235 ms, standard-global cost estimates of USD 0.008439 and USD
+0.014553, and Firestore `deleteAt` timestamps. Their associated completed case runs also contained
+30-day `deleteAt` timestamps. No source content, owner ID, or promise text was printed in this
+verification.
+
+An earlier Playwright instability was traced to the shared machine's `/tmp` filesystem being 100%
+full with unrelated caches. No unrelated files were deleted. `playwright.config.ts` now creates and
+uses a repository-private ignored temp directory; two sequential no-retry runs passed afterward.

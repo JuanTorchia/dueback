@@ -244,6 +244,67 @@ textarea {
   font-size: 12px;
   font-weight: 750;
 }
+.remove-file {
+  display: block;
+  margin: 8px 0 0 auto;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.analysis-progress {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 12px;
+  align-items: start;
+  margin: 14px 0 0;
+  padding: 14px;
+  border: 1px solid #b9d8c9;
+  border-radius: 14px;
+  background: #f2faf5;
+}
+.analysis-progress strong {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+}
+.analysis-progress p {
+  margin: 3px 0 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.analysis-progress small {
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 750;
+}
+.progress-orbit {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #c9ded3;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: orbit 900ms linear infinite;
+}
+.progress-orbit span {
+  display: block;
+  width: 6px;
+  height: 6px;
+  margin: 1px 0 0 3px;
+  border-radius: 50%;
+  background: var(--green);
+}
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-orbit { animation: none; }
+}
 .privacy {
   margin: 12px 0 18px;
   color: var(--muted);

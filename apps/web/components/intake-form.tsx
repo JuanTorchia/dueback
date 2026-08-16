@@ -10,12 +10,27 @@ export function IntakeForm() {
   const [text, setText] = useState("");
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState<string>();
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!busy) {
+      setElapsedSeconds(0);
+      return;
+    }
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1_000);
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [busy]);
 
   async function submit() {
     setBusy(true);
@@ -51,6 +66,7 @@ export function IntakeForm() {
         <textarea
           id="promise"
           value={text}
+          disabled={busy}
           onChange={(event) => {
             setText(event.target.value);
           }}
@@ -67,13 +83,37 @@ export function IntakeForm() {
         <input
           id="artifact"
           type="file"
+          disabled={busy}
           accept="application/pdf,image/jpeg,image/png"
           onChange={(event) => {
             setFile(event.target.files?.[0]);
           }}
         />
       </div>
+      {file ? (
+        <button className="remove-file" type="button" disabled={busy} onClick={() => {
+          setFile(undefined);
+        }}>
+          Remove file
+        </button>
+      ) : null}
       {text.trim() && file ? <p className="combined-source">✓ Text and file will be analyzed together</p> : null}
+      {busy ? (
+        <div className="analysis-progress">
+          <div className="progress-orbit" aria-hidden="true"><span /></div>
+          <div>
+            <strong>Gemini is reading your evidence</strong>
+            <p>
+              {elapsedSeconds < 15
+                ? "Extracting the company, promise, dates, and proof requirements."
+                : elapsedSeconds < 30
+                  ? "Still working — complex or ambiguous evidence can take a little longer."
+                  : "This is taking longer than usual. Nothing has been sent to the company."}
+            </p>
+            <small aria-hidden="true">{elapsedSeconds}s elapsed · usually 10–25 seconds</small>
+          </div>
+        </div>
+      ) : null}
       <p className="privacy">
         DueBack processes only what you share. Raw files expire within 24 hours. Nothing is sent to
         a company before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
@@ -84,10 +124,16 @@ export function IntakeForm() {
         disabled={!ready || busy}
         onClick={() => void submit()}
       >
-        {busy ? "Reading the promise…" : "Create my follow-up plan"}
+        {busy ? "Building your plan…" : "Create my follow-up plan"}
       </button>
       <p className="sr-status" role="status" aria-live="polite">
-        {busy ? "DueBack is finding and checking the promise." : ""}
+        {busy
+          ? elapsedSeconds < 15
+            ? "Gemini is analyzing the evidence. This usually takes 10 to 25 seconds."
+            : elapsedSeconds < 30
+              ? "The analysis is still working on complex or ambiguous evidence."
+              : "The analysis is taking longer than usual. Nothing has been sent to the company."
+          : ""}
       </p>
       {error ? (
         <p className="error" role="alert">

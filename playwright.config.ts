@@ -8,9 +8,13 @@ process.env.TMPDIR = privateTemp;
 
 export default defineConfig({
   testDir: "tests/e2e",
-  testMatch: ["deployed-demo.spec.ts", "deployed-ambiguous-review.spec.ts"],
+  testMatch: [
+    "deployed-demo.spec.ts",
+    "deployed-ambiguous-review.spec.ts",
+    "intake-resilience.spec.ts"
+  ],
   timeout: 90_000,
-  retries: 1,
+  retries: 0,
   use: {
     browserName: "chromium",
     viewport: { width: 390, height: 844 },

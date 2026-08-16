@@ -15,7 +15,7 @@ image_tag="$(git rev-parse --short HEAD)"
 gcloud services enable \
   aiplatform.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com \
   firestore.googleapis.com run.googleapis.com cloudtasks.googleapis.com \
-  secretmanager.googleapis.com identitytoolkit.googleapis.com \
+  secretmanager.googleapis.com identitytoolkit.googleapis.com firebaserules.googleapis.com \
   --project="${project_id}"
 
 gcloud artifacts repositories describe "${repository}" --location="${region}" --project="${project_id}" >/dev/null 2>&1 || \
@@ -35,6 +35,8 @@ done
 
 gcloud firestore databases describe --database='(default)' --project="${project_id}" >/dev/null 2>&1 || \
   gcloud firestore databases create --database='(default)' --location="${region}" --type=firestore-native --project="${project_id}"
+
+GOOGLE_CLOUD_PROJECT="${project_id}" pnpm --filter @dueback/web deploy:firestore-rules
 
 if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --filter='name:collectionGroups/interventions/' --format='value(name)')" ]]; then
   gcloud firestore indexes composite create \

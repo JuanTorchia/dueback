@@ -56,6 +56,10 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   );
   return (
     <div className="result-grid">
+      <p className="preview-label">
+        Controlled hackathon demo — Merchant Sandbox is not a real merchant; callback timing is
+        accelerated.
+      </p>
       <section className={`card outcome ${done ? "verified" : "waiting"}`}>
         <div className="eyebrow">{done ? "Proof of Done" : "Still working"}</div>
         <h2>

@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint app components lib test next.config.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy:firestore-rules": "tsx scripts/deploy-firestore-rules.ts"
   },
   "dependencies": {
     "@dueback/channel-adapters": "workspace:*",

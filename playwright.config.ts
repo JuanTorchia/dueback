@@ -8,7 +8,7 @@ process.env.TMPDIR = privateTemp;
 
 export default defineConfig({
   testDir: "tests/e2e",
-  testMatch: "deployed-demo.spec.ts",
+  testMatch: ["deployed-demo.spec.ts", "deployed-ambiguous-review.spec.ts"],
   timeout: 90_000,
   retries: 1,
   use: {

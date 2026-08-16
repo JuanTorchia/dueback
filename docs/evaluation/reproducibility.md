@@ -127,3 +127,22 @@ receipt, and the same four-event ledger: `PLAN_APPROVED`, `ACTION_RESULT`, rejec
 `REQUEST_ACKNOWLEDGED` evidence with `INSUFFICIENT_LEVEL`, and accepted `MERCHANT_CONFIRMED`
 evidence. Each case preserved one correlation ID across all four events. This verifies the visible
 timeline from persisted state rather than a hard-coded UI narrative.
+
+## Synthetic-pilot remediation deployment
+
+The eight files supplied under `user-testing-feedback/` explicitly identify their personas,
+quotations, and timings as AI-generated. They were excluded from human metrics and used only to
+form bug hypotheses. The validation and disposition are recorded in
+`docs/research/synthetic-pilot-validation.md`.
+
+Commit `68cc8ce` was built by Cloud Build operation
+`d70fc164-a6fe-4e41-a342-781876bf1878` and deployed as `dueback-web-00015-4cz` at 100% traffic. A
+new deployed Playwright path used the contradictory USD 79/USD 59 fixture, observed a visible
+uncertainty warning, resolved every model-selected blocker through the UI, activated without
+developer tools, and reached merchant-confirmed evidence in 37.0 seconds. A subsequent joint
+no-retry regression ran both the ambiguous path and the standard judge path sequentially; both
+passed in 46.5 seconds total.
+
+This deployment also scopes model-call budgets by owner plus content-derived artifact, waits for
+persisted Firebase anonymous identity before creating a new owner, provides `/privacy`, and allows
+owner-checked transactional deletion of a pre-activation draft.

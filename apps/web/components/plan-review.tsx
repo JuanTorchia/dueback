@@ -128,6 +128,10 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
     );
   if (!draft) return <div className="card">Building the cited Outcome Contract…</div>;
   const outcome = draft.outcomeContract;
+  const dateTime = (value: string) =>
+    new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(
+      new Date(value)
+    );
   const fieldLabels: Record<string, string> = {
     promisor: "company name",
     result: "promised result",
@@ -194,9 +198,9 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
           <div>
             <dt>Due</dt>
             <dd>
-              {draft.promiseDraft.dueAt?.value ??
-                draft.promiseDraft.dueCondition?.value ??
-                "No company deadline found"}
+              {draft.promiseDraft.dueAt?.value
+                ? dateTime(draft.promiseDraft.dueAt.value)
+                : draft.promiseDraft.dueCondition?.value ?? "No company deadline found"}
               {uncertainty(draft.promiseDraft.dueAt ?? draft.promiseDraft.dueCondition)}
             </dd>
           </div>
@@ -204,10 +208,7 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
             <dt>Follow-up</dt>
             <dd>
               {draft.plan.followUpAt
-                ? new Intl.DateTimeFormat(undefined, {
-                    dateStyle: "medium",
-                    timeStyle: "short"
-                  }).format(new Date(draft.plan.followUpAt))
+                ? dateTime(draft.plan.followUpAt)
                 : "Choose when DueBack should follow up"}
             </dd>
           </div>

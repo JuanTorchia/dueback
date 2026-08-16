@@ -211,3 +211,15 @@ After scoping the assertion to the product alert, both deterministic resilience 
 retries disabled in 4.3 seconds and 834 ms. They verify delayed-response feedback and recovery plus
 combined text-and-image intake. The two live-Gemini paths in the preceding run passed in 30.5 and
 26.9 seconds.
+
+## Platform positioning deployment
+
+Commit `94c8f89` was built by Cloud Build operation
+`43d6b7e6-d994-4f16-aa5b-5e2fe5cfddb7` and deployed as `dueback-web-00021-gwj` at 100% traffic.
+The public product now describes the general proof-of-done contract while explicitly labelling
+company follow-up as the live recipe and appointments/documents as next adapters. This avoids
+claiming unsupported integrations while making the runtime scope visible.
+
+All four public browser tests passed sequentially with retries disabled: the two live-Gemini paths
+in 36.4 and 18.0 seconds, delayed-error recovery in 4.4 seconds, and combined text plus image intake
+in 1.0 second. The production build, typecheck, lint, 44 root tests, and 16 web tests also passed.

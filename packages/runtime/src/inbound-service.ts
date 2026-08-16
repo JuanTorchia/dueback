@@ -61,6 +61,9 @@ export class InboundService {
     if (!caseId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
     const item = await this.cases.get(caseId);
     if (!item) return { status: "REJECTED", reasonCodes: ["CASE_NOT_FOUND"] };
+    if (!["RUNNING", "WAITING_EXTERNAL"].includes(item.state)) {
+      return { status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] };
+    }
     const correlationId = item.correlationId ?? `corr_${stableHash({ caseId }).slice(7, 31)}`;
     const expectedSender = address(item.plan.allowedRecipient);
     if (address(email.from) !== expectedSender) {

@@ -30,6 +30,17 @@ export interface ClosedActionAdapter {
   ): Promise<ActionReceipt>;
 }
 
+export interface ExternalSendBudget {
+  reserveExternalSend(input: {
+    ownerId: string;
+    caseId: string;
+    recipient: string;
+    channelType: string;
+    requestedAt: string;
+    idempotencyKey: string;
+  }): Promise<void>;
+}
+
 export class ActionOutcomeUnknownError extends Error {
   constructor(readonly reasonCode: string) {
     super(reasonCode);
@@ -50,7 +61,8 @@ export type BrokerResult =
 export class ActionBroker {
   constructor(
     private readonly store: ActionRecordStore,
-    private readonly adapter: ClosedActionAdapter
+    private readonly adapter: ClosedActionAdapter,
+    private readonly budget?: ExternalSendBudget
   ) {}
 
   async execute(input: {
@@ -84,6 +96,14 @@ export class ActionBroker {
     }
 
     try {
+      await this.budget?.reserveExternalSend({
+        ownerId: input.proposal.ownerId,
+        caseId: input.caseId,
+        recipient: input.proposal.recipient,
+        channelType: input.proposal.channelType ?? "UNKNOWN",
+        requestedAt: input.now,
+        idempotencyKey
+      });
       const receipt = await this.adapter.execute(input.proposal, idempotencyKey, {
         caseId: input.caseId,
         ...(input.correlationId ? { correlationId: input.correlationId } : {})

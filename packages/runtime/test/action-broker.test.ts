@@ -115,4 +115,42 @@ describe("ActionBroker", () => {
     await expect(broker.execute(input)).resolves.toMatchObject({ status: "PENDING_DUPLICATE" });
     expect(execute).toHaveBeenCalledOnce();
   });
+
+  it("reserves owner/recipient/domain/channel budget once before the provider call", async () => {
+    const reserveExternalSend = vi.fn(() => Promise.resolve());
+    const execute = vi.fn(() => Promise.resolve({
+      receiptId: "receipt_1",
+      acceptedAt: "2026-08-15T12:00:00.000Z"
+    }));
+    const broker = new ActionBroker(new MemoryActionStore(), { execute }, { reserveExternalSend });
+    const input = {
+      caseId: "case_1",
+      actionOrdinal: 1,
+      policy,
+      proposal,
+      now: "2026-08-15T12:00:00.000Z"
+    };
+    await broker.execute(input);
+    await broker.execute(input);
+    expect(reserveExternalSend).toHaveBeenCalledOnce();
+    expect(reserveExternalSend).toHaveBeenCalledWith(expect.objectContaining({
+      ownerId: "person_1",
+      recipient: "merchant@example.test"
+    }));
+  });
+
+  it("does not call the provider when an external send budget is exhausted", async () => {
+    const execute = vi.fn<ClosedActionAdapter["execute"]>();
+    const broker = new ActionBroker(new MemoryActionStore(), { execute }, {
+      reserveExternalSend: () => Promise.reject(new Error("EXTERNAL_SEND_BUDGET_EXHAUSTED"))
+    });
+    await expect(broker.execute({
+      caseId: "case_1",
+      actionOrdinal: 1,
+      policy,
+      proposal,
+      now: "2026-08-15T12:00:00.000Z"
+    })).rejects.toThrow("EXTERNAL_SEND_BUDGET_EXHAUSTED");
+    expect(execute).not.toHaveBeenCalled();
+  });
 });

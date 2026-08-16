@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { DraftCase } from "@dueback/runtime/intake-service";
 import type { PlanSimulation } from "@dueback/runtime/plan-service";
+import type { ChannelCapability } from "@dueback/contracts";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
 
@@ -29,6 +30,7 @@ export function PlanReview({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
+  const [activeCapability, setActiveCapability] = useState<ChannelCapability>();
   const statusRef = useRef<HTMLParagraphElement>(null);
 
   async function api(method: "GET" | "POST", body?: object): Promise<PlanResponse> {
@@ -53,6 +55,15 @@ export function PlanReview({
         setError(cause instanceof Error ? cause.message : "PLAN_REQUEST_FAILED");
       });
   }, [caseId]);
+
+  useEffect(() => {
+    void fetch("/api/channels", { cache: "no-store" })
+      .then(async (response) => response.ok ? await response.json() as ChannelCapability[] : [])
+      .then((capabilities) => {
+        const channelType = contactMode === "email" ? "MANAGED_EMAIL" : "CONTROLLED_SANDBOX";
+        setActiveCapability(capabilities.find((item) => item.channelType === channelType));
+      });
+  }, [contactMode]);
 
   async function command(body: object) {
     setBusy(true);
@@ -279,7 +290,7 @@ export function PlanReview({
             <span>1</span><div><strong>How DueBack contacts them</strong><p>One channel is authorized for this case.</p></div>
           </div>
           <div className="channel-options" role="list" aria-label="Contact channel availability">
-            <div role="listitem" data-active={contactMode === "email"}><span>✉</span><strong>Email</strong><small>{contactMode === "email" ? "Outbound active" : "Ready to connect"}</small></div>
+            <div role="listitem" data-active={contactMode === "email"}><span>✉</span><strong>Email</strong><small>{contactMode === "email" ? activeCapability?.status === "AVAILABLE" ? "Available now" : "Unavailable — setup required" : "Ready to connect"}</small></div>
             <div role="listitem" data-active={contactMode === "sandbox"}><span>↗</span><strong>Demo API</strong><small>{contactMode === "sandbox" ? "Live now" : "Test mode"}</small></div>
             <div role="listitem"><span>▤</span><strong>Web form</strong><small>Next adapter</small></div>
             <div role="listitem"><span>◉</span><strong>WhatsApp</strong><small>Next adapter</small></div>
@@ -357,7 +368,7 @@ export function PlanReview({
         <button
           className="primary"
           type="button"
-          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact}
+          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact || activeCapability?.status !== "AVAILABLE"}
           onClick={() => {
             void command({
               action: "approve",
@@ -368,7 +379,7 @@ export function PlanReview({
         >
           {draft.state === "READY" ? "Follow-up activated" : "Approve and start follow-up"}
         </button>
-        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : !legitimateContact ? <p className="button-help">Confirm that this is an authorized, legitimate contact before activation.</p> : null}
+        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : activeCapability?.status !== "AVAILABLE" ? <p className="button-help">This channel cannot be activated until its required configuration and health gates pass.</p> : !legitimateContact ? <p className="button-help">Confirm that this is an authorized, legitimate contact before activation.</p> : null}
         <button
           className="text-button"
           type="button"

@@ -1,5 +1,6 @@
-import type { Firestore } from "firebase-admin/firestore";
+import { FieldValue, type Firestore } from "firebase-admin/firestore";
 import type { ActionReceipt, ActionRecordStore, Reservation } from "@dueback/runtime/action-broker";
+import type { ExternalSendBudget } from "@dueback/runtime/action-broker";
 import type { FollowThroughCase, FollowThroughStore } from "@dueback/runtime/case-runner";
 import type { EvidenceCaseStore, EvidenceRecord } from "@dueback/runtime/evidence-service";
 import type { NotificationRecord, NotificationStore } from "@dueback/runtime/notifications";
@@ -19,9 +20,56 @@ export class FirestoreRuntimeStore
     EvidenceCaseStore,
     NotificationStore,
     InterventionStore,
-    EmailDeliveryStore
+    EmailDeliveryStore,
+    ExternalSendBudget
 {
   constructor(private readonly db: Firestore) {}
+
+  async reserveExternalSend(input: {
+    ownerId: string;
+    caseId: string;
+    recipient: string;
+    channelType: string;
+    requestedAt: string;
+    idempotencyKey: string;
+  }): Promise<void> {
+    const day = input.requestedAt.slice(0, 10);
+    const ownerHash = stableHash(input.ownerId).slice(7, 31);
+    const recipientHash = stableHash(input.recipient.toLowerCase()).slice(7, 31);
+    const domain = input.recipient.includes("@") ? input.recipient.split("@").at(-1)?.toLowerCase() ?? "none" : "none";
+    const domainHash = stableHash(domain).slice(7, 31);
+    const references = [
+      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-recipient-${recipientHash}`), limit: 3 },
+      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-domain-${domainHash}`), limit: 10 },
+      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-channel-${input.channelType}`), limit: 10 }
+    ];
+    const reservation = this.db.collection("externalSendReservations").doc(stableHash(input.idempotencyKey).slice(7, 39));
+    await this.db.runTransaction(async (transaction) => {
+      const prior = await transaction.get(reservation);
+      if (prior.exists) return;
+      const snapshots = await Promise.all(references.map(({ ref }) => transaction.get(ref)));
+      for (const [index, snapshot] of snapshots.entries()) {
+        if (Number(snapshot.get("count") ?? 0) >= (references[index]?.limit ?? 0)) {
+          throw new Error("EXTERNAL_SEND_BUDGET_EXHAUSTED");
+        }
+      }
+      for (const { ref } of references) {
+        transaction.set(ref, {
+          ownerHash,
+          day,
+          count: FieldValue.increment(1),
+          updatedAt: input.requestedAt,
+          deleteAt: firestoreDeleteAt(input.requestedAt, 2 * 86_400_000)
+        }, { merge: true });
+      }
+      transaction.create(reservation, {
+        idempotencyKey: input.idempotencyKey,
+        caseId: input.caseId,
+        createdAt: input.requestedAt,
+        deleteAt: firestoreDeleteAt(input.requestedAt)
+      });
+    });
+  }
 
   async get(caseId: string): Promise<FollowThroughCase | undefined> {
     const document = await this.db.collection("caseRuns").doc(caseId).get();

@@ -104,7 +104,7 @@ export async function POST(request: Request) {
   ]);
   const runner = new CaseRunner(
     store,
-    new ActionBroker(store, new RoutingChannelAdapter(registry)),
+    new ActionBroker(store, new RoutingChannelAdapter(registry), store),
     scheduler,
     30,
     5,

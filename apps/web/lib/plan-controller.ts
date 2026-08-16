@@ -4,6 +4,7 @@ export interface PlanControllerDependencies {
   readonly authenticate: (request: Request) => Promise<{ uid: string }>;
   readonly service: PlanService;
   readonly now: () => string;
+  readonly isChannelAvailable?: (channelType: string | undefined) => boolean;
 }
 
 export async function handlePlanRequest(
@@ -40,6 +41,10 @@ export async function handlePlanRequest(
       body.expectedPlanVersion !== undefined &&
       body.expectedPlanHash
     ) {
+      const draft = await dependencies.service.inspect(caseId, owner.uid);
+      if (dependencies.isChannelAvailable && !dependencies.isChannelAvailable(draft.plan.channelType)) {
+        return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
+      }
       return Response.json(
         await dependencies.service.approve({
           caseId,

@@ -68,4 +68,54 @@ describe("inbound service", () => {
     expect(interpret).not.toHaveBeenCalled();
     expect(raise).toHaveBeenCalledOnce();
   });
+
+  it("rejects ambiguous routing and terminal late replies before invoking the model", async () => {
+    const interpret = vi.fn();
+    const ambiguous = new InboundService(
+      {
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "case_other" : item.caseId)
+      },
+      { interpret },
+      { reconcile: vi.fn() } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(ambiguous.process({ ...email, to: [email.to[0] ?? "", "case+other@inbound.example.test"] }, "2026-08-16T00:00:00.000Z"))
+      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["AMBIGUOUS_CASE"] });
+
+    const terminal = new InboundService(
+      {
+        get: () => Promise.resolve({ ...item, state: "CANCELLED" }),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
+      { interpret },
+      { reconcile: vi.fn() } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(terminal.process(email, "2026-08-16T00:00:00.000Z"))
+      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] });
+    expect(interpret).not.toHaveBeenCalled();
+  });
+
+  it("escalates changed terms without letting the model mutate the plan", async () => {
+    const raise = vi.fn(() => Promise.resolve({}));
+    const reconcile = vi.fn();
+    const service = new InboundService(
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { interpret: () => Promise.resolve({
+        replyType: "PROPOSAL_CHANGE",
+        evidenceLevel: "MERCHANT_COMMITTED",
+        changedTerms: ["amountMinor"],
+        uncertainty: "NONE"
+      }) },
+      { reconcile } as unknown as EvidenceService,
+      { raise } as unknown as InterventionService
+    );
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z"))
+      .resolves.toMatchObject({ status: "NEEDS_ATTENTION", reasonCodes: ["PROPOSAL_CHANGE"] });
+    expect(reconcile).not.toHaveBeenCalled();
+    expect(raise).toHaveBeenCalledOnce();
+  });
 });

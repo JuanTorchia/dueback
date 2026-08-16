@@ -56,7 +56,7 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
-for collection_group in caseDrafts intakeDedupe caseRuns evidence events notifications interventions deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads; do
+for collection_group in caseDrafts intakeDedupe caseRuns evidence events notifications interventions deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads externalSendBudgets externalSendReservations; do
   ttl_state="$(gcloud firestore fields ttls list --project="${project_id}" --collection-group="${collection_group}" --format='value(ttlConfig.state)' 2>/dev/null || true)"
   if [[ "${ttl_state}" != "ACTIVE" ]]; then
     gcloud firestore fields ttls update deleteAt \

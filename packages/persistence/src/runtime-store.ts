@@ -4,6 +4,10 @@ import type { FollowThroughCase, FollowThroughStore } from "@dueback/runtime/cas
 import type { EvidenceCaseStore, EvidenceRecord } from "@dueback/runtime/evidence-service";
 import type { NotificationRecord, NotificationStore } from "@dueback/runtime/notifications";
 import type { InterventionRecord, InterventionStore } from "@dueback/runtime/interventions";
+import type {
+  EmailDeliveryReceipt,
+  EmailDeliveryStore
+} from "@dueback/channel-adapters/outbound-email";
 
 export class FirestoreRuntimeStore
   implements
@@ -11,7 +15,8 @@ export class FirestoreRuntimeStore
     ActionRecordStore,
     EvidenceCaseStore,
     NotificationStore,
-    InterventionStore
+    InterventionStore,
+    EmailDeliveryStore
 {
   constructor(private readonly db: Firestore) {}
 
@@ -106,6 +111,10 @@ export class FirestoreRuntimeStore
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
       if (current.exists) return { record: current.data() as NotificationRecord, duplicate: true };
+      const existingForCase = await transaction.get(
+        this.db.collection("notifications").where("caseId", "==", record.caseId)
+      );
+      if (existingForCase.size >= 3) throw new Error("NOTIFICATION_BUDGET_EXHAUSTED");
       transaction.create(reference, record);
       return { record, duplicate: false };
     });
@@ -130,6 +139,31 @@ export class FirestoreRuntimeStore
       .orderBy("createdAt", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as InterventionRecord);
+  }
+
+  async reserveDelivery(key: string): Promise<"RESERVED" | "IN_FLIGHT" | EmailDeliveryReceipt> {
+    const reference = this.db.collection("emailDeliveries").doc(key.slice(7));
+    return this.db.runTransaction(async (transaction) => {
+      const current = await transaction.get(reference);
+      if (current.exists) {
+        const data = current.data() as { status: string; receipt?: EmailDeliveryReceipt };
+        return data.status === "COMPLETED" && data.receipt ? data.receipt : "IN_FLIGHT";
+      }
+      transaction.create(reference, { status: "IN_FLIGHT", key });
+      return "RESERVED";
+    });
+  }
+
+  async completeDelivery(key: string, receipt: EmailDeliveryReceipt): Promise<void> {
+    await this.db.collection("emailDeliveries").doc(key.slice(7)).set({
+      status: "COMPLETED",
+      key,
+      receipt
+    });
+  }
+
+  async failDelivery(key: string): Promise<void> {
+    await this.db.collection("emailDeliveries").doc(key.slice(7)).delete();
   }
 
   async reserveCallback(

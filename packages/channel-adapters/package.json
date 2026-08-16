@@ -7,7 +7,8 @@
     "./upload": "./src/upload.ts",
     "./callback-signature": "./src/callback-signature.ts",
     "./artifact-access": "./src/artifact-access.ts",
-    "./merchant-sandbox": "./src/merchant-sandbox.ts"
+    "./merchant-sandbox": "./src/merchant-sandbox.ts",
+    "./outbound-email": "./src/outbound-email.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

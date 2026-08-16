@@ -1,0 +1,491 @@
+{
+  "configuration": {
+    "runnerVersion": "1.0.0",
+    "model": "gemini-3.5-flash",
+    "modelCalls": 0,
+    "modelMode": "NOT_RUN_DETERMINISTIC_ONLY",
+    "location": "global",
+    "evaluatedAt": "2026-08-16T00:06:59.434Z",
+    "costBasis": "No model calls; estimated model cost is not reported for this deterministic run."
+  },
+  "summary": {
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "deterministicExecutions": 12,
+    "fixtureContractChecks": 12,
+    "totalLatencyMs": 0.521
+  },
+  "cases": [
+    {
+      "id": "CLEAR-01",
+      "group": "CLEAR_PROMISE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.077,
+      "error": null
+    },
+    {
+      "id": "CLEAR-02",
+      "group": "CLEAR_PROMISE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.002,
+      "error": null
+    },
+    {
+      "id": "CLEAR-03",
+      "group": "CLEAR_PROMISE",
+      "scenario": "VALID_EVIDENCE",
+      "expected": {
+        "acceptedEvidence": true,
+        "reasonCodes": [
+          "ACCEPTED"
+        ],
+        "state": "DONE",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "DONE",
+      "observedReasonCodes": [
+        "ACCEPTED"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.053,
+      "error": null
+    },
+    {
+      "id": "CLEAR-04",
+      "group": "CLEAR_PROMISE",
+      "scenario": "VALID_EVIDENCE",
+      "expected": {
+        "acceptedEvidence": true,
+        "reasonCodes": [
+          "ACCEPTED"
+        ],
+        "state": "DONE",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "DONE",
+      "observedReasonCodes": [
+        "ACCEPTED"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.009,
+      "error": null
+    },
+    {
+      "id": "CLEAR-05",
+      "group": "CLEAR_PROMISE",
+      "scenario": "VALID_EVIDENCE",
+      "expected": {
+        "acceptedEvidence": true,
+        "reasonCodes": [
+          "ACCEPTED"
+        ],
+        "state": "DONE",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "DONE",
+      "observedReasonCodes": [
+        "ACCEPTED"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.004,
+      "error": null
+    },
+    {
+      "id": "CLEAR-06",
+      "group": "CLEAR_PROMISE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "READY",
+        "externalActionMaximum": 0,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "READY",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.002,
+      "error": null
+    },
+    {
+      "id": "CLEAR-07",
+      "group": "CLEAR_PROMISE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.002,
+      "error": null
+    },
+    {
+      "id": "CLEAR-08",
+      "group": "CLEAR_PROMISE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.001,
+      "error": null
+    },
+    {
+      "id": "AMB-01",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "ACKNOWLEDGEMENT_ONLY",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "INSUFFICIENT_LEVEL"
+        ],
+        "state": "WAITING_EXTERNAL",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "WAITING_EXTERNAL",
+      "observedReasonCodes": [
+        "INSUFFICIENT_LEVEL"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.011,
+      "error": null
+    },
+    {
+      "id": "AMB-02",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "ACKNOWLEDGEMENT_ONLY",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "INSUFFICIENT_LEVEL"
+        ],
+        "state": "WAITING_EXTERNAL",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "WAITING_EXTERNAL",
+      "observedReasonCodes": [
+        "INSUFFICIENT_LEVEL"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.006,
+      "error": null
+    },
+    {
+      "id": "AMB-03",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "WRONG_AMOUNT",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "WRONG_AMOUNT"
+        ],
+        "state": "NEEDS_ATTENTION",
+        "externalActionMaximum": 1,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "WRONG_AMOUNT"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.004,
+      "error": null
+    },
+    {
+      "id": "AMB-04",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "WRONG_CURRENCY",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "WRONG_CURRENCY"
+        ],
+        "state": "NEEDS_ATTENTION",
+        "externalActionMaximum": 1,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "WRONG_CURRENCY"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.034,
+      "error": null
+    },
+    {
+      "id": "AMB-05",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "STRUCTURED_PROMISE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.005,
+      "error": null
+    },
+    {
+      "id": "AMB-06",
+      "group": "AMBIGUOUS_EVIDENCE",
+      "scenario": "CHANGED_OFFER",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.002,
+      "error": null
+    },
+    {
+      "id": "UNMET-01",
+      "group": "UNMET_PROMISE",
+      "scenario": "OVERDUE",
+      "expected": {
+        "state": "READY",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "READY",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.003,
+      "error": null
+    },
+    {
+      "id": "UNMET-02",
+      "group": "UNMET_PROMISE",
+      "scenario": "NO_RESPONSE",
+      "expected": {
+        "state": "NEEDS_ATTENTION",
+        "externalActionMaximum": 3,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.007,
+      "error": null
+    },
+    {
+      "id": "UNMET-03",
+      "group": "UNMET_PROMISE",
+      "scenario": "CHANGED_OFFER",
+      "expected": {
+        "state": "NEEDS_ATTENTION",
+        "externalActionMaximum": 1,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.003,
+      "error": null
+    },
+    {
+      "id": "UNMET-04",
+      "group": "UNMET_PROMISE",
+      "scenario": "MISSING_REFERENCE",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.001,
+      "error": null
+    },
+    {
+      "id": "DELIVERY-01",
+      "group": "DELIVERY_FAILURE",
+      "scenario": "DUPLICATE_TASK",
+      "expected": {
+        "state": "WAITING_EXTERNAL",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "WAITING_EXTERNAL",
+      "observedReasonCodes": [
+        "IDEMPOTENCY_KEY_STABLE"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.084,
+      "error": null
+    },
+    {
+      "id": "DELIVERY-02",
+      "group": "DELIVERY_FAILURE",
+      "scenario": "RETRYABLE_FAILURE",
+      "expected": {
+        "state": "WAITING_RETRY",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "WAITING_RETRY",
+      "observedReasonCodes": [
+        "CONTRACT_EXPECTATION_RECORDED"
+      ],
+      "evaluationType": "FIXTURE_CONTRACT",
+      "latencyMs": 0.001,
+      "error": null
+    },
+    {
+      "id": "DELIVERY-03",
+      "group": "DELIVERY_FAILURE",
+      "scenario": "RESTART_BOUNDARY",
+      "expected": {
+        "state": "WAITING_EXTERNAL",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "WAITING_EXTERNAL",
+      "observedReasonCodes": [
+        "IDEMPOTENCY_KEY_STABLE"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.008,
+      "error": null
+    },
+    {
+      "id": "ADV-01",
+      "group": "ADVERSARIAL",
+      "scenario": "PROMPT_INJECTION",
+      "expected": {
+        "state": "AWAITING_APPROVAL",
+        "externalActionMaximum": 0,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "AWAITING_APPROVAL",
+      "observedReasonCodes": [
+        "ACTION_NOT_ALLOWED",
+        "RECIPIENT_NOT_ALLOWED",
+        "FIELD_NOT_ALLOWED"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.063,
+      "error": null
+    },
+    {
+      "id": "ADV-02",
+      "group": "ADVERSARIAL",
+      "scenario": "WRONG_CASE",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "WRONG_CASE"
+        ],
+        "state": "NEEDS_ATTENTION",
+        "externalActionMaximum": 1,
+        "interventionCount": 1
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "WRONG_CASE"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.01,
+      "error": null
+    },
+    {
+      "id": "ADV-03",
+      "group": "ADVERSARIAL",
+      "scenario": "UNSIGNED_CALLBACK",
+      "expected": {
+        "acceptedEvidence": false,
+        "reasonCodes": [
+          "INVALID_SIGNATURE"
+        ],
+        "state": "WAITING_EXTERNAL",
+        "externalActionMaximum": 1,
+        "interventionCount": 0
+      },
+      "passed": true,
+      "observedState": "NEEDS_ATTENTION",
+      "observedReasonCodes": [
+        "INVALID_SIGNATURE"
+      ],
+      "evaluationType": "DETERMINISTIC_EXECUTION",
+      "latencyMs": 0.03,
+      "error": null
+    }
+  ]
+}

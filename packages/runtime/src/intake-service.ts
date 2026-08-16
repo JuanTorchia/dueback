@@ -49,6 +49,10 @@ export interface IntakeStore {
   createDraft(draft: DraftCase): Promise<void>;
 }
 
+export interface NewCaseBudget {
+  consume(ownerId: string, now: string): Promise<void>;
+}
+
 export function blockingCriticalFields(draft: PromiseDraft): string[] {
   const fields: [string, { uncertainty: string } | undefined][] = [
     ["promisor", draft.promisor],
@@ -98,7 +102,8 @@ export class IntakeService {
   constructor(
     private readonly store: IntakeStore,
     private readonly extractor: PromiseExtractor,
-    private readonly merchantRecipient: string
+    private readonly merchantRecipient: string,
+    private readonly budget?: NewCaseBudget
   ) {}
 
   async intake(
@@ -112,6 +117,8 @@ export class IntakeService {
     });
     const existing = await this.store.findByDedupeKey(artifact.ownerId, dedupeKey);
     if (existing) return { draft: existing, duplicate: true };
+
+    await this.budget?.consume(artifact.ownerId, now);
 
     const promiseDraft = promiseDraftSchema.parse(await this.extractor.extract(artifact));
     const caseId = `case_${randomUUID()}`;

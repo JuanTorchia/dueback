@@ -42,7 +42,7 @@ const approval = {
   ownerId: "person_1",
   planVersion: 1,
   planHash: "sha256:plan",
-  expiresAt: "2026-08-16T00:00:00.000Z"
+  expiresAt: "2999-08-16T00:00:00.000Z"
 } as const;
 
 const policy: ApprovedActionPolicy = {

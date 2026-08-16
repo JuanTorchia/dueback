@@ -89,6 +89,17 @@ export class CaseRunner {
     const wakeAt = item.nextWakeAt ?? item.dueAt;
     if (Date.parse(wakeAt) > Date.parse(input.now)) return { status: "NOT_DUE", wakeAt };
 
+    if (item.actionOrdinal > 3) {
+      const exhausted: FollowThroughCase = {
+        ...item,
+        state: "NEEDS_ATTENTION",
+        version: item.version + 1,
+        lastError: "LOGICAL_ACTION_BUDGET_EXHAUSTED"
+      };
+      await this.store.compareAndSet(item.caseId, item.version, exhausted);
+      return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };
+    }
+
     try {
       const broker = await this.broker.execute({
         caseId: item.caseId,

@@ -4,6 +4,7 @@ import { extractPromiseFlow } from "@dueback/genkit-flows/extract-promise";
 import { authenticatedOwner, assertSameOrigin } from "../../../lib/authz";
 import { firestore } from "../../../lib/firebase-admin";
 import { handleIntake } from "../../../lib/intake-controller";
+import { consumeNewCaseBudget } from "../../../lib/security-limits";
 
 export const runtime = "nodejs";
 
@@ -20,7 +21,8 @@ const service = new IntakeService(
       });
     }
   },
-  process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test"
+  process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
+  { consume: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now) }
 );
 
 export async function POST(request: Request) {

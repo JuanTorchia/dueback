@@ -133,10 +133,10 @@ If this fails, freeze later phases and execute the documented pivot review.
 
 **Purpose**: Produce honest measured evidence and a reproducible judge experience after the walking skeleton passes.
 
-- [ ] T062 [P] Implement the complete versioned 24-case corpus and expected outcomes in `packages/test-fixtures/src/evaluation-corpus.ts`
-- [ ] T063 [P] Add prompt-injection, malformed-file, unauthorized-action, duplicate, and denial-budget tests in `tests/adversarial/hostile-inputs.test.ts`
-- [ ] T064 Implement a Genkit evaluation runner that reports every case, failure, latency, model version, and cost basis in `scripts/evaluation/run.ts`
-- [ ] T065 Add bounded uploads, retries, case budgets, rate limits, and redacted errors in `apps/web/lib/security-limits.ts`
+- [x] T062 [P] Implement the complete versioned 24-case corpus and expected outcomes in `packages/test-fixtures/src/evaluation-corpus.ts`
+- [x] T063 [P] Add prompt-injection, malformed-file, unauthorized-action, duplicate, and denial-budget tests in `tests/adversarial/hostile-inputs.test.ts`
+- [x] T064 Implement a Genkit evaluation runner that reports every case, failure, latency, model version, and cost basis in `scripts/evaluation/run.ts`
+- [x] T065 Add bounded uploads, retries, case budgets, rate limits, and redacted errors in `apps/web/lib/security-limits.ts`
 - [ ] T066 Add deployed mobile Playwright verification and judge-safe demo reset in `tests/e2e/deployed-demo.spec.ts` and `scripts/demo/reset.ts`
 - [ ] T067 [P] Create the current architecture diagram with trust boundaries in `docs/architecture/dueback.md`
 - [ ] T068 [P] Update reproducible setup, deployment, controlled-service labels, limitations, and disclosures in `README.md`
@@ -144,7 +144,7 @@ If this fails, freeze later phases and execute the documented pivot review.
 - [ ] T070 Record measured corpus results without invented metrics in `docs/evaluation/results.md`
 - [ ] T071 Run every command in `specs/001-resolve-commercial-promises/quickstart.md` and record deviations in `docs/evaluation/reproducibility.md`
 - [ ] T072 Complete the official compliance checklist using only linked evidence in `docs/hackathon/compliance-checklist.md`
-- [ ] T073 Add one idempotent outbound email adapter for `NEEDS_ATTENTION` and `CASE_COMPLETED`, only after the kill test passes, in `packages/channel-adapters/src/outbound-email.ts`
+- [x] T073 Add one idempotent outbound email adapter for `NEEDS_ATTENTION` and `CASE_COMPLETED`, only after the kill test passes, in `packages/channel-adapters/src/outbound-email.ts`
 - [ ] T074 [P] Publish the consent-safe eight-person problem and usability study protocol in `docs/research/user-study-protocol.md`
 - [ ] T075 Run the eight-person unassisted study and store anonymized timing, comprehension, errors, and failures in `docs/research/user-study-results.csv`
 - [ ] T076 Report denominators and observed SC-001/SC-002 outcomes without invented claims in `docs/research/user-study-report.md`

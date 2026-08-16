@@ -1,5 +1,6 @@
 import { acceptUpload } from "@dueback/channel-adapters/upload";
 import type { IntakeService } from "@dueback/runtime/intake-service";
+import { redactedPublicError } from "./security-limits";
 
 export interface IntakeControllerDependencies {
   readonly authenticate: (request: Request) => Promise<{ uid: string }>;
@@ -56,7 +57,7 @@ export async function handleIntake(
       { status: result.duplicate ? 200 : 201 }
     );
   } catch (cause) {
-    const error = cause instanceof Error ? cause.message : "INTAKE_FAILED";
+    const error = redactedPublicError(cause);
     const candidateStatus =
       "status" in Object(cause) ? (cause as { status?: unknown }).status : undefined;
     const status =

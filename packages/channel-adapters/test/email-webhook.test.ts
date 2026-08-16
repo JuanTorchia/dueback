@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   parseEmailProviderEvent,
   signEmailWebhook,
+  transportStatusForProviderEvent,
   verifyEmailWebhook
 } from "../src/email-webhook";
 
@@ -19,6 +20,12 @@ describe("email webhook boundary", () => {
     const signature = `v1,${signEmailWebhook(body, "event_123", timestamp, secret)}`;
     expect(verifyEmailWebhook({ body, id: "event_123", timestamp, signature, secret, now })).toBe(true);
     expect(parseEmailProviderEvent(body).data.email_id).toBe("provider_email_123");
+  });
+
+  it("maps only known transport events", () => {
+    expect(transportStatusForProviderEvent("email.delivered")).toBe("DELIVERED");
+    expect(transportStatusForProviderEvent("email.bounced")).toBe("BOUNCED");
+    expect(transportStatusForProviderEvent("email.received")).toBeUndefined();
   });
 
   it("rejects changed, stale and malformed events", () => {

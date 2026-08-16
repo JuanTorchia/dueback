@@ -1,6 +1,10 @@
 import { stableHash } from "@dueback/domain";
 import type { ProposedAction } from "@dueback/domain";
-import type { ActionReceipt, ClosedActionAdapter } from "@dueback/runtime/action-broker";
+import {
+  ActionOutcomeUnknownError,
+  type ActionReceipt,
+  type ClosedActionAdapter
+} from "@dueback/runtime/action-broker";
 
 export interface CompanyEmailConfig {
   readonly apiKey: string;
@@ -56,24 +60,32 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
       idempotencyKey
     }).slice(7, 39);
     const replyRoute = `case+${routeToken}@${this.config.replyDomain}`;
-    const response = await this.request("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${this.config.apiKey}`,
-        "content-type": "application/json",
-        "idempotency-key": idempotencyKey
-      },
-      body: JSON.stringify({
-        from: this.config.from,
-        to: [proposal.recipient],
-        reply_to: replyRoute,
-        subject: message.subject,
-        text: message.text
-      })
-    });
+    let response: Response;
+    try {
+      response = await this.request("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${this.config.apiKey}`,
+          "content-type": "application/json",
+          "idempotency-key": idempotencyKey
+        },
+        body: JSON.stringify({
+          from: this.config.from,
+          to: [proposal.recipient],
+          reply_to: replyRoute,
+          subject: message.subject,
+          text: message.text
+        })
+      });
+    } catch {
+      throw new ActionOutcomeUnknownError("COMPANY_EMAIL_TRANSPORT_UNKNOWN");
+    }
+    if (response.status >= 500) {
+      throw new ActionOutcomeUnknownError(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
+    }
     if (!response.ok) throw new Error(`COMPANY_EMAIL_TRANSPORT_${String(response.status)}`);
     const result = (await response.json()) as { id?: string };
-    if (!result.id) throw new Error("COMPANY_EMAIL_RECEIPT_MISSING");
+    if (!result.id) throw new ActionOutcomeUnknownError("COMPANY_EMAIL_RECEIPT_MISSING");
     return {
       receiptId: result.id,
       providerMessageId: result.id,

@@ -12,7 +12,9 @@ flowchart LR
   Q[Cloud Tasks\ndueback-cases]
   B[Deterministic policy\nAction Broker]
   M[Merchant Sandbox\nCloud Run - controlled]
+  E[Managed email provider\noptional external gate]
   V[Signed callback verifier]
+  I[Signed inbound webhook\nopaque reply route]
   N[Notification ledger]
 
   P -->|paste or bounded upload| W
@@ -25,7 +27,10 @@ flowchart LR
   Q -->|OIDC delivery| W
   W --> B
   B -->|closed fields + idempotency key| M
+  B -.->|approved recipient + exact body| E
   M -->|HMAC, timestamp, correlation ID| V
+  E -.->|signed event; bounded retrieval| I
+  I -.->|typed Gemini candidate; no tools| W
   V -->|candidate only| W
   W -->|deterministic evidence decision| F
   F --> N
@@ -51,13 +56,16 @@ acknowledgement stays open. `DONE` requires sufficient evidence.
 | Task → worker           | duplicate or stale delivery               | Cloud Tasks OIDC, case version, bounded attempts, stable task name                              |
 | Worker → counterparty   | proposed recipient, fields, action        | deterministic policy, approval expiry, closed adapter, idempotency ledger                       |
 | Counterparty → callback | body, timestamp, replay, case claim       | separate HMAC secret, five-minute freshness, replay reservation, schema validation              |
+| Email provider → inbound | signature, provider ID, body, attachments | original-body HMAC, event reservation, exact endpoint, 100 KB text bound, metadata-only attachments |
+| Inbound text → model     | hostile email, prompt injection          | tool-less typed extraction; exact excerpts; sender/thread correlation before business decision |
 | Candidate → lifecycle   | insufficient or mismatched evidence       | deterministic verifier; conflicts produce one intervention; terminal cases reject late evidence |
 | Artifact access         | copied or modified link                   | HMAC grant bound to owner/case/artifact, maximum ten-minute lifetime                            |
 
 ## Durable state
 
-Firestore stores plan drafts, case runs, action reservations/receipts, evidence, interventions,
-notification records, callback replay reservations, daily security budgets, and deletion
+Firestore stores plan drafts, case runs, action reservations/receipts, opaque message-thread
+routes, evidence, interventions, notification records and their delivery projection, callback
+replay reservations, daily security budgets, and deletion
 tombstones. Cloud Tasks carries case ID, expected version, wake time, and correlation ID. Every
 retry is bounded; a stale delivery is a no-op.
 
@@ -80,8 +88,10 @@ deletion.
 
 - Merchant Sandbox is a separate, real HTTP service but not a real merchant.
 - `MERCHANT_CONFIRMED` does not prove bank settlement, bill posting, shipment delivery, or receipt.
-- Email transport code exists but is disabled unless an authorized provider key and verified sender
-  are configured; the deployed return channel is the case URL.
-- The public MVP handles paste/upload. Inbound email, WhatsApp, arbitrary browsing, banks, and
-  production merchant integrations are not implemented.
+- Bidirectional managed-email code exists but is disabled unless a provider key, verified sender,
+  inbound domain, webhook secret and controlled recipient-domain allowlist are configured. The
+  deployed return channel is the durable case URL.
+- The public MVP handles paste/upload. Gmail, WhatsApp, arbitrary browsing, banks, and production
+  merchant integrations are not implemented. Gmail is a tested unavailable capability.
+- A signed HTTPS partner fixture demonstrates adapter portability but is not a production partner.
 - Bill-credit and replacement are contract/portability fixtures, not separate production channels.

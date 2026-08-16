@@ -52,3 +52,18 @@ export function parseEmailProviderEvent(body: string): EmailProviderEvent {
   }
   return value as EmailProviderEvent;
 }
+
+export function transportStatusForProviderEvent(type: string):
+  | "DELIVERED"
+  | "BOUNCED"
+  | "COMPLAINED"
+  | "SUPPRESSED"
+  | undefined {
+  const statuses: Readonly<Record<string, "DELIVERED" | "BOUNCED" | "COMPLAINED" | "SUPPRESSED">> = {
+    "email.delivered": "DELIVERED",
+    "email.bounced": "BOUNCED",
+    "email.complained": "COMPLAINED",
+    "email.suppressed": "SUPPRESSED"
+  };
+  return statuses[type];
+}

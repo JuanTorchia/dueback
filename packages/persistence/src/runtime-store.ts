@@ -48,6 +48,30 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as RuntimeTimelineEvent);
   }
 
+  async listChannelEvents(caseId: string): Promise<readonly {
+    channelType: string;
+    transportStatus: string;
+    acceptedAt: string;
+    observedAt?: string;
+  }[]> {
+    const snapshot = await this.db
+      .collection("actionRecords")
+      .where("receipt.caseId", "==", caseId)
+      .get();
+    return snapshot.docs.map((document) => {
+      const receipt = document.get("receipt") as ActionReceipt & {
+        transportStatus?: string;
+        observedAt?: string;
+      };
+      return {
+        channelType: receipt.channelType ?? "CONTROLLED_SANDBOX",
+        transportStatus: receipt.transportStatus ?? "ACCEPTED",
+        acceptedAt: receipt.acceptedAt,
+        ...(receipt.observedAt ? { observedAt: receipt.observedAt } : {})
+      };
+    });
+  }
+
   async compareAndSet(
     caseId: string,
     expectedVersion: number,
@@ -133,6 +157,41 @@ export class FirestoreRuntimeStore
     });
     const document = await this.db.collection("messageThreads").doc(routeKey.slice(7)).get();
     return document.exists ? document.get("caseId") as string : undefined;
+  }
+
+  async recordTransportEvent(
+    providerMessageId: string,
+    transportStatus: "DELIVERED" | "BOUNCED" | "COMPLAINED" | "SUPPRESSED",
+    observedAt: string
+  ): Promise<"RECORDED" | "UNKNOWN" | "AMBIGUOUS"> {
+    const snapshot = await this.db
+      .collection("actionRecords")
+      .where("receipt.providerMessageId", "==", providerMessageId)
+      .limit(2)
+      .get();
+    if (snapshot.empty) return "UNKNOWN";
+    if (snapshot.size !== 1) return "AMBIGUOUS";
+    const actionDocument = snapshot.docs[0];
+    if (!actionDocument) return "UNKNOWN";
+    const receipt = actionDocument.get("receipt") as ActionReceipt;
+    await actionDocument.ref.set({
+      receipt: { ...receipt, transportStatus, observedAt },
+      deleteAt: firestoreDeleteAt(observedAt)
+    }, { merge: true });
+    if (receipt.caseId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
+      const caseReference = this.db.collection("caseRuns").doc(receipt.caseId);
+      await this.db.runTransaction(async (transaction) => {
+        const current = await transaction.get(caseReference);
+        if (!current.exists || ["DONE", "CANCELLED"].includes(String(current.get("state")))) return;
+        transaction.update(caseReference, {
+          state: "NEEDS_ATTENTION",
+          version: Number(current.get("version")) + 1,
+          lastError: `EMAIL_${transportStatus}`,
+          deleteAt: firestoreDeleteAt(observedAt)
+        });
+      });
+    }
+    return "RECORDED";
   }
 
   async fail(idempotencyKey: string, reasonCode: string): Promise<void> {

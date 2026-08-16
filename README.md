@@ -139,11 +139,13 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - Merchant Sandbox crosses a real HTTP boundary but is not a real company or refund integration.
 - Merchant confirmation is not bank settlement. Replacement tracking is not delivery. A promised
   bill credit is not proof of the final bill total.
-- Inbound email, WhatsApp, banks, general web browsing, and arbitrary merchant APIs are not built.
-- Company follow-up email and user-notification email have separate idempotent Resend-compatible
-  adapters. They remain disabled in the public deployment until a verified sender, authorized test
-  recipient, reply domain, and inbound webhook exist; the current complete return path is the
-  controlled Merchant Sandbox plus the case UI.
+- Bidirectional company email and user-notification email have separate idempotent,
+  Resend-compatible adapters. They remain disabled in the public deployment until a verified
+  sender, controlled recipient-domain allowlist, reply domain and signed inbound webhook exist. The
+  current complete return path is the controlled Merchant Sandbox plus the durable case UI.
+- Gmail, WhatsApp, banks, general web browsing, and arbitrary merchant APIs are not built. Gmail is
+  intentionally reported as unavailable because its OAuth/token/watch gate has not passed. A
+  signed HTTPS partner fixture is only a portability proof, not a production partner.
 - English is the judging UI; one Spanish promise is processed without changing its financial meaning.
 - The eight-person usability study has a published protocol but results must not be claimed until the
   sessions are actually completed.

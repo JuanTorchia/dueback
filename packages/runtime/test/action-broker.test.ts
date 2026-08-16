@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ActionBroker } from "../src/action-broker";
+import { ActionBroker, ActionOutcomeUnknownError } from "../src/action-broker";
 import type {
   ActionReceipt,
   ActionRecordStore,
@@ -97,5 +97,22 @@ describe("ActionBroker", () => {
       })
     ).resolves.toMatchObject({ status: "DENIED" });
     expect(execute).not.toHaveBeenCalled();
+  });
+
+  it("keeps an uncertain provider acceptance reserved and never blindly resends", async () => {
+    const execute = vi.fn<ClosedActionAdapter["execute"]>(() =>
+      Promise.reject(new ActionOutcomeUnknownError("TRANSPORT_UNKNOWN"))
+    );
+    const broker = new ActionBroker(new MemoryActionStore(), { execute });
+    const input = {
+      caseId: "case_1",
+      actionOrdinal: 1,
+      policy,
+      proposal,
+      now: "2026-08-15T12:00:00.000Z"
+    };
+    await expect(broker.execute(input)).rejects.toThrow("TRANSPORT_UNKNOWN");
+    await expect(broker.execute(input)).resolves.toMatchObject({ status: "PENDING_DUPLICATE" });
+    expect(execute).toHaveBeenCalledOnce();
   });
 });

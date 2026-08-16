@@ -13,6 +13,7 @@ interface ResultPayload {
   evidence: EvidenceRecord[];
   events?: RuntimeTimelineEvent[];
   notifications?: NotificationRecord[];
+  channelEvents?: { channelType: string; transportStatus: string; acceptedAt: string; observedAt?: string }[];
   error?: string;
 }
 
@@ -57,6 +58,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
     (item) => item.candidate.level === "REQUEST_ACKNOWLEDGED" && !item.verification.accepted
   );
   const latestNotification = payload.notifications?.at(-1);
+  const latestChannelEvent = payload.channelEvents?.at(-1);
   return (
     <div className="result-grid">
       <p className="preview-label">
@@ -64,12 +66,17 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         accelerated.
       </p>
       <section className="case-channel-card" aria-label="How this case communicates">
-        <div><span>↗</span><p><small>CONTACT</small><strong>Controlled merchant adapter</strong></p></div>
+        <div><span>↗</span><p><small>CONTACT</small><strong>{latestChannelEvent?.channelType === "MANAGED_EMAIL" ? "Managed company email" : "Controlled merchant adapter"}</strong></p></div>
         <i aria-hidden="true">→</i>
         <div><span>✓</span><p><small>REPLY</small><strong>Signed case callback</strong></p></div>
         <i aria-hidden="true">→</i>
         <div><span>●</span><p><small>YOUR UPDATE</small><strong>This page, automatically</strong></p></div>
       </section>
+      {latestChannelEvent ? <section className="card" aria-label="Contact delivery status">
+        <div className="eyebrow">Contact status</div>
+        <h2>{latestChannelEvent.transportStatus === "ACCEPTED" ? "Follow-up accepted by the channel" : `Follow-up ${latestChannelEvent.transportStatus.toLowerCase()}`}</h2>
+        <p>Transport status is operational evidence only. It never proves that the company delivered the promised result.</p>
+      </section> : null}
       <section className={`card outcome ${done ? "verified" : "waiting"}`}>
         <div className="eyebrow">{done ? "Evidence accepted" : "Still working"}</div>
         <h2>

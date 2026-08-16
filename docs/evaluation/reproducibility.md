@@ -328,3 +328,15 @@ The external managed-email smoke is currently unmet because this workspace has n
 inbound domain, authorized test recipient, provider API key or webhook signing secret. The runtime
 also requires an explicit recipient-domain allowlist; an empty list fails closed. Therefore Gates
 A–C are recorded as pending external prerequisites, not as successful email evidence.
+
+Commit `e27a085` was built by Cloud Build operation
+`fa06f550-94cb-432f-9d36-071a3e294ed6` and deployed first as `dueback-web-00029-v8d`; adding the
+public base URL created `dueback-web-00030-grp`, which serves 100% of traffic. The first six-path
+public run passed all four deterministic UX paths but both autonomous paths failed because the new
+notification query required a missing composite index. The error was visible in the result UI and
+is not counted as a pass.
+
+Commit `c97f33e` declares and provisions `notifications(caseId, createdAt)`. After the index reached
+`READY`, the two previously failing live-Gemini mobile paths were rerun sequentially with one worker
+and retries disabled; both passed in 31.6 s and 21.9 s (53.9 s total). This verifies the fix against
+fresh public cases while preserving the initial deployment failure.

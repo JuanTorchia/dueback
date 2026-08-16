@@ -10,6 +10,12 @@ export interface CaseResultStore {
   listInterventions?(caseId: string): Promise<readonly InterventionRecord[]>;
   listEvents?(caseId: string): Promise<readonly RuntimeTimelineEvent[]>;
   listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
+  listChannelEvents?(caseId: string): Promise<readonly {
+    channelType: string;
+    transportStatus: string;
+    acceptedAt: string;
+    observedAt?: string;
+  }[]>;
 }
 
 export async function handleCaseResult(
@@ -26,13 +32,14 @@ export async function handleCaseResult(
     if (!item) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404 });
     if (item.ownerId !== owner.uid)
       return Response.json({ error: "CASE_OWNERSHIP_REQUIRED" }, { status: 403 });
-    const [evidence, interventions, events, notifications] = await Promise.all([
+    const [evidence, interventions, events, notifications, channelEvents] = await Promise.all([
       dependencies.store.listEvidence(caseId),
       dependencies.store.listInterventions?.(caseId) ?? Promise.resolve([]),
       dependencies.store.listEvents?.(caseId) ?? Promise.resolve([]),
-      dependencies.store.listNotifications?.(caseId) ?? Promise.resolve([])
+      dependencies.store.listNotifications?.(caseId) ?? Promise.resolve([]),
+      dependencies.store.listChannelEvents?.(caseId) ?? Promise.resolve([])
     ]);
-    return Response.json({ case: item, evidence, interventions, events, notifications });
+    return Response.json({ case: item, evidence, interventions, events, notifications, channelEvents });
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "RESULT_FAILED" },

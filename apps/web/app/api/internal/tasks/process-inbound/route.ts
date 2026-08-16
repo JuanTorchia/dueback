@@ -1,4 +1,5 @@
 import { ResendInboundEmailAdapter } from "@dueback/channel-adapters/inbound-email";
+import { transportStatusForProviderEvent } from "@dueback/channel-adapters/email-webhook";
 import { extractInboundFlow } from "@dueback/genkit-flows/extract-inbound";
 import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
 import { EvidenceService } from "@dueback/runtime/evidence-service";
@@ -24,10 +25,21 @@ export async function POST(request: Request) {
     if (!body.providerEventId || !body.providerEmailId || !body.eventType) {
       return Response.json({ error: "INBOUND_TASK_INVALID" }, { status: 400 });
     }
+    const store = new FirestoreRuntimeStore(firestore);
+    const transportStatus = transportStatusForProviderEvent(body.eventType);
+    if (transportStatus) {
+      return Response.json({
+        status: await store.recordTransportEvent(
+          body.providerEmailId,
+          transportStatus,
+          new Date().toISOString()
+        ),
+        transportStatus
+      });
+    }
     if (body.eventType !== "email.received") {
       return Response.json({ status: "IGNORED", reasonCodes: ["NON_INBOUND_EVENT"] });
     }
-    const store = new FirestoreRuntimeStore(firestore);
     const interventions = new InterventionService(store, store);
     const service = new InboundService(
       store,

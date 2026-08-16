@@ -30,6 +30,13 @@ export interface ClosedActionAdapter {
   ): Promise<ActionReceipt>;
 }
 
+export class ActionOutcomeUnknownError extends Error {
+  constructor(readonly reasonCode: string) {
+    super(reasonCode);
+    this.name = "ActionOutcomeUnknownError";
+  }
+}
+
 export type BrokerResult =
   | { readonly status: "DENIED"; readonly decision: AuthorizationDecision }
   | { readonly status: "PENDING_DUPLICATE"; readonly idempotencyKey: string }
@@ -84,6 +91,9 @@ export class ActionBroker {
       await this.store.succeed(idempotencyKey, receipt);
       return { status: "SUCCEEDED", idempotencyKey, receipt, duplicate: false };
     } catch (error) {
+      // A timeout or malformed success response may occur after the provider accepted the action.
+      // Keep the reservation IN_FLIGHT: retrying the same logical action blindly could duplicate it.
+      if (error instanceof ActionOutcomeUnknownError) throw error;
       await this.store.fail(idempotencyKey, "ADAPTER_FAILURE");
       throw error;
     }

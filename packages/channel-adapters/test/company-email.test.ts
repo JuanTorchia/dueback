@@ -48,4 +48,30 @@ describe("company email action adapter", () => {
       .rejects.toThrow("COMPANY_EMAIL_RECIPIENT_INVALID");
     expect(request).not.toHaveBeenCalled();
   });
+
+  it.each([429, 500, 503])("reports provider HTTP %s without a false receipt", async (status) => {
+    const adapter = new CompanyEmailActionAdapter({
+      apiKey: "test-key",
+      from: "a@example.com",
+      replyDomain: "inbound.example.com",
+      request: () => Promise.resolve(new Response(null, { status }))
+    });
+    await expect(adapter.execute(proposal, "key", { caseId: "case_12345678" }))
+      .rejects.toThrow(`COMPANY_EMAIL_TRANSPORT_${String(status)}`);
+  });
+
+  it("marks network and missing-receipt outcomes as uncertain", async () => {
+    const networkFailure = new CompanyEmailActionAdapter({
+      apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
+      request: () => Promise.reject(new Error("socket closed"))
+    });
+    await expect(networkFailure.execute(proposal, "key", { caseId: "case_12345678" }))
+      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+    const missingReceipt = new CompanyEmailActionAdapter({
+      apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
+      request: () => Promise.resolve(new Response("{}"))
+    });
+    await expect(missingReceipt.execute(proposal, "key", { caseId: "case_12345678" }))
+      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+  });
 });

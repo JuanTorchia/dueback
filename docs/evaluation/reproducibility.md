@@ -353,3 +353,10 @@ cases exercised deterministic code and twelve validated fixture contracts; four 
 cover managed-email delivery, bounce intervention, authenticated acknowledgement and matching
 merchant confirmation. This run made zero Gemini or external-provider calls and is not external
 delivery evidence.
+
+Commit `60400d4` was built by Cloud Build operation
+`0d2becc7-a894-420a-8444-c7d2638881fa` and deployed as `dueback-web-00031-xc7` at 100% traffic.
+All eight public Playwright paths passed sequentially with one worker and retries disabled in 1.2
+minutes. This included two channel-plan paths (available approval and unavailable-channel denial),
+two fresh live-Gemini journeys (33.9 s and 18.5 s), and four deterministic landing/intake recovery
+paths (0.9–4.8 s).

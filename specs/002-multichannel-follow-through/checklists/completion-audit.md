@@ -73,7 +73,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | SC-009 | PASS | Notification dedupe key and repeated-event tests yield one logical notification. |
 | SC-010 | PARTIAL | Fresh deployed runs complete in 21.9–31.6 seconds, but the final continuous under-four-minute video is missing. |
 | SC-011 | EXTERNAL | Sandbox IDs/timing are documented; managed-email smoke evidence is missing. |
-| SC-012 | PARTIAL | Capability and server denial tests pass; deterministic browser coverage of unavailable-channel activation is missing. |
+| SC-012 | PASS | Capability and server denial tests pass; public browser tests verify both an available approved channel and blocked activation when the active channel is unavailable. |
 
 ## Non-code completion gates
 

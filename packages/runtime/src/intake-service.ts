@@ -11,8 +11,9 @@ export interface IntakeArtifact {
   readonly content:
     | string
     | {
-        readonly dataUrl: string;
-        readonly contentType: "image/jpeg" | "image/png" | "application/pdf";
+      readonly dataUrl: string;
+      readonly contentType: "image/jpeg" | "image/png" | "application/pdf";
+      readonly contextText?: string;
       };
 }
 

@@ -7,7 +7,6 @@ import { errorCopy } from "../lib/error-copy";
 
 export function IntakeForm() {
   const router = useRouter();
-  const [mode, setMode] = useState<"paste" | "upload">("paste");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
@@ -24,8 +23,8 @@ export function IntakeForm() {
     try {
       const token = await anonymousIdToken();
       const body = new FormData();
-      if (mode === "paste") body.set("text", text);
-      else if (file) body.set("file", file);
+      if (text.trim()) body.set("text", text);
+      if (file) body.set("file", file);
       const response = await fetch("/api/intake", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -40,63 +39,41 @@ export function IntakeForm() {
     }
   }
 
-  const ready = mode === "paste" ? text.trim().length > 0 : file !== undefined;
+  const ready = text.trim().length > 0 || file !== undefined;
   return (
     <div className="card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
       <div className="form-heading">
         <span>Start a case</span>
         <strong>Add the company’s promise</strong>
       </div>
-      <div className="tabs" role="group" aria-label="Promise input method">
-        <button
-          className="tab"
-          aria-pressed={mode === "paste"}
-          data-active={mode === "paste"}
-          onClick={() => {
-            setMode("paste");
+      <div>
+        <label htmlFor="promise">Paste the promise or add helpful context</label>
+        <textarea
+          id="promise"
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
           }}
-          type="button"
-        >
-          Paste text
-        </button>
-        <button
-          className="tab"
-          aria-pressed={mode === "upload"}
-          data-active={mode === "upload"}
-          onClick={() => {
-            setMode("upload");
-          }}
-          type="button"
-        >
-          Upload proof
-        </button>
+          placeholder="Paste an email, message, or describe what you are waiting for…"
+          maxLength={50_000}
+        />
       </div>
-      {mode === "paste" ? (
-        <div>
-          <label htmlFor="promise">What did the company promise?</label>
-          <textarea
-            id="promise"
-            value={text}
-            onChange={(event) => {
-              setText(event.target.value);
-            }}
-            placeholder="Paste the email or message here…"
-            maxLength={50_000}
-          />
-        </div>
-      ) : (
-        <div className="file">
-          <label htmlFor="artifact">PDF, JPEG, or PNG · max 10 MB</label>
-          <input
-            id="artifact"
-            type="file"
-            accept="application/pdf,image/jpeg,image/png"
-            onChange={(event) => {
-              setFile(event.target.files?.[0]);
-            }}
-          />
-        </div>
-      )}
+      <div className="input-divider"><span>or add evidence</span></div>
+      <div className="file smart-file" data-has-file={Boolean(file)}>
+        <label htmlFor="artifact">
+          <strong>{file ? file.name : "Drop or choose a screenshot, photo, or PDF"}</strong>
+          <span>{file ? `${(file.size / 1024 / 1024).toFixed(1)} MB · ready to analyze` : "Gemini will detect and read the format automatically · max 10 MB"}</span>
+        </label>
+        <input
+          id="artifact"
+          type="file"
+          accept="application/pdf,image/jpeg,image/png"
+          onChange={(event) => {
+            setFile(event.target.files?.[0]);
+          }}
+        />
+      </div>
+      {text.trim() && file ? <p className="combined-source">✓ Text and file will be analyzed together</p> : null}
       <p className="privacy">
         DueBack processes only what you share. Raw files expire within 24 hours. Nothing is sent to
         a company before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.

@@ -11,7 +11,8 @@ export const extractionInputSchema = z.object({
     z.object({
       kind: z.literal("media"),
       dataUrl: z.string().min(6).max(14_000_000),
-      contentType: z.enum(["image/jpeg", "image/png", "application/pdf"])
+      contentType: z.enum(["image/jpeg", "image/png", "application/pdf"]),
+      contextText: z.string().min(1).max(50_000).optional()
     })
   ])
 });
@@ -95,7 +96,10 @@ export function buildExtractionPrompt(input: ExtractionInput) {
     ? [instruction, { text: `<untrusted-source>\n${input.source.content}\n</untrusted-source>` }]
     : [
         instruction,
-        { media: { url: input.source.dataUrl, contentType: input.source.contentType } }
+        { media: { url: input.source.dataUrl, contentType: input.source.contentType } },
+        ...(input.source.contextText
+          ? [{ text: `<untrusted-user-context>\n${input.source.contextText}\n</untrusted-user-context>` }]
+          : [])
       ];
 }
 
@@ -137,7 +141,11 @@ export async function extractPromiseWithMetricsGateway(
   }
   const output = await gateway.generate({
     artifactId: input.artifactId,
-    ...(input.source.kind === "text" ? { sourceText: input.source.content } : {}),
+    ...(input.source.kind === "text"
+      ? { sourceText: input.source.content }
+      : input.source.contextText
+        ? { sourceText: input.source.contextText }
+        : {}),
     system: extractionSystemInstruction,
     prompt: buildExtractionPrompt(input)
   });

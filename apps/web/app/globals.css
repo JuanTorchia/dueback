@@ -158,24 +158,6 @@ h1 {
   font-size: 22px;
   letter-spacing: -0.03em;
 }
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-.tab {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 9px 14px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
-.tab[data-active="true"] {
-  background: var(--ink);
-  color: white;
-  border-color: var(--ink);
-}
 label {
   display: block;
   font-size: 13px;
@@ -204,6 +186,63 @@ textarea {
 }
 .file input {
   max-width: 100%;
+}
+.input-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.input-divider::before,
+.input-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+.smart-file {
+  position: relative;
+  min-height: 112px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+.smart-file:hover,
+.smart-file:focus-within,
+.smart-file[data-has-file="true"] {
+  border-color: var(--green);
+  background: #f4faf6;
+}
+.smart-file label {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  cursor: pointer;
+}
+.smart-file label strong {
+  color: var(--ink);
+  font-size: 14px;
+}
+.smart-file label span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.smart-file input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.combined-source {
+  margin: 10px 0 0;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 750;
 }
 .privacy {
   margin: 12px 0 18px;

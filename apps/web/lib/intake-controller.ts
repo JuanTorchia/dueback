@@ -1,4 +1,5 @@
 import { acceptUpload } from "@dueback/channel-adapters/upload";
+import { stableHash } from "@dueback/domain";
 import type { IntakeService } from "@dueback/runtime/intake-service";
 import { redactedPublicError } from "./security-limits";
 
@@ -18,16 +19,17 @@ export async function handleIntake(
     const text = form.get("text");
     const file = form.get("file");
     const receivedAt = dependencies.now();
-    const input =
-      typeof text === "string" && text.trim().length > 0
-        ? { declaredMediaType: "text/plain", bytes: new TextEncoder().encode(text), receivedAt }
-        : file instanceof File
+    const contextText = typeof text === "string" ? text.trim() : "";
+    const hasFile = file instanceof File && file.size > 0;
+    const input = hasFile
           ? {
               declaredMediaType: file.type,
               bytes: new Uint8Array(await file.arrayBuffer()),
               receivedAt
             }
-          : undefined;
+          : contextText
+            ? { declaredMediaType: "text/plain", bytes: new TextEncoder().encode(contextText), receivedAt }
+            : undefined;
     if (!input) return Response.json({ error: "PROMISE_SOURCE_REQUIRED" }, { status: 400 });
     const accepted = acceptUpload(input);
     const content =
@@ -35,14 +37,18 @@ export async function handleIntake(
         ? new TextDecoder().decode(accepted.sanitizedBytes)
         : {
             dataUrl: `data:${accepted.mediaType};base64,${Buffer.from(accepted.sanitizedBytes).toString("base64")}`,
-            contentType: accepted.mediaType
+            contentType: accepted.mediaType,
+            ...(contextText ? { contextText } : {})
           };
+    const sourceIdentity = contextText && hasFile
+      ? stableHash({ file: accepted.sha256, contextText })
+      : accepted.sha256;
     const result = await dependencies.service.intake(
       {
-        artifactId: accepted.artifactId,
+        artifactId: contextText && hasFile ? `artifact_${sourceIdentity.slice(7, 31)}` : accepted.artifactId,
         ownerId: owner.uid,
-        sourceChannel: typeof text === "string" ? "paste" : "upload",
-        sha256: accepted.sha256,
+        sourceChannel: hasFile ? "upload" : "paste",
+        sha256: sourceIdentity,
         content
       },
       receivedAt

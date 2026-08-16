@@ -75,25 +75,16 @@ export function IntakeForm() {
 
   const ready = text.trim().length > 0 || file !== undefined;
   return (
-    <div className="card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
+    <div className="card intake-composer-card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
       <div className="form-heading">
         <span>Live recipe · company follow-up</span>
-        <strong>What are you waiting to have done?</strong>
+        <strong>Give DueBack the messy version.</strong>
       </div>
       <p className="recipe-scope">
-        Start with a refund, replacement, cancellation, delivery, or document a company owes you.
+        Describe it, paste the message, attach the proof—or combine them. Gemini will organize it.
       </p>
-      <div className="source-guide" aria-label="What you can give DueBack">
-        <strong>Start with anything you have</strong>
-        <div>
-          <span>Write it yourself</span>
-          <span>Paste an email or message</span>
-          <span>Add a screenshot or photo</span>
-          <span>Upload a PDF</span>
-        </div>
-      </div>
-      <div>
-        <label htmlFor="promise">Describe the outcome or paste the evidence</label>
+      <div className="smart-composer">
+        <label className="composer-label" htmlFor="promise">What happened, and what are you waiting for?</label>
         <textarea
           id="promise"
           value={text}
@@ -104,49 +95,52 @@ export function IntakeForm() {
           placeholder="Example: The store promised to refund $59 for order 1842 by Friday…"
           maxLength={50_000}
         />
+        <div className="composer-footer">
+          <div className="composer-attachment">
+            <label htmlFor="artifact">{file ? file.name : "+ Add screenshot, photo, or PDF"}</label>
+            <input
+              id="artifact"
+              type="file"
+              disabled={busy}
+              accept="application/pdf,image/jpeg,image/png"
+              onChange={(event) => {
+                setFile(event.target.files?.[0]);
+              }}
+            />
+          </div>
+          <button
+            className="composer-submit"
+            type="button"
+            disabled={!ready || busy}
+            onClick={() => void submit()}
+          >
+            {busy ? "Working…" : "Build my plan →"}
+          </button>
+        </div>
       </div>
+      {file ? (
+        <div className="attachment-status"><span>{(file.size / 1024 / 1024).toFixed(1)} MB · ready to analyze</span><button className="remove-file" type="button" disabled={busy} onClick={() => { setFile(undefined); }}>Remove</button></div>
+      ) : null}
+      {text.trim() && file ? <p className="combined-source">✓ Text and file will be analyzed together</p> : null}
       <div className="example-picker">
-        <span>Not sure what to add? Try an example:</span>
+        <span>Or start with a common situation</span>
         <div>
           {examples.map((example) => (
-            <button
-              key={example.label}
-              type="button"
-              disabled={busy}
-              onClick={() => {
-                setText(example.text);
-                setError(undefined);
-              }}
-            >
-              {example.label}
+            <button key={example.label} type="button" disabled={busy} onClick={() => { setText(example.text); setError(undefined); }}>
+              {example.label}<span aria-hidden="true">→</span>
             </button>
           ))}
         </div>
       </div>
-      <div className="input-divider"><span>or add evidence</span></div>
-      <div className="file smart-file" data-has-file={Boolean(file)}>
-        <label htmlFor="artifact">
-          <strong>{file ? file.name : "Choose a screenshot, photo, or PDF"}</strong>
-          <span>{file ? `${(file.size / 1024 / 1024).toFixed(1)} MB · ready to analyze` : "Gemini will detect and read the format automatically · max 10 MB"}</span>
-        </label>
-        <input
-          id="artifact"
-          type="file"
-          disabled={busy}
-          accept="application/pdf,image/jpeg,image/png"
-          onChange={(event) => {
-            setFile(event.target.files?.[0]);
-          }}
-        />
-      </div>
-      {file ? (
-        <button className="remove-file" type="button" disabled={busy} onClick={() => {
-          setFile(undefined);
-        }}>
-          Remove file
-        </button>
-      ) : null}
-      {text.trim() && file ? <p className="combined-source">✓ Text and file will be analyzed together</p> : null}
+      <details className="mobile-after">
+        <summary>What happens after I approve?</summary>
+        <ol>
+          <li>DueBack sends the one follow-up you approved.</li>
+          <li>It rejects acknowledgements that do not prove the result.</li>
+          <li>The live demo updates your case page automatically.</li>
+        </ol>
+        <p>Demo channel: controlled merchant adapter + in-app updates. Production email is not enabled here.</p>
+      </details>
       {busy ? (
         <div className="analysis-progress">
           <div className="progress-orbit" aria-hidden="true"><span /></div>
@@ -167,14 +161,6 @@ export function IntakeForm() {
         DueBack processes only what you share. Raw files expire within 24 hours. No external action
         happens before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
       </p>
-      <button
-        className="primary"
-        type="button"
-        disabled={!ready || busy}
-        onClick={() => void submit()}
-      >
-        {busy ? "Building your plan…" : "Create my follow-up plan"}
-      </button>
       <p className="sr-status" role="status" aria-live="polite">
         {busy
           ? elapsedSeconds < 15

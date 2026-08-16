@@ -30,11 +30,11 @@ test.describe("deployed ambiguous promise review", () => {
       timeout: 15_000
     });
     await page
-      .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
+      .getByRole("textbox", { name: "What happened, and what are you waiting for?" })
       .fill(
         "Northstar Store will refund USD 79 for ORDER-79. A later paragraph says the approved amount is USD 59. Case REF-1001."
       );
-    await page.getByRole("button", { name: "Create my follow-up plan" }).click();
+    await page.getByRole("button", { name: "Build my plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
     await expect(page.getByText(/Conflicting information|Needs confirmation/).first()).toBeVisible();
 

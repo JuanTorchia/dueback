@@ -31,26 +31,26 @@ test.describe("intake feedback and recovery", () => {
     });
     await page.goto(`${deployedUrl}/intake`);
     const source = page.getByRole("textbox", {
-      name: "Describe the outcome or paste the evidence"
+      name: "What happened, and what are you waiting for?"
     });
     const promise = "Northstar promised a USD 59 refund for ORDER-LATENCY.";
     await source.fill(promise);
-    await page.getByRole("button", { name: "Create my follow-up plan" }).click();
+    await page.getByRole("button", { name: "Build my plan" }).click();
 
     await expect(page.getByText("Gemini is reading your evidence")).toBeVisible();
     await expect(page.getByText(/usually 10–25 seconds/)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Building your plan…" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Working…" })).toBeDisabled();
     await expect(page.locator("p.error[role='alert']")).toContainText("could not complete");
     await expect(source).toHaveValue(promise);
-    await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Build my plan" })).toBeEnabled();
   });
 
   test("accepts a file and context as one combined source", async ({ page }) => {
     await page.goto(`${deployedUrl}/intake`);
     await page
-      .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
+      .getByRole("textbox", { name: "What happened, and what are you waiting for?" })
       .fill("The correct amount is USD 59.");
-    await page.getByLabel(/Choose a screenshot/).setInputFiles({
+    await page.getByLabel(/Add screenshot/).setInputFiles({
       name: "merchant-promise.png",
       mimeType: "image/png",
       buffer: Buffer.from(
@@ -60,7 +60,7 @@ test.describe("intake feedback and recovery", () => {
     });
     await expect(page.getByText("Text and file will be analyzed together")).toBeVisible();
     await expect(page.getByText("merchant-promise.png")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Build my plan" })).toBeEnabled();
   });
 
   test("teaches a first-time user with an actionable example", async ({ page }) => {
@@ -68,8 +68,8 @@ test.describe("intake feedback and recovery", () => {
     await expect(page.getByText("Start with anything you have")).toBeVisible();
     await page.getByRole("button", { name: "Missing refund" }).click();
     await expect(
-      page.getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
+      page.getByRole("textbox", { name: "What happened, and what are you waiting for?" })
     ).toHaveValue(/Northstar Store promised to refund USD 59/);
-    await expect(page.getByRole("button", { name: "Create my follow-up plan" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Build my plan" })).toBeEnabled();
   });
 });

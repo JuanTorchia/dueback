@@ -60,6 +60,13 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         Controlled hackathon demo — Merchant Sandbox is not a real merchant; callback timing is
         accelerated.
       </p>
+      <section className="case-channel-card" aria-label="How this case communicates">
+        <div><span>↗</span><p><small>CONTACT</small><strong>Controlled merchant adapter</strong></p></div>
+        <i aria-hidden="true">→</i>
+        <div><span>✓</span><p><small>REPLY</small><strong>Signed case callback</strong></p></div>
+        <i aria-hidden="true">→</i>
+        <div><span>●</span><p><small>YOUR UPDATE</small><strong>This page, automatically</strong></p></div>
+      </section>
       <section className={`card outcome ${done ? "verified" : "waiting"}`}>
         <div className="eyebrow">{done ? "Evidence accepted" : "Still working"}</div>
         <h2>
@@ -77,6 +84,14 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         <div className="claim-limit">
           Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received.
         </div>
+        <div className="notification-explainer">
+          <strong>{done ? "Your case update is ready" : "You don’t need to keep refreshing"}</strong>
+          <p>
+            {done
+              ? "The live demo records the completion update here. Production email delivery is implemented but not enabled on this deployment."
+              : "This page checks the case automatically while it is open. A future verified email channel will bring decisions and results back to you."}
+          </p>
+        </div>
       </section>
       <section className="card">
         <h2>Case controls</h2>
@@ -88,7 +103,8 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         </a>
       </section>
       <section className="card">
-        <h2>Auditable timeline</h2>
+        <h2>What happened</h2>
+        <p className="timeline-intro">Every action and decision stays attached to this case.</p>
         <CaseTimeline events={payload.events ?? []} />
       </section>
     </div>

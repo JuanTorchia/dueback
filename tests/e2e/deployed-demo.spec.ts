@@ -17,13 +17,15 @@ test.describe("deployed mobile judge path", () => {
       timeout: 15_000
     });
     await page
-      .getByRole("textbox", { name: "Describe the outcome or paste the evidence" })
+      .getByRole("textbox", { name: "What happened, and what are you waiting for?" })
       .fill(
         `On August 1, 2026 Northstar Store confirmed it would refund USD 19.00 for order ${reference} by August 15, 2026. The refund is still missing.`
       );
-    await page.getByRole("button", { name: "Create my follow-up plan" }).click();
+    await page.getByRole("button", { name: "Build my plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
     await expect(page.getByText("DueBack will never")).toBeVisible();
+    await expect(page.getByText("Controlled HTTP merchant adapter in this public demo.")).toBeVisible();
+    await expect(page.getByText("How you’ll know")).toBeVisible();
     await expect(
       page.getByText(
         "Signed evidence from the responsible party confirming the exact outcome and reference."
@@ -36,6 +38,8 @@ test.describe("deployed mobile judge path", () => {
       timeout: 45_000
     });
     await expect(page.getByText(/Bank settlement: NOT VERIFIED/)).toBeVisible();
+    await expect(page.getByText("This page, automatically")).toBeVisible();
+    await expect(page.getByText("Your case update is ready")).toBeVisible();
     await expect(page.getByText(/callback timing is accelerated/)).toBeVisible();
     await expect(page.getByRole("heading", { name: "Auditable timeline" })).toBeVisible();
     for (const details of await page.getByText("Technical details", { exact: true }).all()) {

@@ -19,12 +19,21 @@ export default function IntakePage() {
             <span>Appointments · next</span>
             <span>Documents · next</span>
           </div>
+          <div className="after-approval">
+            <strong>After you approve</strong>
+            <ol>
+              <li><span>1</span><p><b>DueBack contacts the counterparty</b> using the one recipient and action you approved.</p></li>
+              <li><span>2</span><p><b>It keeps the case open</b> when a reply only says “request received.”</p></li>
+              <li><span>3</span><p><b>You return only for a decision or result.</b> This demo updates the case page automatically.</p></li>
+            </ol>
+            <p className="channel-disclosure"><b>Live demo:</b> controlled merchant HTTP adapter + in-app updates. Production email delivery is implemented but not enabled on this public demo.</p>
+          </div>
         </section>
         <IntakeForm />
       </div>
       <div className="proof-strip" role="list" aria-label="DueBack principles">
         <div role="listitem"><span>01</span><strong>Gemini understands the outcome</strong><p>Messages, screenshots, PDFs, and your own context.</p></div>
-        <div role="listitem"><span>02</span><strong>You set every boundary</strong><p>Review the action, recipient, data, and proof first.</p></div>
+        <div role="listitem"><span>02</span><strong>You set every boundary</strong><p>Review the action, recipient, data, contact channel, and proof first.</p></div>
         <div role="listitem"><span>03</span><strong>Proof decides what counts</strong><p>An acknowledgement is not completion. Evidence must match.</p></div>
       </div>
     </main>

@@ -263,11 +263,13 @@ export function PlanReview({ caseId }: { readonly caseId: string }) {
         <div className="permission-list">
           <div><span className="permission-icon">→</span><div><strong>Action</strong><p>Send one follow-up after the due time.</p></div></div>
           <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
+          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>Controlled HTTP merchant adapter in this public demo.</p></div></div>
           <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
           <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>Signed evidence matching this case, amount, currency, and reference. “Request received” is not completion.</p></div></div>
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
         <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p>
+        <div className="return-promise"><strong>How you’ll know</strong><p>The case page updates automatically. Production email delivery is implemented but disabled in this public demo.</p></div>
         <button
           className="secondary"
           type="button"

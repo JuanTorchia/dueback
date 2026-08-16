@@ -193,3 +193,17 @@
   integraciones productivas hasta que tengan una ruta real, errores, verificación y documentación.
 - Motivo: conserva una demostración profunda y honesta para la rúbrica, mientras comunica que la
   misma máquina de estados puede servir a personas, equipos, países y clases de resultado distintas.
+
+## D-018 — El canal y el regreso del resultado deben ser visibles
+
+- Fecha: 16 de agosto de 2026
+- Estado: aceptada
+- Decisión: explicar el circuito de comunicación en intake, aprobación y resultado. La demo pública
+  contacta únicamente al Merchant Sandbox mediante un adaptador HTTP controlado y firmado; ninguna
+  empresa real recibe mensajes. El usuario observa el resultado en una página de caso que consulta
+  el estado automáticamente mientras permanece abierta.
+- Límite: el adaptador de email saliente existe en el código, pero no se presenta como entrega activa
+  hasta configurar y verificar remitente y destinatario. La interfaz debe distinguir siempre la
+  capacidad implementada del canal efectivamente habilitado en el despliegue público.
+- Motivo: la autonomía no es comprensible si el usuario solo ve cómo empieza. Mostrar contacto,
+  respuesta, verificación y retorno hace visible el valor completo sin inventar una integración real.

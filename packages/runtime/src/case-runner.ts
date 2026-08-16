@@ -1,6 +1,6 @@
 import type { ResolutionPlan } from "@dueback/contracts";
 import type { ApprovalBoundary, CaseState, EvidenceLevel, ProposedAction } from "@dueback/domain";
-import type { ActionBroker, BrokerResult } from "./action-broker";
+import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
 import type { InterventionService } from "./interventions";
 
 export interface FollowThroughCase {
@@ -179,6 +179,9 @@ export class CaseRunner {
         version: item.version + 1,
         nextWakeAt: retryAt,
         lastError: error instanceof Error ? error.message : "ACTION_FAILED",
+        ...(error instanceof ActionOutcomeUnknownError && error.idempotencyKey
+          ? { lastActionIdempotencyKey: error.idempotencyKey }
+          : {}),
         attemptCount,
         lastAttemptAt: input.now
       };

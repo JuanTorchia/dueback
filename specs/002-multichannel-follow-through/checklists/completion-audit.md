@@ -16,7 +16,7 @@ Audited: 2026-08-16. `PASS` requires direct current-state evidence. `PARTIAL` is
 | FR-007 | PARTIAL | Plain-text, controlled-recipient and opaque reply-route adapter is tested; verified-domain external smoke is missing. |
 | FR-008 | PASS | `ActionBroker` calls `authorizeAction` immediately before reservation/budget/provider execution. |
 | FR-009 | PASS | Local stable action key and Firestore reservation are independent of provider idempotency. |
-| FR-010 | PARTIAL | Unknown acceptance remains `IN_FLIGHT` and is never blindly resent; provider-side reconciliation/manual resolution is not implemented. |
+| FR-010 | PASS | Unknown acceptance remains reserved and is never blindly resent; its case, stable action key, channel, redacted recipient, correlation, time and reason are persisted for explicit reconciliation. |
 | FR-011 | PASS | Every broker receipt is enriched before persistence with case, channel, correlation and stable action-idempotency identity alongside provider ID, recipient fingerprint and timestamps. |
 | FR-012 | PASS | Transport projection is separate from evidence reconciliation; receipt/ACK tests cannot produce `DONE`. |
 | FR-013 | PASS | Bounce/complaint/suppression halt nonterminal cases with `NEEDS_ATTENTION` and transactionally create one deduplicated intervention and user notification. |

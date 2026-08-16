@@ -333,6 +333,23 @@ export class FirestoreRuntimeStore
     });
   }
 
+  async markUnknown(input: {
+    idempotencyKey: string;
+    caseId: string;
+    ownerId: string;
+    channelType: string;
+    recipientFingerprint: string;
+    correlationId?: string;
+    reasonCode: string;
+    observedAt: string;
+  }): Promise<void> {
+    await this.db.collection("actionRecords").doc(input.idempotencyKey.slice(7)).set({
+      status: "UNKNOWN",
+      ...input,
+      deleteAt: firestoreDeleteAt(input.observedAt)
+    }, { merge: true });
+  }
+
   async record(input: {
     caseId: string;
     expectedVersion: number;

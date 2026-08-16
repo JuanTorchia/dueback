@@ -116,6 +116,24 @@ describe("ActionBroker", () => {
     expect(execute).toHaveBeenCalledOnce();
   });
 
+  it("persists enough redacted identity to reconcile an uncertain acceptance", async () => {
+    const store = new MemoryActionStore();
+    const markUnknown = vi.fn(() => Promise.resolve());
+    const broker = new ActionBroker(Object.assign(store, { markUnknown }), {
+      execute: () => Promise.reject(new ActionOutcomeUnknownError("TRANSPORT_UNKNOWN"))
+    });
+    await expect(broker.execute({
+      caseId: "case_1", actionOrdinal: 1, policy, proposal,
+      now: "2026-08-15T12:00:00.000Z", correlationId: "corr_12345678"
+    })).rejects.toThrow("TRANSPORT_UNKNOWN");
+    expect(markUnknown).toHaveBeenCalledWith(expect.objectContaining({
+      caseId: "case_1", channelType: "UNKNOWN",
+      correlationId: "corr_12345678", reasonCode: "TRANSPORT_UNKNOWN"
+    }));
+    expect(JSON.stringify(markUnknown.mock.calls)).toContain('"recipientFingerprint":"sha256:');
+    expect(JSON.stringify(markUnknown.mock.calls)).not.toContain(proposal.recipient);
+  });
+
   it("reserves owner/recipient/domain/channel budget once before the provider call", async () => {
     const reserveExternalSend = vi.fn(() => Promise.resolve());
     const execute = vi.fn(() => Promise.resolve({

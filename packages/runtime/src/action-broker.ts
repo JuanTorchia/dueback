@@ -1,4 +1,4 @@
-import { actionIdempotencyKey, authorizeAction } from "@dueback/domain";
+import { actionIdempotencyKey, authorizeAction, stableHash } from "@dueback/domain";
 import type { ApprovedActionPolicy, AuthorizationDecision, ProposedAction } from "@dueback/domain";
 
 export interface ActionReceipt {
@@ -22,6 +22,16 @@ export interface ActionRecordStore {
   reserve(idempotencyKey: string): Promise<Reservation>;
   succeed(idempotencyKey: string, receipt: ActionReceipt): Promise<void>;
   fail(idempotencyKey: string, reasonCode: string): Promise<void>;
+  markUnknown?(input: {
+    idempotencyKey: string;
+    caseId: string;
+    ownerId: string;
+    channelType: string;
+    recipientFingerprint: string;
+    correlationId?: string;
+    reasonCode: string;
+    observedAt: string;
+  }): Promise<void>;
 }
 
 export interface ClosedActionAdapter {
@@ -44,6 +54,8 @@ export interface ExternalSendBudget {
 }
 
 export class ActionOutcomeUnknownError extends Error {
+  idempotencyKey?: string;
+
   constructor(readonly reasonCode: string) {
     super(reasonCode);
     this.name = "ActionOutcomeUnknownError";
@@ -123,7 +135,23 @@ export class ActionBroker {
     } catch (error) {
       // A timeout or malformed success response may occur after the provider accepted the action.
       // Keep the reservation IN_FLIGHT: retrying the same logical action blindly could duplicate it.
-      if (error instanceof ActionOutcomeUnknownError) throw error;
+      if (error instanceof ActionOutcomeUnknownError) {
+        error.idempotencyKey = idempotencyKey;
+        await this.store.markUnknown?.({
+          idempotencyKey,
+          caseId: input.caseId,
+          ownerId: input.proposal.ownerId,
+          channelType: input.proposal.channelType ?? "UNKNOWN",
+          recipientFingerprint: stableHash({
+            namespace: "dueback/recipient/v1",
+            recipient: input.proposal.recipient.toLowerCase()
+          }),
+          ...(input.correlationId ? { correlationId: input.correlationId } : {}),
+          reasonCode: error.reasonCode,
+          observedAt: input.now
+        });
+        throw error;
+      }
       await this.store.fail(idempotencyKey, "ADAPTER_FAILURE");
       throw error;
     }

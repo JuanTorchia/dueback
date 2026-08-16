@@ -47,6 +47,15 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
+if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --filter='name:collectionGroups/notifications/' --format='value(name)')" ]]; then
+  gcloud firestore indexes composite create \
+    --project="${project_id}" \
+    --collection-group=notifications \
+    --query-scope=collection \
+    --field-config=field-path=caseId,order=ascending \
+    --field-config=field-path=createdAt,order=ascending >/dev/null
+fi
+
 for collection_group in caseDrafts intakeDedupe caseRuns evidence events notifications interventions deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads; do
   ttl_state="$(gcloud firestore fields ttls list --project="${project_id}" --collection-group="${collection_group}" --format='value(ttlConfig.state)' 2>/dev/null || true)"
   if [[ "${ttl_state}" != "ACTIVE" ]]; then

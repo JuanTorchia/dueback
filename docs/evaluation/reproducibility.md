@@ -494,3 +494,25 @@ report both `CONTROLLED_SANDBOX` and `MANAGED_EMAIL` as available. The portal re
 Google sign-in control. An automated DOM click was blocked from completing the OAuth popup, as
 expected for a non-user-initiated popup, so this evidence does not claim a successful real-account or
 cross-device journey. That remains an explicit release gate.
+
+## Consumer-safe detail deployment
+
+Cloud Build `37ccabe0-aa13-40a9-9f2a-2c7e0ee4df71` built commit `52f0bb3` successfully. Cloud Run
+revision `dueback-web-00048-lkf` received 100% traffic, then Firebase Hosting was redeployed so its
+pinned rewrite served that revision. The first four-test browser execution is retained as a failure:
+three tests reached the older Hosting-pinned UI even though Cloud Run traffic had moved; only the
+inbox fixture passed. This exposed a real deployment boundary rather than a product regression.
+
+After repinning Hosting, accessibility and closed-tab return passed with one worker and zero retries.
+The two detail tests then exposed only over-strict test locators: text shared a semantic status suffix
+and Next.js also owns an empty route-announcer alert. The locators were narrowed without changing
+product code, and both detail journeys passed in 6.5 seconds with zero retries. Evidence now covers
+server-side channel copy, absence of owner/hash/message internals, missing reply facts, retained
+last-known state after HTTP 503, keyboard disclosure, reduced motion, 200% reflow and closed-tab
+return to a `Needs you` inbox item.
+
+The deterministic release gate passed: all package and root suites, 71 root contract/integration/
+adversarial tests, four Firestore Emulator ownership tests, typecheck, lint, production build, 28/28
+deterministic evaluation cases and `git diff --check`. Cross-device Google recovery and a new managed-
+email send are intentionally excluded from these deterministic results; they remain real-identity
+and external-provider gates.

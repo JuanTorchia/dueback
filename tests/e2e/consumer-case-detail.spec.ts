@@ -19,7 +19,7 @@ test.describe("consumer case detail", () => {
     await page.goto(`${deployedUrl}/cases/case_consumer_12345678/result`);
     await expect(page.getByRole("heading", { name: detail.goal })).toBeVisible();
     await expect(page.getByText("Not done — request received only", { exact: true })).toBeVisible();
-    await expect(page.getByText("Not stated in the reply", { exact: true })).toBeVisible();
+    await expect(page.getByText("Not stated in the reply", { exact: false })).toBeVisible();
     await expect(page.getByText(/plan hash|correlation id|owner id/i)).toHaveCount(0);
   });
 
@@ -32,7 +32,7 @@ test.describe("consumer case detail", () => {
     });
     await page.goto(`${deployedUrl}/cases/case_consumer_12345678/result`);
     await expect(page.getByRole("heading", { name: detail.goal })).toBeVisible();
-    await expect(page.getByRole("alert")).toContainText("last saved state remains");
+    await expect(page.getByRole("alert").filter({ hasText: "last saved state remains" })).toBeVisible();
     await expect(page.getByRole("heading", { name: detail.goal })).toBeVisible();
   });
 });

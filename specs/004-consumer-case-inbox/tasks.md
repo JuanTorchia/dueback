@@ -43,7 +43,7 @@
 ## Phase 4 — User Story 2: Understand the Case (P1)
 
 - [x] T024 [P] [US2] Add safe conversation and Promised-vs-Observed projection tests in `apps/web/test/case-projection.test.ts`
-- [ ] T025 [P] [US2] Add legacy-record and network-failure browser fixtures in `tests/e2e/consumer-case-detail.spec.ts`
+- [x] T025 [P] [US2] Add legacy-record and network-failure browser fixtures in `tests/e2e/consumer-case-detail.spec.ts`
 - [x] T026 [US2] Extend safe action/inbound read methods in `packages/persistence/src/runtime-store.ts`
 - [x] T027 [US2] Implement consumer detail projection and redaction in `apps/web/lib/case-projection.ts`
 - [x] T028 [US2] Add owner-checked detail route in `apps/web/app/api/cases/[caseId]/detail/route.ts`
@@ -66,7 +66,7 @@
 - [x] T040 [US3] Persist destination redaction, attempts and provider transitions in `packages/persistence/src/runtime-store.ts`
 - [x] T041 [US3] Add owner notification retry controller/route in `apps/web/lib/notification-controller.ts` and `apps/web/app/api/cases/[caseId]/notifications/retry/route.ts`
 - [x] T042 [US3] Render accepted/delivered/bounced/suppressed truth and retry action in `apps/web/components/case-result.tsx`
-- [ ] T043 [US3] Prove closed-tab attention return in `tests/e2e/consumer-case-inbox.spec.ts`
+- [x] T043 [US3] Prove closed-tab attention return in `tests/e2e/consumer-case-inbox.spec.ts`
 
 **Gate D**: replayed attention creates one logical notification and at most one provider send.
 
@@ -97,13 +97,13 @@
 
 ## Phase 9 — Release Validation
 
-- [ ] T060 Add keyboard/live-region/reduced-motion/200%-reflow tests in `tests/e2e/accessibility.spec.ts`
-- [ ] T061 Run full deterministic gates from `specs/004-consumer-case-inbox/quickstart.md`
+- [x] T060 Add keyboard/live-region/reduced-motion/200%-reflow tests in `tests/e2e/accessibility.spec.ts`
+- [x] T061 Run full deterministic gates from `specs/004-consumer-case-inbox/quickstart.md`
 - [ ] T062 Deploy and run controlled-email continuous journey with workers 1/retries 0
-- [ ] T063 Record deployed revisions, redacted provider evidence and failures in `docs/evaluation/reproducibility.md`
+- [x] T063 Record deployed revisions, redacted provider evidence and failures in `docs/evaluation/reproducibility.md`
 - [ ] T064 Rehearse and record the four-minute inbox-return story in `docs/submission/demo-script.md`
-- [ ] T065 Validate every FR/SC and readiness claim in `specs/004-consumer-case-inbox/checklists/completion-audit.md`
-- [ ] T066 Run `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm evaluate` and `git diff --check`
+- [x] T065 Validate every FR/SC and readiness claim in `specs/004-consumer-case-inbox/checklists/completion-audit.md`
+- [x] T066 Run `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`, `pnpm evaluate` and `git diff --check`
 
 ## Dependency Order
 

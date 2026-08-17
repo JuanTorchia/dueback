@@ -23,14 +23,13 @@ test.describe("deployed mobile judge path", () => {
       );
     await page.getByRole("button", { name: "Build my plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
-    await expect(page.getByText("DueBack will never")).toBeVisible();
+    await expect(page.getByText("No spending, outcome changes, extra data, or bank-settlement claims.")).toBeVisible();
     await expect(page.getByText("How DueBack contacts them")).toBeVisible();
     await expect(page.getByText("The first follow-up")).toBeVisible();
     await expect(page.getByText(`Follow-up for ${reference}`)).toBeVisible();
     await expect(page.getByText("Demo API")).toBeVisible();
-    await expect(page.getByText("Web form")).toBeVisible();
-    await expect(page.getByText("WhatsApp")).toBeVisible();
-    await expect(page.getByText("Controlled HTTP merchant adapter in this public demo.")).toBeVisible();
+    await expect(page.getByText(/Web forms and WhatsApp are not implied/)).toBeVisible();
+    await expect(page.getByText(/Accelerated controlled demo/)).toBeVisible();
     await expect(page.getByText("3 · How the result comes back to you")).toBeVisible();
     await expect(
       page.getByText(
@@ -44,16 +43,9 @@ test.describe("deployed mobile judge path", () => {
     await expect(page.getByRole("heading", { name: "Merchant confirmed the refund instruction" })).toBeVisible({
       timeout: 45_000
     });
-    await expect(page.getByText(/Bank settlement: NOT VERIFIED/)).toBeVisible();
-    await expect(page.getByText("This page, automatically")).toBeVisible();
-    await expect(page.getByText("Your case update is ready")).toBeVisible();
-    await expect(page.getByText(/callback timing is accelerated/)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "What happened" })).toBeVisible();
-    for (const details of await page.getByText("Technical details", { exact: true }).all()) {
-      await details.click();
-    }
-    await expect(page.getByText(/reason: CURRENT_PLAN_VERSION_APPROVED/)).toBeVisible();
-    await expect(page.getByText(/reason: ACTION_ACCEPTED/)).toBeVisible();
-    await expect(page.getByText(/^correlation: corr_/).first()).toBeVisible();
+    await expect(page.getByText(/Bank settlement is not verified/i).first()).toBeVisible();
+    await expect(page.getByText(/Durable case page/).first()).toBeVisible();
+    await page.getByRole("button", { name: "Show technical trace" }).click();
+    await expect(page.getByText(/CLOUD_TASK · SUCCEEDED|ACTION · SUCCEEDED/).first()).toBeVisible();
   });
 });

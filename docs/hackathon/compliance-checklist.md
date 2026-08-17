@@ -37,7 +37,7 @@ Marcar únicamente con evidencia verificable.
 - [ ] Recuperación Google desplegada: proveedor Google habilitado y Firebase Hosting autorizado ya
   están activos; falta completar y registrar el recorrido real cross-device con un caso vinculado.
   No afirmar recuperación entre dispositivos hasta cerrar ese gate.
-- [ ] Repositorio accesible para los jueces.
+- [x] Repositorio público accesible para los jueces: <https://github.com/JuanTorchia/dueback>.
 - [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).
 - [x] Descripción de funciones, tecnologías, datos y limitaciones. Evidencia: [README](../../README.md).

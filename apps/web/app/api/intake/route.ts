@@ -10,9 +10,11 @@ import {
   recordModelCallOutcome,
   reserveModelCallBudget
 } from "../../../lib/security-limits";
+import { defaultIntakeChannel } from "../../../lib/intake-channel-policy";
 
 export const runtime = "nodejs";
 
+const intakeChannel = defaultIntakeChannel();
 const service = new IntakeService(
   new FirestoreIntakeStore(firestore),
   {
@@ -51,23 +53,9 @@ const service = new IntakeService(
       throw new Error("MODEL_RETRY_EXHAUSTED");
     }
   },
-  process.env.COMPANY_CONTACT_MODE === "email"
-    ? process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid"
-    : process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
+  intakeChannel.recipient,
   { consume: (ownerId, now) => consumeNewCaseBudget(firestore, ownerId, now) },
-  process.env.COMPANY_CONTACT_MODE === "email"
-    ? {
-        channelType: "MANAGED_EMAIL",
-        senderIdentity: process.env.COMPANY_EMAIL_FROM ?? "Email sender not configured",
-        replyRoute: process.env.COMPANY_EMAIL_REPLY_DOMAIN
-          ? `case-specific@${process.env.COMPANY_EMAIL_REPLY_DOMAIN}`
-          : "Reply domain not configured"
-      }
-    : {
-        channelType: "CONTROLLED_SANDBOX",
-        senderIdentity: "DueBack controlled demo",
-        replyRoute: "Signed callback"
-      }
+  intakeChannel.channel
 );
 
 export async function POST(request: Request) {

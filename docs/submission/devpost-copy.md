@@ -101,7 +101,7 @@ policy grant authority; only verified evidence closes.
 
 - Live app: <https://bulbasour-503317.web.app>
 - Controlled Merchant Sandbox: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
-- Source repository: `[PUBLIC_REPOSITORY_URL]`
+- Source repository: <https://github.com/JuanTorchia/dueback>
 - Demo video: `[PUBLIC_VIDEO_URL]`
 
 ## Disclosures

@@ -12,6 +12,7 @@ individual participant in Argentina. The project also targets the Individual/Hob
 
 - App: <https://bulbasour-503317.web.app>
 - Controlled Merchant Sandbox: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
+- Public source: <https://github.com/JuanTorchia/dueback>
 
 The sandbox is intentionally public for inspection and visibly labeled. Its action endpoint still
 requires a secret. No paid account or real personal/merchant data is required. Firebase anonymous

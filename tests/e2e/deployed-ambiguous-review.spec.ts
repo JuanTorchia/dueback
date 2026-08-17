@@ -1,20 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
-
-async function confirmIfShown(
-  page: Page,
-  label: string,
-  value: string,
-  buttonName: string
-): Promise<void> {
-  const input = page.getByRole("textbox", { name: label });
-  if (await input.isVisible()) {
-    await input.fill(value);
-    await page.getByRole("button", { name: buttonName }).click();
-    await expect(input).not.toBeVisible({ timeout: 15_000 });
-  }
-}
 
 test.describe("deployed ambiguous promise review", () => {
   test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
@@ -38,18 +24,14 @@ test.describe("deployed ambiguous promise review", () => {
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
     await expect(page.getByText(/Conflicting information|Needs confirmation/).first()).toBeVisible();
 
-    await confirmIfShown(page, "Company name", "Northstar Store", "Confirm company");
-    await confirmIfShown(page, "Promised result", "refund", "Confirm result");
-    await confirmIfShown(page, "Correct amount", "59.00", "Save new version");
-    await confirmIfShown(page, "Currency", "USD", "Confirm currency");
-    await confirmIfShown(page, "Order or case reference", "ORDER-79", "Confirm reference");
-
-    const due = page.getByLabel("Follow-up date");
-    if (await due.isVisible()) {
-      await due.fill("2026-08-15T12:00");
-      await page.getByRole("button", { name: "Confirm follow-up date" }).click();
-      await expect(due).not.toBeVisible({ timeout: 15_000 });
-    }
+    await page.getByRole("textbox", { name: "Company name" }).fill("Northstar Store");
+    await page.getByRole("textbox", { name: "Promised result" }).fill("refund");
+    await page.getByRole("textbox", { name: "Correct amount" }).fill("59.00");
+    await page.getByRole("textbox", { name: "Currency" }).fill("USD");
+    await page.getByRole("textbox", { name: "Order or case reference" }).fill("ORDER-79");
+    await page.getByRole("textbox", { name: "Follow-up date" }).fill("2026-08-15T12:00");
+    await page.getByRole("button", { name: "Save corrected contract" }).click();
+    await expect(page.getByText(/Plan updated to version 2/)).toBeVisible({ timeout: 15_000 });
 
     const activate = page.getByRole("button", { name: "Approve and start follow-up" });
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();

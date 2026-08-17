@@ -45,7 +45,8 @@ pretending that three production integrations exist.
 - Firestore stores versioned plans, case state, idempotency receipts, evidence, notifications,
   interventions, replay reservations, model usage, and privacy TTL timestamps.
 - Cloud Tasks provides authenticated delayed delivery, bounded retry, and restart-safe continuation.
-- Firebase anonymous authentication creates a low-friction but owner-isolated judge session.
+- Firebase Authentication provides low-friction anonymous exploration plus optional Google linking
+  for recoverable, owner-isolated follow-ups.
 - Deterministic policy and evidence verifiers—not Gemini—decide what may execute and what counts as
   done.
 
@@ -91,14 +92,14 @@ presented as a production merchant.
 ## What's next
 
 First, complete and publish the predeclared eight-person unassisted study and improve every failed
-task. Next, add one authorized production counterparty adapter and a verified outbound email sender
-without broad inbox access. Later channels can normalize into the same contract, but the runtime
-will keep the same rule: content may propose; only the person and deterministic policy grant
-authority; only verified evidence closes.
+task. Next, expand the controlled managed-email pilot beyond owned allowlisted mailboxes only after
+abuse, reputation and recipient-verification gates pass. Later channels can normalize into the same
+contract, but the runtime keeps the same rule: content may propose; only the person and deterministic
+policy grant authority; only verified evidence closes.
 
 ## Links
 
-- Live app: <https://dueback-web-5m3karqdwa-uc.a.run.app>
+- Live app: <https://bulbasour-503317.web.app>
 - Controlled Merchant Sandbox: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
 - Source repository: `[PUBLIC_REPOSITORY_URL]`
 - Demo video: `[PUBLIC_VIDEO_URL]`
@@ -107,6 +108,7 @@ authority; only verified evidence closes.
 
 The Merchant Sandbox is a controlled service, not a real retailer. Merchant confirmation is not
 bank settlement. Bill credit and replacement are portability fixtures, not production channels.
-Inbound email, WhatsApp, bank access, arbitrary web browsing, and production merchant APIs are not
-implemented. The project was created during the competition period; dependency and asset origins
-are listed in the repository.
+Managed email is enabled only as a controlled pilot using an owned allowlist; it is not arbitrary-
+company support. Gmail inbox access, WhatsApp, bank access, arbitrary web browsing, and production
+merchant APIs are not implemented. The project was created during the competition period;
+dependency and asset origins are listed in the repository.

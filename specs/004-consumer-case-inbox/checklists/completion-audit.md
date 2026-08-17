@@ -10,7 +10,7 @@
 | A — Product truth | PARTIAL | Channel-aware copy helpers/tests, managed-email false-DONE deployment and aligned README/architecture/compliance/demo claims | Full managed-email rendered-screen fixture |
 | B — Personal inbox | PARTIAL | Owner-scoped `/api/cases`, Google sign-in, Firebase Hosting OAuth boundary, authenticated empty state | Same real case recovered in a clean browser; non-owner denial recorded; pagination remains unimplemented |
 | C — Understandable case | PARTIAL | Safe bounded conversation, Promised-vs-Observed, ACK rejection and last-known refresh behavior | One continuous managed-email weak→sufficient journey on the consumer projection |
-| D — Durable return | PARTIAL | Attention persistence is connected to idempotent delivery; completion notification exists | Terminal-failure path, bounce/suppression truth, retry and closed-tab E2E |
+| D — Durable return | PARTIAL | Attention/completion/terminal-failure notifications, replay dedupe, transport truth and bounded retry are implemented | Closed-tab browser E2E |
 | E — Control/evidence/release | TARGET | Existing stop/resume/reopen controls and technical ledgers | Narrow reapproval races, judge trace, accessibility matrix and recorded demo |
 
 ## Requirement traceability
@@ -36,11 +36,11 @@
 | FR-017 | PASS | Transport status and deterministic evidence status remain separate |
 | FR-018 | PARTIAL | Consumer result reduces technical copy; progressive technical drawer pending |
 | FR-019 | PASS | Last refresh, retained payload and retry behavior in case result |
-| FR-020 | PARTIAL | Attention and completion exist; terminal execution failure pending |
-| FR-021 | PARTIAL | Provider lifecycle is persisted; complete owner projection/retry pending |
+| FR-020 | PASS | Attention, completion and deterministic terminal failure each create deduplicated records |
+| FR-021 | PASS | Recorded/accepted/delivered/bounced/suppressed/failed lifecycle is persisted and projected separately |
 | FR-022 | PARTIAL | Minimal deep-link notifications exist; redaction contract test pending |
-| FR-023 | PARTIAL | Idempotency/budget exists; bounce/suppression retry rules pending |
-| FR-024 | FAIL | Owner notification destination/lifecycle is not fully rendered |
+| FR-023 | PASS | Retry is owner-scoped, idempotent, limited to three attempts and blocked after bounce/suppression |
+| FR-024 | PASS | Owner sees lifecycle, redacted destination, attempts and eligible retry action |
 | FR-025 | PARTIAL | Existing exception screen is bounded but not one-decision refactor |
 | FR-026 | PARTIAL | Core controls are idempotent; concurrent-device matrix pending |
 | FR-027 | PARTIAL | Contract edits version/hash/reapprove before activation; active-case authority correction pending |
@@ -60,7 +60,7 @@
 | SC-001 | TARGET | Run Gate B with a real case and record elapsed time |
 | SC-002 | PARTIAL | Existing owner isolation tests; export/technical endpoints pending |
 | SC-003 | UNVERIFIED HUMAN TARGET | Synthetic feedback cannot satisfy it |
-| SC-004 | PARTIAL | Attention/completion replay coverage; terminal failure pending |
+| SC-004 | PASS | Attention/completion/terminal failure transitions and concurrent attention replay are covered |
 | SC-005 | PASS | Published weak-ACK deployed evidence plus adversarial tests |
 | SC-006 | PARTIAL | Channel helper coverage; full screen fixture audit pending |
 | SC-007 | PASS | Outcome comparison and explicit evidence projection |

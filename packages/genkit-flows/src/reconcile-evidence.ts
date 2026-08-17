@@ -43,7 +43,10 @@ Return only observed fields; deterministic code will authenticate and verify the
 export async function reconcileEvidenceWithGateway(
   gateway: EvidenceModelGateway,
   raw: unknown
-): Promise<EvidenceCandidateContract & { readonly signatureValid: false }> {
+): Promise<EvidenceCandidateContract & {
+  readonly transactionRef: string;
+  readonly signatureValid: false;
+}> {
   const input = reconciliationInputSchema.parse(raw);
   const output = await gateway.generate({
     system: reconciliationInstruction,
@@ -51,8 +54,9 @@ export async function reconcileEvidenceWithGateway(
   });
   if (!output) throw new Error("MODEL_OUTPUT_MISSING");
   if (output.caseId !== input.caseId) throw new Error("MODEL_CASE_MISMATCH");
+  if (!output.transactionRef) throw new Error("MODEL_REFERENCE_MISSING");
   const parsed = evidenceCandidateSchema.parse({ ...output, signatureValid: false });
-  return { ...parsed, signatureValid: false as const };
+  return { ...parsed, transactionRef: output.transactionRef, signatureValid: false as const };
 }
 
 const ai = genkit({

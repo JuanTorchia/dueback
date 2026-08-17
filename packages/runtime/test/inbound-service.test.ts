@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import type { EvidenceCandidateContract } from "@dueback/contracts";
 import { InboundService } from "../src/inbound-service";
 import type { FollowThroughCase } from "../src/case-runner";
 import type { EvidenceService } from "../src/evidence-service";
@@ -32,7 +33,10 @@ const email = {
 
 describe("inbound service", () => {
   it("routes an acknowledgement through deterministic evidence reconciliation", async () => {
-    const reconcile = vi.fn(() => Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] } }));
+    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+      void candidate; void now; void correlationId;
+      return Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] } });
+    });
     const service = new InboundService(
       { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
       { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "REQUEST_ACKNOWLEDGED", changedTerms: [], uncertainty: "NONE" }) },
@@ -41,6 +45,81 @@ describe("inbound service", () => {
     );
     await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toEqual({ status: "INSUFFICIENT" });
     expect(reconcile).toHaveBeenCalledOnce();
+    const candidate = reconcile.mock.calls[0]?.[0];
+    expect(candidate).not.toHaveProperty("amountMinor");
+    expect(candidate).not.toHaveProperty("currency");
+    expect(candidate).not.toHaveProperty("transactionRef");
+  });
+
+  it("never copies expected refund values into incomplete inbound evidence", async () => {
+    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+      void candidate; void now; void correlationId;
+      return Promise.resolve({
+        status: "INSUFFICIENT" as const,
+        verification: { accepted: false, reasonCodes: ["WRONG_AMOUNT" as const] }
+      });
+    });
+    const service = new InboundService(
+      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { interpret: () => Promise.resolve({
+        replyType: "EVIDENCE",
+        evidenceLevel: "MERCHANT_CONFIRMED",
+        changedTerms: [],
+        uncertainty: "NONE"
+      }) },
+      { reconcile } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await service.process({ ...email, text: "The refund was processed." }, "2026-08-16T00:00:00.000Z");
+    const candidate = reconcile.mock.calls[0]?.[0];
+    expect(candidate).not.toHaveProperty("amountMinor");
+    expect(candidate).not.toHaveProperty("currency");
+    expect(candidate).not.toHaveProperty("transactionRef");
+  });
+
+  it("passes only explicitly extracted replacement subject and tracking facts", async () => {
+    const replacement: FollowThroughCase = {
+      ...item,
+      plan: {
+        ...item.plan,
+        promiseType: "REPLACEMENT",
+        sharedFields: ["transactionRef", "subject"],
+        evidenceRequirements: [{
+          minimumLevel: "MERCHANT_CONFIRMED",
+          transactionRef: "ORDER-79",
+          subject: "damaged headphones",
+          requiredEvidenceFields: ["subject", "trackingNumber"],
+          maxAgeSeconds: 3600,
+          trustedIssuer: "merchant-sandbox"
+        }]
+      }
+    };
+    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+      void candidate; void now; void correlationId;
+      return Promise.resolve({
+        status: "INSUFFICIENT" as const,
+        verification: { accepted: false, reasonCodes: ["MISSING_TRACKING" as const] }
+      });
+    });
+    const service = new InboundService(
+      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      { interpret: () => Promise.resolve({
+        replyType: "EVIDENCE",
+        evidenceLevel: "MERCHANT_CONFIRMED",
+        transactionRef: "ORDER-79",
+        subject: "damaged headphones",
+        changedTerms: [],
+        uncertainty: "NONE"
+      }) },
+      { reconcile } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await service.process(email, "2026-08-16T00:00:00.000Z");
+    expect(reconcile.mock.calls[0]?.[0]).toMatchObject({
+      transactionRef: "ORDER-79",
+      subject: "damaged headphones"
+    });
+    expect(reconcile.mock.calls[0]?.[0]).not.toHaveProperty("trackingNumber");
   });
 
   it("rejects unknown routing without invoking the model", async () => {

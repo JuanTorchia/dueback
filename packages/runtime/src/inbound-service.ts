@@ -25,6 +25,9 @@ export interface InboundInterpretation {
   readonly transactionRef?: string | undefined;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
+  readonly subject?: string | undefined;
+  readonly billPeriod?: string | undefined;
+  readonly trackingNumber?: string | undefined;
   readonly changedTerms: readonly string[];
   readonly uncertainty: "NONE" | "AMBIGUOUS" | "MISSING" | "CONTRADICTORY";
 }
@@ -112,9 +115,16 @@ export class InboundService {
       evidenceId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
       caseId,
       level: interpretation.evidenceLevel,
-      amountMinor: interpretation.amountMinor ?? requirement.amountMinor,
-      currency: interpretation.currency ?? requirement.currency,
-      transactionRef: interpretation.transactionRef ?? requirement.transactionRef,
+      ...(interpretation.amountMinor === undefined ? {} : { amountMinor: interpretation.amountMinor }),
+      ...(interpretation.currency === undefined ? {} : { currency: interpretation.currency }),
+      ...(interpretation.transactionRef === undefined
+        ? {}
+        : { transactionRef: interpretation.transactionRef }),
+      ...(interpretation.subject === undefined ? {} : { subject: interpretation.subject }),
+      ...(interpretation.billPeriod === undefined ? {} : { billPeriod: interpretation.billPeriod }),
+      ...(interpretation.trackingNumber === undefined
+        ? {}
+        : { trackingNumber: interpretation.trackingNumber }),
       issuedAt: now,
       issuer: requirement.trustedIssuer,
       signatureValid: true

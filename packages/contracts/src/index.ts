@@ -283,7 +283,7 @@ export const evidenceCandidateSchema = z.object({
   level: evidenceLevelSchema,
   amountMinor: z.int().nonnegative().optional(),
   currency: currencySchema.optional(),
-  transactionRef: z.string().min(1).max(200),
+  transactionRef: z.string().min(1).max(200).optional(),
   subject: z.string().min(1).max(300).optional(),
   billPeriod: z.string().min(1).max(100).optional(),
   trackingNumber: z.string().min(1).max(200).optional(),

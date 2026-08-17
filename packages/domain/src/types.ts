@@ -78,7 +78,7 @@ export interface EvidenceCandidate {
   readonly level: EvidenceLevel;
   readonly amountMinor?: number | undefined;
   readonly currency?: string | undefined;
-  readonly transactionRef: string;
+  readonly transactionRef?: string | undefined;
   readonly subject?: string | undefined;
   readonly billPeriod?: string | undefined;
   readonly trackingNumber?: string | undefined;

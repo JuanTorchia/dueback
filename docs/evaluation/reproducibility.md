@@ -420,6 +420,26 @@ the persisted `caseRun.dueAt` still preferred the company's future promise date,
 Commit `1ea40fd` made the durable run use the approved plan follow-up time before the company date
 and added a persistence regression test for that ordering. Cloud Build
 `101f7c8d-42b5-4beb-8dbc-544648e319e6` deployed revision `dueback-web-00037-6z8` at 100% traffic.
+
+## Editable contract and compact approval deployment
+
+Commits `274d457` and `6897fb6` made every user-relevant promise field editable even when Gemini
+reported high confidence. A correction now creates a new plan version/hash, records human-correction
+provenance, updates the deterministic evidence requirement, and regenerates the exact outbound
+subject/body from the corrected result, reference, amount, and currency. Non-working channels were
+removed from the primary chooser and approval was reduced to five explicit decisions: request,
+contact, timing, limits, and proof.
+
+Cloud Build `9f883ba1-c04f-4897-9217-3a1582bc6b95` deployed the main change. Follow-up build
+`e89ca3a9-41da-4fa9-aa24-06ee9fb79319` fixed an E2E-discovered mismatch where the UI required a
+separate follow-up date even though the runtime correctly falls back to the company deadline. The
+final web revision is `dueback-web-00041-r57` at 100% traffic.
+
+The public channel suite passed its three existing authorization paths, and the new edit-certain-
+fields path passed independently in 3.0 seconds with retries disabled. The four-example deployed
+matrix completed refund, cancellation, and replacement in the combined run; the document case hit a
+transient intake timeout and then passed independently in 26.3 seconds with retries disabled. This is
+reported as two executions rather than misrepresented as a single 4/4 green run.
 The sequential production matrix then completed Missing refund, Cancellation, Replacement and
 Missing document end to end with one worker and zero retries: 4/4 passed in 1.5 minutes. Each path
 approved the accelerated controlled mode, crossed Cloud Tasks and the controlled HTTP adapter,

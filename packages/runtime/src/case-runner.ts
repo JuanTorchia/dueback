@@ -23,6 +23,7 @@ export interface FollowThroughCase {
   readonly lastAttemptAt?: string;
   readonly lastActionIdempotencyKey?: string;
   readonly lastActionDuplicate?: boolean;
+  readonly updatedAt?: string;
 }
 
 export interface FollowThroughStore {
@@ -100,7 +101,8 @@ export class CaseRunner {
         ...item,
         state: "NEEDS_ATTENTION",
         version: item.version + 1,
-        lastError: "LOGICAL_ACTION_BUDGET_EXHAUSTED"
+        lastError: "LOGICAL_ACTION_BUDGET_EXHAUSTED",
+        updatedAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, exhausted);
       return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };
@@ -144,7 +146,8 @@ export class CaseRunner {
         lastReceiptId: broker.receipt.receiptId,
         lastAttemptAt: input.now,
         lastActionIdempotencyKey: broker.idempotencyKey,
-        lastActionDuplicate: broker.duplicate
+        lastActionDuplicate: broker.duplicate,
+        updatedAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
@@ -157,7 +160,8 @@ export class CaseRunner {
           version: item.version + 1,
           attemptCount,
           lastError: "RECOVERY_EXHAUSTED",
-          lastAttemptAt: input.now
+          lastAttemptAt: input.now,
+          updatedAt: input.now
         };
         await this.store.compareAndSet(item.caseId, item.version, exhausted);
         const correlationId =
@@ -186,7 +190,8 @@ export class CaseRunner {
           ? { lastActionIdempotencyKey: error.idempotencyKey }
           : {}),
         attemptCount,
-        lastAttemptAt: input.now
+        lastAttemptAt: input.now,
+        updatedAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, next);
       await this.scheduler.scheduleCase({

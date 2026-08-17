@@ -78,6 +78,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
           actionOrdinal: 1,
           correlationId,
           dueAt: firstRunDueAt(next),
+          updatedAt: next.approval.approvedAt,
           deleteAt: firestoreDeleteAt(next.plan.expiresAt)
         });
         transaction.create(runReference.collection("events").doc("000001-plan-approved"), {

@@ -17,9 +17,9 @@
 
 ## Phase 2 — Foundational Ownership and Projection
 
-- [ ] T007 [P] Define identity-claim, case-summary, conversation, comparison and technical-step schemas in `packages/contracts/src/index.ts`
-- [ ] T008 [P] Add schema and redaction tests in `packages/contracts/test/consumer-case.test.ts`
-- [ ] T009 Add `updatedAt` invariant to case mutations in `packages/runtime/src/case-runner.ts` and persistence tests
+- [x] T007 [P] Define identity-claim, case-summary, conversation, comparison and technical-step schemas in `packages/contracts/src/index.ts`
+- [x] T008 [P] Add schema and redaction tests in `packages/contracts/test/consumer-case.test.ts`
+- [x] T009 Add `updatedAt` invariant to case mutations in `packages/runtime/src/case-runner.ts` and persistence tests
 - [ ] T010 Add owner-history and identity-claim interfaces in `packages/runtime/src/case-history.ts` and `packages/runtime/src/identity-service.ts`
 - [ ] T011 Implement bounded owner query and transactional claim in `packages/persistence/src/runtime-store.ts` and `packages/persistence/src/identity-store.ts`
 - [ ] T012 Add Firestore composite index/rules/deploy checks in `infra/firestore/firestore.indexes.json`, `infra/firestore/firestore.rules` and `infra/cloud-run/deploy.sh`

@@ -326,6 +326,72 @@ export const notificationSchema = z.object({
   ]).optional()
 });
 
+const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
+  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
+  "Full email addresses are not allowed in consumer projections"
+);
+
+export const identityClaimSchema = z.object({
+  claimId: opaqueIdSchema,
+  caseId: opaqueIdSchema,
+  sourceOwnerFingerprint: sha256Schema,
+  targetOwnerFingerprint: sha256Schema,
+  operation: z.enum(["LINK_CURRENT", "CLAIM_DRAFT"]),
+  status: z.enum(["PENDING", "COMPLETED", "COLLISION", "REJECTED"]),
+  idempotencyKey: sha256Schema,
+  requestedAt: isoDateSchema,
+  completedAt: isoDateSchema.optional(),
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+}).strict();
+
+export const caseSummarySchema = z.object({
+  caseId: opaqueIdSchema,
+  companyName: safeDisplayTextSchema(120),
+  outcomeLabel: safeDisplayTextSchema(300),
+  bucket: z.enum(["NEEDS_YOU", "WORKING", "DONE"]),
+  statusLabel: safeDisplayTextSchema(120),
+  lastActivityAt: isoDateSchema,
+  nextStepLabel: safeDisplayTextSchema(300),
+  attentionRequired: z.boolean(),
+  channelLabel: z.enum(["Email", "Controlled demo"])
+}).strict();
+
+export const conversationEntrySchema = z.object({
+  entryId: opaqueIdSchema,
+  direction: z.enum(["OUTBOUND", "INBOUND", "SYSTEM"]),
+  occurredAt: isoDateSchema,
+  channelLabel: z.enum(["Email", "Controlled demo"]),
+  partyLabel: safeDisplayTextSchema(120),
+  safeSummary: safeDisplayTextSchema(500),
+  transportStatus: transportStatusSchema.optional(),
+  authenticity: z.enum(["VERIFIED_ROUTE", "UNVERIFIED", "NOT_APPLICABLE"]),
+  evidenceDecision: z.enum(["PENDING", "INSUFFICIENT", "ACCEPTED", "NOT_APPLICABLE"]),
+  reasonSummary: safeDisplayTextSchema(300).optional()
+}).strict();
+
+export const outcomeComparisonSchema = z.object({
+  evidenceLevel: evidenceLevelSchema.optional(),
+  accepted: z.boolean(),
+  limitation: safeDisplayTextSchema(500),
+  fields: z.array(z.object({
+    label: safeDisplayTextSchema(80),
+    promised: safeDisplayTextSchema(300),
+    observed: safeDisplayTextSchema(300).optional(),
+    status: z.enum(["MATCH", "MISSING", "MISMATCH", "NOT_REQUIRED"]),
+    sourceLabel: safeDisplayTextSchema(120).optional()
+  }).strict()).min(1).max(12)
+}).strict();
+
+export const technicalStepSchema = z.object({
+  stepId: opaqueIdSchema,
+  stage: z.enum(["GEMINI", "GENKIT", "CLOUD_TASK", "ACTION", "INBOUND", "VERIFIER", "NOTIFICATION", "FIRESTORE"]),
+  status: z.enum(["PENDING", "SUCCEEDED", "REJECTED", "FAILED", "MISSING"]),
+  systemLabel: safeDisplayTextSchema(120),
+  occurredAt: isoDateSchema.optional(),
+  correlationSuffix: z.string().regex(/^[A-Za-z0-9_-]{4,16}$/).optional(),
+  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+}).strict();
+
 export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
 export type ChannelType = z.infer<typeof channelTypeSchema>;
 export type ChannelCapability = z.infer<typeof channelCapabilitySchema>;
@@ -339,3 +405,8 @@ export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
 export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
 export type EvidenceCandidateContract = z.infer<typeof evidenceCandidateSchema>;
+export type IdentityClaim = z.infer<typeof identityClaimSchema>;
+export type CaseSummaryContract = z.infer<typeof caseSummarySchema>;
+export type ConversationEntry = z.infer<typeof conversationEntrySchema>;
+export type OutcomeComparison = z.infer<typeof outcomeComparisonSchema>;
+export type TechnicalStep = z.infer<typeof technicalStepSchema>;

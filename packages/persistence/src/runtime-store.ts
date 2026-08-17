@@ -139,8 +139,8 @@ export class FirestoreRuntimeStore
       const current = await transaction.get(reference);
       if (!current.exists) throw new Error("CASE_NOT_FOUND");
       if (current.get("version") !== expectedVersion) throw new Error("VERSION_CONFLICT");
-      transaction.set(reference, next);
-      const occurredAt = next.lastAttemptAt ?? new Date().toISOString();
+      const occurredAt = next.updatedAt ?? next.lastAttemptAt ?? new Date().toISOString();
+      transaction.set(reference, { ...next, updatedAt: occurredAt });
       const eventId = `${String(next.version).padStart(6, "0")}-action-result`;
       transaction.create(reference.collection("events").doc(eventId), {
         eventId,
@@ -273,6 +273,7 @@ export class FirestoreRuntimeStore
           state: "NEEDS_ATTENTION",
           version: Number(current.get("version")) + 1,
           lastError: `EMAIL_${transportStatus}`,
+          updatedAt: observedAt,
           deleteAt: firestoreDeleteAt(observedAt)
         });
         if (!intervention.exists) {
@@ -382,6 +383,7 @@ export class FirestoreRuntimeStore
       transaction.update(caseRef, {
         state: input.nextState,
         version: input.expectedVersion + 1,
+        updatedAt: input.evidence.recordedAt,
         ...(input.nextState === "DONE"
           ? {
               completedLevel: input.evidence.candidate.level,

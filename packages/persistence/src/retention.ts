@@ -41,6 +41,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         version: current.version + 1,
         controlReason: input.reason,
         controlledAt: input.now,
+        updatedAt: input.now,
         ...(["REOPEN", "RESUME"].includes(input.action)
           ? {}
           : { approval: { ...current.approval, revokedAt: input.now } })

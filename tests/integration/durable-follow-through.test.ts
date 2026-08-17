@@ -105,6 +105,7 @@ describe("durable follow-through", () => {
     expect(execute).toHaveBeenCalledTimes(2);
     expect(cases.value).toMatchObject({
       lastAttemptAt: "2026-08-15T12:00:31.000Z",
+      updatedAt: "2026-08-15T12:00:31.000Z",
       lastReceiptId: "receipt_1",
       lastActionDuplicate: false
     });
@@ -148,6 +149,7 @@ describe("durable follow-through", () => {
     expect(execute).toHaveBeenCalledOnce();
     expect(cases.value).toMatchObject({
       lastAttemptAt: "2026-08-15T12:00:02.000Z",
+      updatedAt: "2026-08-15T12:00:02.000Z",
       lastReceiptId: "receipt_1",
       lastActionDuplicate: true
     });
@@ -207,6 +209,7 @@ describe("durable follow-through", () => {
       })
     ).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" });
     expect(cases.value.state).toBe("NEEDS_ATTENTION");
+    expect(cases.value.updatedAt).toBe("2026-08-15T12:00:00.000Z");
     expect(interventionRecords.size).toBe(1);
     expect(notificationRecords.size).toBe(1);
   });

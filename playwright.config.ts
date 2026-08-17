@@ -11,6 +11,7 @@ export default defineConfig({
   testMatch: [
     "deployed-demo.spec.ts",
     "deployed-ambiguous-review.spec.ts",
+    "deployed-general-promise.spec.ts",
     "channel-plan.spec.ts",
     "intake-resilience.spec.ts"
   ],

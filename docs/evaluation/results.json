@@ -5,7 +5,7 @@
     "modelCalls": 0,
     "modelMode": "NOT_RUN_DETERMINISTIC_ONLY",
     "location": "global",
-    "evaluatedAt": "2026-08-16T20:05:05.761Z",
+    "evaluatedAt": "2026-08-17T21:23:39.249Z",
     "costBasis": "No model calls; estimated model cost is not reported for this deterministic run."
   },
   "summary": {
@@ -14,7 +14,7 @@
     "failed": 0,
     "deterministicExecutions": 16,
     "fixtureContractChecks": 12,
-    "totalLatencyMs": 0.692
+    "totalLatencyMs": 0.503
   },
   "cases": [
     {
@@ -32,7 +32,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.168,
+      "latencyMs": 0.091,
       "error": null
     },
     {
@@ -50,7 +50,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.005,
+      "latencyMs": 0.003,
       "error": null
     },
     {
@@ -72,7 +72,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.107,
+      "latencyMs": 0.053,
       "error": null
     },
     {
@@ -94,7 +94,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.01,
+      "latencyMs": 0.007,
       "error": null
     },
     {
@@ -116,7 +116,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.006,
+      "latencyMs": 0.005,
       "error": null
     },
     {
@@ -134,7 +134,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.003,
+      "latencyMs": 0.002,
       "error": null
     },
     {
@@ -152,7 +152,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.002,
+      "latencyMs": 0.001,
       "error": null
     },
     {
@@ -170,7 +170,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.002,
+      "latencyMs": 0.001,
       "error": null
     },
     {
@@ -192,7 +192,7 @@
         "INSUFFICIENT_LEVEL"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.017,
+      "latencyMs": 0.012,
       "error": null
     },
     {
@@ -214,7 +214,7 @@
         "INSUFFICIENT_LEVEL"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.01,
+      "latencyMs": 0.005,
       "error": null
     },
     {
@@ -236,7 +236,7 @@
         "WRONG_AMOUNT"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.007,
+      "latencyMs": 0.004,
       "error": null
     },
     {
@@ -258,7 +258,7 @@
         "WRONG_CURRENCY"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.013,
+      "latencyMs": 0.032,
       "error": null
     },
     {
@@ -276,7 +276,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.006,
+      "latencyMs": 0.008,
       "error": null
     },
     {
@@ -294,7 +294,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.003,
+      "latencyMs": 0.002,
       "error": null
     },
     {
@@ -330,7 +330,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.006,
+      "latencyMs": 0.005,
       "error": null
     },
     {
@@ -348,7 +348,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.004,
+      "latencyMs": 0.003,
       "error": null
     },
     {
@@ -366,7 +366,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.002,
+      "latencyMs": 0.001,
       "error": null
     },
     {
@@ -384,7 +384,7 @@
         "IDEMPOTENCY_KEY_STABLE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.054,
+      "latencyMs": 0.058,
       "error": null
     },
     {
@@ -420,7 +420,7 @@
         "IDEMPOTENCY_KEY_STABLE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.012,
+      "latencyMs": 0.008,
       "error": null
     },
     {
@@ -438,7 +438,7 @@
         "DELIVERED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.022,
+      "latencyMs": 0.025,
       "error": null
     },
     {
@@ -456,7 +456,7 @@
         "BOUNCED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.002,
+      "latencyMs": 0.001,
       "error": null
     },
     {
@@ -500,7 +500,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.007,
+      "latencyMs": 0.005,
       "error": null
     },
     {
@@ -520,7 +520,7 @@
         "FIELD_NOT_ALLOWED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.073,
+      "latencyMs": 0.061,
       "error": null
     },
     {
@@ -542,7 +542,7 @@
         "WRONG_CASE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.014,
+      "latencyMs": 0.011,
       "error": null
     },
     {
@@ -564,7 +564,7 @@
         "INVALID_SIGNATURE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.005,
+      "latencyMs": 0.004,
       "error": null
     }
   ]

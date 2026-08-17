@@ -15,7 +15,11 @@ export default defineConfig({
     "deployed-example-matrix.spec.ts",
     "deployed-managed-email.spec.ts",
     "channel-plan.spec.ts",
-    "intake-resilience.spec.ts"
+    "intake-resilience.spec.ts",
+    "consumer-case-detail.spec.ts",
+    "accessibility.spec.ts",
+    "consumer-case-inbox.spec.ts",
+    "cross-device-return.spec.ts"
   ],
   timeout: 90_000,
   retries: 0,

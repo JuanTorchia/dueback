@@ -57,7 +57,7 @@ test.describe("channel plan authorization", () => {
 
     await page.goto(`${deployedUrl}/cases/case_12345678/review`);
     await expect(page.getByText("Follow-up for ORDER-79")).toBeVisible();
-    await expect(page.getByText("Up to 3 sends")).toBeVisible();
+    await expect(page.getByText("Up to 3 sends", { exact: true })).toBeVisible();
     await expect(page.getByText("Every 2 days")).toBeVisible();
     await page.getByRole("textbox", { name: "Email for DueBack case updates" }).fill("owner@example.test");
     await page.getByRole("button", { name: "Save update email" }).click();
@@ -182,6 +182,6 @@ test.describe("channel plan authorization", () => {
     await expect(email).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByText(/Contact channel changed.*version 2/)).toBeVisible();
     await expect(page.getByText("case+opaque@reply.dueback.example")).toBeVisible();
-    await expect(page.getByRole("button", { name: /WhatsApp Not implemented/ })).toBeDisabled();
+    await expect(page.getByText(/Web forms and WhatsApp are not implied as working integrations/)).toBeVisible();
   });
 });

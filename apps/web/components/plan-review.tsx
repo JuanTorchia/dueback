@@ -79,7 +79,7 @@ export function PlanReview({
     setCurrency(draft.promiseDraft.currency?.value ?? "");
     setReference(draft.promiseDraft.transactionRef.value);
     setPromisedDueAt(localDateTime(draft.promiseDraft.dueAt?.value));
-    setFollowUpAt(localDateTime(draft.plan.followUpAt));
+    setFollowUpAt(localDateTime(draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value));
     setRecipient(draft.plan.allowedRecipient);
     setNotificationRecipient(draft.plan.notificationRecipient ?? "");
   }, [draft?.plan.version]);
@@ -206,7 +206,7 @@ export function PlanReview({
   const parsedAmount = Number(amount);
   const monetaryPromise = Boolean(draft.promiseDraft.amountMinor && draft.promiseDraft.currency);
   const contractEditValid = Boolean(
-    company.trim() && result.trim() && reference.trim() && followUpAt &&
+    company.trim() && result.trim() && reference.trim() && (followUpAt || promisedDueAt) &&
     (!monetaryPromise || amount) &&
     (!amount || (Number.isFinite(parsedAmount) && parsedAmount >= 0 && /^[A-Z]{3}$/.test(currency)))
   );
@@ -217,7 +217,7 @@ export function PlanReview({
     currency: amount ? currency : null,
     transactionRef: reference.trim(),
     dueAt: promisedDueAt ? new Date(promisedDueAt).toISOString() : null,
-    followUpAt: new Date(followUpAt).toISOString()
+    followUpAt: new Date(followUpAt || promisedDueAt).toISOString()
   });
   const referenceValue = draft.promiseDraft.transactionRef.value;
   const amountValue = draft.promiseDraft.amountMinor && draft.promiseDraft.currency

@@ -43,6 +43,9 @@ describe("public evaluation budgets and model cost evidence", () => {
       "MODEL_CALL_BUDGET_EXHAUSTED"
     );
     expect(redactedPublicError(new Error("source content"))).toBe("REQUEST_FAILED");
+    const schemaError = new Error("internal schema details");
+    schemaError.name = "ZodError";
+    expect(redactedPublicError(schemaError)).toBe("PROMISE_PLAN_INVALID");
   });
 
   it("permits only explicit controlled recipient domains", () => {

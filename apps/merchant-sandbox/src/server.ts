@@ -116,6 +116,12 @@ export function createMerchantServer(input: {
                 ? { amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor) }
                 : {}),
               ...(sharedFields.currency !== undefined ? { currency: sharedFields.currency } : {}),
+              ...(sharedFields.subject !== undefined
+                ? {
+                    subject: sharedFields.subject,
+                    trackingNumber: `DEMO-${caseId.slice(-8).toUpperCase()}`
+                  }
+                : {}),
               transactionRef:
                 step.mismatch === "reference" ? "WRONG-REFERENCE" : sharedFields.transactionRef,
               issuedAt: now(),

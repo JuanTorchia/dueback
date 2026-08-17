@@ -11,6 +11,7 @@ const messages: Readonly<Record<string, string>> = {
   IMAGE_PIXEL_LIMIT: "That image is too large to analyze safely. Resize it and try again.",
   MALFORMED_FILE: "DueBack could not read that file. Export it again or upload a screenshot.",
   PROMISE_SOURCE_REQUIRED: "Paste a promise or choose a file to continue.",
+  PROMISE_PLAN_INVALID: "DueBack read the promise but could not build a safe plan. Add the company, reference, expected result, and due date, then try again.",
   CRITICAL_FIELDS_UNRESOLVED: "Confirm every highlighted field before activation.",
   PLAN_REQUEST_FAILED: "We could not load this plan. Please retry.",
   REQUEST_FAILED: "DueBack could not complete that request. Please try again."

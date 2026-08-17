@@ -122,4 +122,43 @@ describe("IntakeService", () => {
       transactionRef: "CASE-441", minimumLevel: "MERCHANT_CONFIRMED"
     });
   });
+
+  it.each([
+    { type: "REFUND" as const, result: "Refund USD 59", money: true, expected: "REFUND" },
+    { type: "REFUND" as const, result: "Cancel booking and refund USD 120", money: true, expected: "REFUND" },
+    { type: "REPLACEMENT" as const, result: "Replace damaged headphones", money: false, expected: "REPLACEMENT" },
+    { type: "GENERAL" as const, result: "Email the coverage certificate", money: false, expected: "GENERAL" }
+  ])("builds a valid plan for the visible $type example", async ({ type, result, money, expected }) => {
+    const base = promiseDraft();
+    const extracted: PromiseDraft = {
+      promiseType: type,
+      promisor: base.promisor,
+      result: { ...base.result, value: result },
+      transactionRef: base.transactionRef,
+      dueAt: base.dueAt,
+      ...(money ? { amountMinor: base.amountMinor, currency: base.currency } : {}),
+      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+    };
+    const service = new IntakeService(
+      new MemoryIntakeStore(),
+      { extract: () => Promise.resolve(extracted) },
+      "merchant@controlled.test"
+    );
+    const intake = await service.intake({
+      artifactId: "artifact_12345678",
+      ownerId: "person_12345678",
+      sourceChannel: "paste",
+      sha256: `${type}-${result}`,
+      content: result
+    }, "2026-08-15T12:00:00.000Z");
+    expect(intake.draft.plan.promiseType).toBe(expected);
+    expect(intake.draft.activationBlocked).toBe(false);
+    if (type === "REPLACEMENT") {
+      expect(intake.draft.plan.evidenceRequirements[0]).toMatchObject({
+        subject: result,
+        requiredEvidenceFields: ["subject", "trackingNumber"]
+      });
+      expect(intake.draft.plan.sharedFields).toContain("subject");
+    }
+  });
 });

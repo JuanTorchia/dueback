@@ -1,0 +1,28 @@
+import { expect, test } from "@playwright/test";
+
+const deployedUrl = process.env.DUEBACK_DEPLOYED_URL;
+
+const visibleExamples = [
+  { label: "Missing refund", expected: /USD 59|59\.00/ },
+  { label: "Cancellation", expected: /USD 120|120\.00/ },
+  { label: "Replacement", expected: /damaged headphones/i },
+  { label: "Missing document", expected: /coverage certificate/i }
+] as const;
+
+test.describe("deployed visible example matrix", () => {
+  test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
+
+  for (const example of visibleExamples) {
+    test(`${example.label} reaches a reviewable plan`, async ({ page }) => {
+      await page.goto(`${deployedUrl}/intake`);
+      await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
+        timeout: 15_000
+      });
+      await page.getByRole("button", { name: example.label }).click();
+      await page.getByRole("button", { name: "Build my plan" }).click();
+      await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
+      await expect(page.getByText(example.expected).first()).toBeVisible();
+      await expect(page.getByText(/could not complete/i)).toHaveCount(0);
+    });
+  }
+});

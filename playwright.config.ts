@@ -12,6 +12,7 @@ export default defineConfig({
     "deployed-demo.spec.ts",
     "deployed-ambiguous-review.spec.ts",
     "deployed-general-promise.spec.ts",
+    "deployed-example-matrix.spec.ts",
     "channel-plan.spec.ts",
     "intake-resilience.spec.ts"
   ],

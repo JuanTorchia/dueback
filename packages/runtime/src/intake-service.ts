@@ -111,7 +111,11 @@ function buildPlan(input: {
   };
 }): ResolutionPlan {
   const { draft } = input;
-  const promiseType = draft.promiseType ??
+  // BILL_CREDIT needs a bill period that the current intake contract cannot yet
+  // extract. Keep the promise usable as a general follow-up instead of creating
+  // a plan that can never satisfy its evidence schema.
+  const extractedPromiseType = draft.promiseType === "BILL_CREDIT" ? "GENERAL" : draft.promiseType;
+  const promiseType = extractedPromiseType ??
     (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
   const amountLine = draft.amountMinor && draft.currency
     ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
@@ -144,7 +148,8 @@ function buildPlan(input: {
     sharedFields: [
       "transactionRef",
       ...(draft.amountMinor ? ["amountMinor"] : []),
-      ...(draft.currency ? ["currency"] : [])
+      ...(draft.currency ? ["currency"] : []),
+      ...(promiseType === "REPLACEMENT" ? ["subject"] : [])
     ],
     ...(draft.dueAt?.uncertainty === "NONE" ? { followUpAt: draft.dueAt.value } : {}),
     evidenceRequirements: [
@@ -152,6 +157,12 @@ function buildPlan(input: {
         minimumLevel: "MERCHANT_CONFIRMED" as const,
         ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
         ...(draft.currency ? { currency: draft.currency.value } : {}),
+        ...(promiseType === "REPLACEMENT"
+          ? {
+              subject: draft.result.value,
+              requiredEvidenceFields: ["subject", "trackingNumber"] as const
+            }
+          : {}),
         transactionRef: draft.transactionRef.value,
         maxAgeSeconds: 30 * 24 * 60 * 60,
         trustedIssuer: input.channel.channelType === "MANAGED_EMAIL"

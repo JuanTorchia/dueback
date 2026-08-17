@@ -178,10 +178,12 @@ const safeErrors = new Set([
   "UNSUPPORTED_MEDIA_TYPE",
   "MEDIA_TYPE_MISMATCH",
   "PROMISE_SOURCE_REQUIRED",
+  "PROMISE_PLAN_INVALID",
   "CRITICAL_FIELDS_UNRESOLVED"
 ]);
 
 export function redactedPublicError(error: unknown): string {
+  if (error instanceof Error && error.name === "ZodError") return "PROMISE_PLAN_INVALID";
   const candidateCode =
     typeof error === "object" && error !== null && "code" in error
       ? String((error as { code: unknown }).code)

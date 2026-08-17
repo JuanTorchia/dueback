@@ -15,7 +15,8 @@
     "./evidence-service": "./src/evidence-service.ts",
     "./timeline": "./src/timeline.ts",
     "./channel-registry": "./src/channel-registry.ts",
-    "./inbound-service": "./src/inbound-service.ts"
+    "./inbound-service": "./src/inbound-service.ts",
+    "./technical-run": "./src/technical-run.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

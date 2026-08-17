@@ -12,6 +12,7 @@ import { OutcomeComparison } from "./outcome-comparison";
 import { CaseConversation } from "./case-conversation";
 import { GoogleSignIn } from "./google-sign-in";
 import { NotificationStatus } from "./notification-status";
+import { TechnicalRun } from "./technical-run";
 
 interface ResultPayload {
   case: FollowThroughCase;
@@ -165,6 +166,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
           {done ? "This isn't resolved" : "Review or stop this case"}
         </a>
       </section>
+      {payload.case.plan.executionMode === "ACCELERATED_DEMO" ? <TechnicalRun caseId={caseId} /> : null}
       <section className="card">
         <h2>What happened</h2>
         <p className="timeline-intro">Every action and decision stays attached to this case.</p>

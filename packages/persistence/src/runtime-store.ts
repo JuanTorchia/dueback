@@ -12,6 +12,8 @@ import type {
 import { firestoreDeleteAt } from "./expiry";
 import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 import { stableHash } from "@dueback/domain";
+import type { TechnicalRunSource } from "@dueback/runtime/technical-run";
+import type { DraftCase } from "@dueback/runtime/intake-service";
 
 export class FirestoreRuntimeStore
   implements
@@ -446,6 +448,40 @@ export class FirestoreRuntimeStore
       .orderBy("createdAt", "asc")
       .get();
     return snapshot.docs.map((document) => document.data() as NotificationRecord);
+  }
+
+  async technicalRunSource(caseId: string): Promise<TechnicalRunSource> {
+    const [run, draft, events, evidence, notifications, channelEvents] = await Promise.all([
+      this.get(caseId),
+      this.db.collection("caseDrafts").doc(caseId).get(),
+      this.listEvents(caseId),
+      this.listEvidence(caseId),
+      this.listNotifications(caseId),
+      this.listChannelEvents(caseId)
+    ]);
+    let modelUsage: TechnicalRunSource["modelUsage"];
+    if (run && draft.exists) {
+      const typedDraft = draft.data() as DraftCase;
+      const budgetKey = `${run.ownerId}:${typedDraft.artifactId}`;
+      const usage = await this.db.collection("modelUsage").doc(stableHash(budgetKey).slice(7, 39)).get();
+      if (usage.exists) {
+        const usageData = usage.data() as { lastStatus?: unknown; lastObservedAt?: unknown };
+        const lastStatus = usageData.lastStatus;
+        const lastObservedAt = usageData.lastObservedAt;
+        modelUsage = {
+          ...(lastStatus === "SUCCEEDED" || lastStatus === "FAILED" ? { lastStatus } : {}),
+          ...(typeof lastObservedAt === "string" ? { lastObservedAt } : {})
+        };
+      }
+    }
+    return {
+      ...(modelUsage ? { modelUsage } : {}),
+      hasTypedDraft: draft.exists,
+      events,
+      evidence,
+      notifications,
+      channelEvents
+    };
   }
 
   async createInterventionIfAbsent(

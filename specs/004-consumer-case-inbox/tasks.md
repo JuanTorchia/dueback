@@ -81,12 +81,12 @@
 
 ## Phase 7 — User Story 5: Judge Evidence (P2)
 
-- [ ] T050 [P] [US5] Add redaction/eligibility contract tests in `tests/contract/technical-run.test.ts`
-- [ ] T051 [P] [US5] Add non-owner/non-synthetic denial tests in `tests/adversarial/technical-run-access.test.ts`
-- [ ] T052 [US5] Implement persisted allowlist projection in `packages/runtime/src/technical-run.ts`
-- [ ] T053 [US5] Add required safe read methods in `packages/persistence/src/runtime-store.ts`
-- [ ] T054 [US5] Add owner/synthetic-gated route in `apps/web/app/api/cases/[caseId]/technical-run/route.ts`
-- [ ] T055 [US5] Build “How DueBack ran” drawer in `apps/web/components/technical-run.tsx`
+- [x] T050 [P] [US5] Add redaction/eligibility contract tests in `tests/contract/technical-run.test.ts`
+- [x] T051 [P] [US5] Add non-owner/non-synthetic denial tests in `tests/adversarial/technical-run-access.test.ts`
+- [x] T052 [US5] Implement persisted allowlist projection in `packages/runtime/src/technical-run.ts`
+- [x] T053 [US5] Add required safe read methods in `packages/persistence/src/runtime-store.ts`
+- [x] T054 [US5] Add owner/synthetic-gated route in `apps/web/app/api/cases/[caseId]/technical-run/route.ts`
+- [x] T055 [US5] Build “How DueBack ran” drawer in `apps/web/components/technical-run.tsx`
 
 ## Phase 8 — User Story 6: Safe Export (P2)
 

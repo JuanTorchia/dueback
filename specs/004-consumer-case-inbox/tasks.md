@@ -20,17 +20,17 @@
 - [x] T007 [P] Define identity-claim, case-summary, conversation, comparison and technical-step schemas in `packages/contracts/src/index.ts`
 - [x] T008 [P] Add schema and redaction tests in `packages/contracts/test/consumer-case.test.ts`
 - [x] T009 Add `updatedAt` invariant to case mutations in `packages/runtime/src/case-runner.ts` and persistence tests
-- [ ] T010 Add owner-history and identity-claim interfaces in `packages/runtime/src/case-history.ts` and `packages/runtime/src/identity-service.ts`
-- [ ] T011 Implement bounded owner query and transactional claim in `packages/persistence/src/runtime-store.ts` and `packages/persistence/src/identity-store.ts`
-- [ ] T012 Add Firestore composite index/rules/deploy checks in `infra/firestore/firestore.indexes.json`, `infra/firestore/firestore.rules` and `infra/cloud-run/deploy.sh`
-- [ ] T013 Add cross-owner, cursor-tampering and concurrent-claim emulator tests in `tests/security/firestore-rules.test.ts`
+- [x] T010 Define owner-history and fail-closed identity-collision policy in the existing case/Firebase boundaries (D-023 supersedes identity migration)
+- [x] T011 Implement bounded owner query; intentionally omit transactional ownership merge under D-023
+- [x] T012 Keep direct Firestore access deny-by-default and deploy indexes/TTL through the existing infrastructure gate
+- [x] T013 Add cross-owner, cursor-tampering and fail-closed collision coverage; concurrent ownership claim is intentionally absent under D-023
 
 ## Phase 3 — User Story 1: Return to Every Follow-up (P1)
 
-- [ ] T014 [P] [US1] Add Firebase anonymous-to-Google link and collision unit tests in `apps/web/test/firebase-identity.test.ts`
+- [x] T014 [P] [US1] Add Firebase anonymous-to-Google link and collision unit tests in `apps/web/test/firebase-identity.test.ts`
 - [x] T015 [P] [US1] Add case-list API contract tests in `apps/web/test/cases-controller.test.ts`
 - [x] T016 [US1] Extend Firebase client with recoverable auth state and link/sign-in operations in `apps/web/lib/firebase-client.ts`
-- [ ] T017 [US1] Implement owner claim/link controller and route in `apps/web/lib/identity-controller.ts` and `apps/web/app/api/cases/[caseId]/identity/route.ts`
+- [x] T017 [US1] Intentionally omit owner-claim route; Firebase UID-preserving link plus fail-closed existing-account collision is the accepted D-023 design
 - [x] T018 [US1] Implement bounded owner list controller and route in `apps/web/lib/cases-controller.ts` and `apps/web/app/api/cases/route.ts`
 - [x] T019 [US1] Build progressive activation identity component in `apps/web/components/recoverable-identity.tsx`
 - [x] T020 [US1] Build mobile-first “My follow-ups” page in `apps/web/app/cases/page.tsx` and `apps/web/components/case-inbox.tsx`

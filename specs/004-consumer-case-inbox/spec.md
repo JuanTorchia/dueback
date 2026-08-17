@@ -188,14 +188,16 @@ summary, supported result and limitation, but no control token, raw artifact, se
 - **FR-001**: The system MUST allow anonymous exploration and draft creation without claiming that
   anonymous browser identity is recoverable.
 - **FR-002**: The system MUST require recoverable identity before the first real external action.
-- **FR-003**: Linking identity MUST preserve the current draft, corrections, plan version and owner
-  authorization; it MUST NOT silently create an unrelated owner.
+- **FR-003**: Linking a previously unused recoverable credential MUST preserve the anonymous UID,
+  current draft, corrections and plan version. A credential already owned by another UID MUST fail
+  closed without transfer or merge.
 - **FR-004**: The system MUST support returning on another browser after authentication without a
   bearer case URL.
 - **FR-005**: Every list, detail, intervention, export and technical-evidence read MUST enforce owner
   isolation server-side.
-- **FR-006**: Conflicting identity-link attempts MUST fail closed with a recoverable, non-destructive
-  path and an auditable reason.
+- **FR-006**: Conflicting identity-link attempts MUST fail closed without automatic ownership
+  migration and explain that the person must sign in to the existing account and recreate/import the
+  unexecuted draft.
 
 #### My follow-ups
 

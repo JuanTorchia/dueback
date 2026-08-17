@@ -281,3 +281,18 @@
 - Motivo: el runtime ya prueba acción durable y false-DONE, pero la identidad anónima ligada al
   navegador, la ausencia de una lista de casos y el retorno incompleto impiden que una persona lo
   use como producto. Esta decisión mejora utilidad y demo sin diluir la arquitectura ganadora.
+
+## D-023 — Linking conserva UID; no existe merge automático entre propietarios
+
+- Fecha: 17 de agosto de 2026
+- Estado: aceptada; precisa D-022
+- Decisión: una sesión anónima puede vincularse con Google cuando la credencial todavía no pertenece
+  a otra cuenta, conservando el mismo Firebase UID y sus drafts. Si la credencial ya está asociada a
+  un propietario existente, DueBack falla cerrado: no transfiere, mezcla ni reasigna casos. La persona
+  inicia sesión con la cuenta existente y vuelve a crear o importar el draft sin ejecutar nada.
+- Arquitectura: no se construye una ruta `identity/claim` ni un `identity-store` de migración para el
+  hackathon. El historial se consulta exclusivamente por el UID autenticado; los deep links no son
+  bearer y un owner diferente recibe el mismo 404 que un caso inexistente.
+- Motivo: demostrar control de ambas sesiones y migrar propiedad transaccionalmente amplía demasiado
+  la superficie de seguridad. El recorrido competitivo sólo necesita crear un caso bajo una cuenta
+  recuperable y reabrirlo con esa misma identidad desde otro navegador.

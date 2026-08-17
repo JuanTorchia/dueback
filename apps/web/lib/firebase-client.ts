@@ -18,6 +18,14 @@ interface FirebasePublicConfig {
 }
 let configRequest: Promise<FirebasePublicConfig> | undefined;
 
+export function recoverableAuthError(code: string, linking: boolean): string {
+  if (linking && (code.includes("credential-already-in-use") || code.includes("email-already-in-use")))
+    return "RECOVERABLE_ACCOUNT_ALREADY_EXISTS";
+  if (code.includes("popup-closed") || code.includes("cancelled-popup"))
+    return "RECOVERABLE_SIGN_IN_CANCELLED";
+  return "RECOVERABLE_SIGN_IN_FAILED";
+}
+
 async function currentUser(): Promise<User> {
   const config = await publicConfig();
   const app = getApps().length > 0 ? getApp() : initializeApp(config);
@@ -65,13 +73,7 @@ export async function linkCurrentIdentityWithGoogle(): Promise<{
     };
   } catch (error: unknown) {
     const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
-    if (code.includes("credential-already-in-use") || code.includes("email-already-in-use")) {
-      throw new Error("RECOVERABLE_ACCOUNT_ALREADY_EXISTS");
-    }
-    if (code.includes("popup-closed") || code.includes("cancelled-popup")) {
-      throw new Error("RECOVERABLE_SIGN_IN_CANCELLED");
-    }
-    throw new Error("RECOVERABLE_SIGN_IN_FAILED");
+    throw new Error(recoverableAuthError(code, true));
   }
 }
 
@@ -91,9 +93,6 @@ export async function signInWithExistingGoogle(): Promise<{
     };
   } catch (error: unknown) {
     const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
-    if (code.includes("popup-closed") || code.includes("cancelled-popup")) {
-      throw new Error("RECOVERABLE_SIGN_IN_CANCELLED");
-    }
-    throw new Error("RECOVERABLE_SIGN_IN_FAILED");
+    throw new Error(recoverableAuthError(code, false));
   }
 }

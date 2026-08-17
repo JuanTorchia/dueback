@@ -72,12 +72,12 @@
 
 ## Phase 6 — User Story 4: Narrow Intervention (P1)
 
-- [ ] T044 [P] [US4] Add concurrent stop/resume/dispute/reapproval tests in `tests/integration/case-control.test.ts`
-- [ ] T045 [US4] Extend intervention DTO with one decision and consequences in `packages/runtime/src/interventions.ts`
-- [ ] T046 [US4] Implement authority-changing correction through plan revision in `packages/runtime/src/case-control.ts`
-- [ ] T047 [US4] Extend case control API with expected version and idempotency key in `apps/web/lib/control-controller.ts`
-- [ ] T048 [US4] Refactor exception screen into one bounded decision in `apps/web/components/case-exception.tsx`
-- [ ] T049 [US4] Add stale approval and late-event adversarial tests in `tests/adversarial/case-control-races.test.ts`
+- [x] T044 [P] [US4] Add concurrent stop/resume/dispute/reapproval tests in `tests/integration/case-control.test.ts`
+- [x] T045 [US4] Extend intervention DTO with one decision and consequences in `packages/runtime/src/interventions.ts`
+- [x] T046 [US4] Implement authority-changing correction through plan revision in `packages/runtime/src/case-control.ts`
+- [x] T047 [US4] Extend case control API with expected version and idempotency key in `apps/web/lib/control-controller.ts`
+- [x] T048 [US4] Refactor exception screen into one bounded decision in `apps/web/components/case-exception.tsx`
+- [x] T049 [US4] Add stale approval and late-event adversarial tests in `tests/adversarial/case-control-races.test.ts`
 
 ## Phase 7 — User Story 5: Judge Evidence (P2)
 

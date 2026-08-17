@@ -34,7 +34,7 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
     });
   }, [caseId]);
 
-  async function command(action: "STOP" | "REOPEN" | "RESUME" | "DELETE") {
+  async function command(action: "STOP" | "REOPEN" | "RESUME" | "REVISE" | "DELETE") {
     if (!payload) return;
     setBusy(true);
     setError(undefined);
@@ -43,12 +43,16 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
       const response = await fetch(`/api/cases/${caseId}/control`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ action, expectedVersion: payload.case.version, reason })
+        body: JSON.stringify({ action, expectedVersion: payload.case.version, reason, idempotencyKey: crypto.randomUUID() })
       });
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "CONTROL_FAILED");
       if (action === "DELETE") {
         window.location.assign("/intake?deleted=1");
+        return;
+      }
+      if (action === "REVISE") {
+        window.location.assign(`/cases/${caseId}/review`);
         return;
       }
       await load();
@@ -66,15 +70,14 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
     <div className="review-grid">
       <section className="card">
         <div className="eyebrow">Your decision is required</div>
-        <h2>
-          {latest?.kind === "EVIDENCE_CONFLICT" ? "The evidence does not match" : "Case control"}
-        </h2>
+        <h2>{latest?.question ?? (payload.case.state === "DONE" ? "Did the promised result actually arrive?" : "Should DueBack stop future actions?")}</h2>
         <p>
           {latest?.requestedField
             ? `Check only the ${latest.requestedField}. DueBack has not changed the approved plan.`
             : `Current state: ${payload.case.state}`}
         </p>
         {latest ? <code>{latest.reasonCodes.join(" · ")}</code> : null}
+        {latest ? <p><strong>What happens next:</strong> {latest.consequence}</p> : null}
       </section>
       <section className="card">
         <h2>You remain in control</h2>
@@ -93,7 +96,11 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
               This isn&apos;t resolved
             </button>
           </>
-        ) : payload.case.state === "NEEDS_ATTENTION" ? (
+        ) : payload.case.state === "NEEDS_ATTENTION" ? latest?.allowedDecisions.includes("REVISE") ? (
+          <button disabled={busy} onClick={() => void command("REVISE")}>
+            Correct the approved plan
+          </button>
+        ) : (
           <button disabled={busy} onClick={() => void command("RESUME")}>
             Retry within the approved limits
           </button>

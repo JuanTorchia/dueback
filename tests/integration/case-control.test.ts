@@ -32,16 +32,29 @@ function activeCase(state: FollowThroughCase["state"] = "WAITING_EXTERNAL"): Fol
 class ControlMemory implements CaseControlStore {
   evidence: EvidenceRecord[] = [];
   deleted = false;
+  commands = new Map<string, { caseId: string; ownerId: string; action: string; result: FollowThroughCase | DeletionReceipt }>();
   constructor(public item: FollowThroughCase) {}
   get(caseId: string): Promise<FollowThroughCase | undefined> {
     return Promise.resolve(!this.deleted && caseId === this.item.caseId ? this.item : undefined);
   }
+  getCommandResult(input: { idempotencyKey: string; caseId: string; ownerId: string; action: string }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
+    const prior = this.commands.get(input.idempotencyKey);
+    if (prior && (prior.caseId !== input.caseId || prior.ownerId !== input.ownerId || prior.action !== input.action))
+      throw new Error("IDEMPOTENCY_KEY_REUSED");
+    return Promise.resolve(prior?.result);
+  }
   transition(input: {
+    caseId: string;
+    ownerId: string;
     expectedVersion: number;
     action: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME";
     reason: string;
     now: string;
+    idempotencyKey: string;
   }): Promise<FollowThroughCase> {
+    const prior = this.commands.get(input.idempotencyKey);
+    if (prior) return Promise.resolve(prior.result as FollowThroughCase);
+    if (this.item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
     const state =
       input.action === "REOPEN"
         ? "NEEDS_ATTENTION"
@@ -57,16 +70,37 @@ class ControlMemory implements CaseControlStore {
       controlReason: input.reason,
       controlledAt: input.now
     };
+    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: input.action, result: this.item });
     return Promise.resolve(this.item);
   }
-  requestDeletion(input: { caseId: string; now: string }): Promise<DeletionReceipt> {
+  requestDeletion(input: { caseId: string; ownerId: string; action?: string; now: string; idempotencyKey: string }): Promise<DeletionReceipt> {
+    const prior = this.commands.get(input.idempotencyKey);
+    if (prior) return Promise.resolve(prior.result as DeletionReceipt);
     this.deleted = true;
-    return Promise.resolve({
+    const result = {
       caseId: input.caseId,
       status: "DELETION_ACCEPTED",
       requestedAt: input.now,
       tombstoneId: "tombstone_12345678"
-    });
+    } as const;
+    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: "DELETE", result });
+    return Promise.resolve(result);
+  }
+  beginReapproval(input: { caseId: string; ownerId: string; expectedVersion: number; reason: string; now: string; idempotencyKey: string }): Promise<FollowThroughCase> {
+    const prior = this.commands.get(input.idempotencyKey);
+    if (prior) return Promise.resolve(prior.result as FollowThroughCase);
+    if (this.item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
+    this.item = {
+      ...this.item,
+      state: "CANCELLED",
+      version: input.expectedVersion + 1,
+      approval: { ...this.item.approval, revokedAt: input.now },
+      controlReason: input.reason,
+      controlledAt: input.now,
+      updatedAt: input.now
+    };
+    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: "REVISE", result: this.item });
+    return Promise.resolve(this.item);
   }
 }
 
@@ -183,6 +217,46 @@ describe("case controls", () => {
     );
     expect(store.item.state).toBe("NEEDS_ATTENTION");
     expect(result.intervention).toMatchObject({ requestedField: "amount" });
+    expect(result.intervention).toMatchObject({
+      question: "Does the approved amount need correction?",
+      allowedDecisions: ["REVISE", "STOP"]
+    });
     expect(notifications.createIfAbsent).toHaveBeenCalledOnce();
+  });
+
+  it("revokes the active authority before opening a new plan revision", async () => {
+    const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
+    const result = await new CaseControlService(store).command({
+      caseId: store.item.caseId,
+      ownerId: store.item.ownerId,
+      expectedVersion: 3,
+      action: "REVISE",
+      reason: "Correct the approved amount",
+      now: "2026-08-15T12:00:00.000Z"
+    });
+    expect(result).toMatchObject({
+      state: "CANCELLED",
+      version: 4,
+      approval: { revokedAt: "2026-08-15T12:00:00.000Z" }
+    });
+  });
+
+  it.each([
+    ["STOP", "WAITING_EXTERNAL"],
+    ["REOPEN", "DONE"],
+    ["RESUME", "NEEDS_ATTENTION"],
+    ["REVISE", "NEEDS_ATTENTION"]
+  ] as const)("returns one transition for concurrent %s replay", async (action, initialState) => {
+    const store = new ControlMemory(activeCase(initialState));
+    const service = new CaseControlService(store, { scheduleCase: () => Promise.resolve({}) });
+    const command = {
+      caseId: store.item.caseId, ownerId: store.item.ownerId, expectedVersion: 3,
+      action, now: "2026-08-15T12:00:00.000Z", reason: action === "REOPEN" ? "Not resolved" : undefined,
+      idempotencyKey: `same-command-${action.toLowerCase()}-12345678`
+    };
+    const [first, second] = await Promise.all([service.command(command), service.command(command)]);
+    expect(first).toEqual(second);
+    expect(store.item.version).toBe(4);
+    expect(store.commands.size).toBe(1);
   });
 });

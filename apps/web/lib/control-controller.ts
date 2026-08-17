@@ -12,11 +12,13 @@ export async function handleCaseControl(
   try {
     const owner = await dependencies.authenticate(request);
     const body = (await request.json()) as {
-      action?: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "DELETE";
+      action?: "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
       expectedVersion?: number;
       reason?: string;
+      idempotencyKey?: string;
     };
-    if (!body.action || !Number.isInteger(body.expectedVersion)) {
+    if (!body.action || !Number.isInteger(body.expectedVersion) ||
+      !body.idempotencyKey || !/^[A-Za-z0-9_-]{16,200}$/.test(body.idempotencyKey)) {
       return Response.json({ error: "INVALID_CONTROL_COMMAND" }, { status: 400 });
     }
     const result = await dependencies.service.command({
@@ -25,6 +27,7 @@ export async function handleCaseControl(
       expectedVersion: body.expectedVersion as number,
       action: body.action,
       ...(body.reason ? { reason: body.reason } : {}),
+      idempotencyKey: body.idempotencyKey,
       now: dependencies.now()
     });
     return Response.json(result, { status: body.action === "DELETE" ? 202 : 200 });

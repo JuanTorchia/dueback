@@ -43,7 +43,7 @@ function request(caseId: string, action: string, expectedVersion: number, reason
   return new Request(`https://dueback.test/api/cases/${caseId}/control`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action, expectedVersion, reason })
+    body: JSON.stringify({ action, expectedVersion, reason, idempotencyKey: `command-${action.toLowerCase()}-12345678` })
   });
 }
 

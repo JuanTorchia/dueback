@@ -16,6 +16,9 @@ export interface InterventionRecord {
   readonly kind: InterventionKind;
   readonly reasonCodes: readonly string[];
   readonly requestedField?: string;
+  readonly question: string;
+  readonly consequence: string;
+  readonly allowedDecisions: readonly ("RESUME" | "REVISE" | "STOP")[];
   readonly status: "OPEN" | "RESOLVED";
   readonly createdAt: string;
 }
@@ -51,6 +54,15 @@ export function interventionRecord(input: {
     kind: input.kind,
     reasonCodes: input.reasonCodes,
     ...(input.requestedField ? { requestedField: input.requestedField } : {}),
+    question: input.kind === "EVIDENCE_CONFLICT"
+      ? `Does the approved ${input.requestedField ?? "evidence"} need correction?`
+      : "Should DueBack retry within the existing approved limits?",
+    consequence: input.kind === "EVIDENCE_CONFLICT"
+      ? "Correcting an approved fact stops the current authority and requires a new plan approval."
+      : "Retry continues only the already-approved action; changing any authority requires revision.",
+    allowedDecisions: input.kind === "EVIDENCE_CONFLICT"
+      ? ["REVISE", "STOP"]
+      : ["RESUME", "STOP"],
     status: "OPEN",
     createdAt: input.createdAt
   };

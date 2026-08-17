@@ -14,6 +14,7 @@ const messages: Readonly<Record<string, string>> = {
   PROMISE_PLAN_INVALID: "DueBack read the promise but could not build a safe plan. Add the company, reference, expected result, and due date, then try again.",
   CRITICAL_FIELDS_UNRESOLVED: "Confirm every highlighted field before activation.",
   RECOVERABLE_IDENTITY_REQUIRED: "Save recoverable access before activating a real email follow-up.",
+  VERIFIED_NOTIFICATION_EMAIL_REQUIRED: "Case updates must use the verified email on your Google identity.",
   PLAN_REQUEST_FAILED: "We could not load this plan. Please retry.",
   REQUEST_FAILED: "DueBack could not complete that request. Please try again."
 };

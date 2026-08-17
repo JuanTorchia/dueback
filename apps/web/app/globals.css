@@ -1728,4 +1728,9 @@ summary {
 .refresh-warning { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
 .refresh-warning p { margin: 0; }
 @media (max-width: 600px) { .case-conversation li { max-width: 100%; } .case-conversation li > div { display: grid; gap: 3px; } .refresh-warning { align-items: stretch; flex-direction: column; } }
+.google-sign-in { display: grid; gap: 8px; justify-items: center; margin: 16px 0; }
+.google-sign-in p { margin: 0; }
+.google-sign-in.compact { justify-items: start; margin: 8px 0; }
+.case-access-error { display: grid; gap: 12px; justify-items: start; }
+.case-access-error h2, .case-access-error p { margin: 0; }
 @media (min-width: 760px) { .case-inbox { grid-template-columns: repeat(2, minmax(0, 1fr)); } .case-inbox .empty-state, .case-inbox .error { grid-column: 1 / -1; } }

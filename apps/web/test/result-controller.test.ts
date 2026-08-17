@@ -68,7 +68,8 @@ describe("result controller timeline", () => {
         }
       }
     );
-    expect(response.status).toBe(403);
-    await expect(response.json()).resolves.toEqual({ error: "CASE_OWNERSHIP_REQUIRED" });
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({ error: "CASE_NOT_FOUND" });
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
   });
 });

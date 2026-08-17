@@ -29,6 +29,11 @@ pnpm exec vitest run apps/web/test/case-projection.test.ts
 
 ## Kill gate 2 — Identity and inbox
 
+Before running this gate, confirm in Firebase Authentication that the Google provider is enabled and
+that the exact deployed Cloud Run hostname is an authorized domain. The 2026-08-17 preflight found
+Google provider configuration absent and only the Firebase hosting domains authorized; therefore
+cross-device recovery is not yet a deployable claim.
+
 Run emulator tests for anonymous linking, explicit draft claim, cross-owner denial and paginated
 owner history, then the two-browser journey.
 

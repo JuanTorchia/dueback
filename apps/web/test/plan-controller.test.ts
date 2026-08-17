@@ -85,6 +85,44 @@ describe("plan API contract", () => {
     await expect(response.json()).resolves.toEqual({ error: "RECOVERABLE_IDENTITY_REQUIRED" });
   });
 
+  it("refuses sending owner notifications to an unverified third-party email", async () => {
+    const service = new PlanService({
+      get: () => Promise.resolve({
+        ownerId: "person_12345678",
+        plan: {
+          channelType: "MANAGED_EMAIL",
+          notificationRecipient: "third-party@example.test"
+        }
+      } as DraftCase),
+      replace: () => Promise.resolve()
+    });
+    const response = await handlePlanRequest(
+      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "approve", expectedPlanVersion: 1,
+          expectedPlanHash: `sha256:${"a".repeat(64)}`
+        })
+      }),
+      "case_12345678",
+      {
+        authenticate: () => Promise.resolve({
+          uid: "person_12345678", email: "owner@example.test", email_verified: true,
+          firebase: { sign_in_provider: "google.com" }
+        }),
+        service,
+        now: () => "2026-08-16T12:00:00.000Z",
+        isChannelAvailable: () => true,
+        isRecoverableOwner: () => true
+      }
+    );
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({
+      error: "VERIFIED_NOTIFICATION_EMAIL_REQUIRED"
+    });
+  });
+
   it("approves and schedules a supported current channel", async () => {
     const hash = `sha256:${"a".repeat(64)}`;
     const provenance = [{

@@ -11,7 +11,7 @@ export function RecoverableIdentity({
   onChange
 }: {
   readonly required: boolean;
-  readonly onChange: (recoverable: boolean) => void;
+  readonly onChange: (recoverable: boolean, email?: string) => void;
 }) {
   const [state, setState] = useState<"LOADING" | "ANONYMOUS" | "RECOVERABLE">("LOADING");
   const [email, setEmail] = useState<string>();
@@ -22,7 +22,7 @@ export function RecoverableIdentity({
     void recoverableIdentity().then((identity) => {
       setState(identity.isAnonymous ? "ANONYMOUS" : "RECOVERABLE");
       setEmail(identity.email);
-      onChange(!identity.isAnonymous);
+      onChange(!identity.isAnonymous, identity.email);
     }).catch(() => {
       setState("ANONYMOUS"); onChange(false);
     });
@@ -36,7 +36,7 @@ export function RecoverableIdentity({
       <button type="button" className="secondary" disabled={busy} onClick={() => {
         setBusy(true); setError(undefined);
         void linkCurrentIdentityWithGoogle().then((result) => {
-          setEmail(result.email); setState("RECOVERABLE"); onChange(true);
+          setEmail(result.email); setState("RECOVERABLE"); onChange(true, result.email);
         }).catch((cause: unknown) => {
           const code = cause instanceof Error ? cause.message : "RECOVERABLE_SIGN_IN_FAILED";
           setError(code === "RECOVERABLE_ACCOUNT_ALREADY_EXISTS"

@@ -75,6 +75,7 @@ export async function handleCases(
     store: OwnerCaseStore;
   }
 ): Promise<Response> {
+  const privateHeaders = { "Cache-Control": "private, no-store" };
   try {
     const owner = await dependencies.authenticate(request);
     const url = new URL(request.url);
@@ -86,11 +87,13 @@ export async function handleCases(
       .filter((item) => !requestedBucket || item.bucket === requestedBucket)
       .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt))
       .slice(0, limit);
-    return Response.json({ items, nextCursor: null });
+    return Response.json({ items, nextCursor: null }, { headers: privateHeaders });
   } catch (error) {
+    const code = error instanceof Error ? error.message : "CASES_FAILED";
+    const authenticationError = ["AUTHENTICATION_REQUIRED", "INVALID_ID_TOKEN"].includes(code);
     return Response.json(
-      { error: error instanceof Error ? error.message : "CASES_FAILED" },
-      { status: 401 }
+      { error: authenticationError ? code : "CASES_FAILED" },
+      { status: authenticationError ? 401 : 500, headers: privateHeaders }
     );
   }
 }

@@ -33,10 +33,13 @@ export function PlanReview({
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
   const [recoverable, setRecoverable] = useState(false);
+  const [verifiedOwnerEmail, setVerifiedOwnerEmail] = useState<string>();
   const [capabilities, setCapabilities] = useState<ChannelCapability[]>([]);
   const statusRef = useRef<HTMLParagraphElement>(null);
-  const identityChange = useCallback((value: boolean) => {
+  const identityChange = useCallback((value: boolean, email?: string) => {
     setRecoverable(value);
+    setVerifiedOwnerEmail(email);
+    if (email) setNotificationRecipient(email);
   }, []);
 
   async function api(method: "GET" | "POST", body?: object): Promise<PlanResponse> {
@@ -393,7 +396,7 @@ export function PlanReview({
         {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Accelerated controlled demo:</strong> after approval, real Cloud Tasks and the isolated merchant adapter run in seconds instead of waiting for the promised date. The action goes to DueBack’s simulator, not {draft.promiseDraft.promisor.value}; no real company will be contacted.</p> : null}
         <div className="return-promise">
           <strong>3 · How the result comes back to you</strong>
-          <p>The case page always updates. Add an email if you also want DueBack to bring decisions and verified results back after you close this tab.</p>
+          <p>The case page always updates. For real email follow-ups, updates can go only to the verified email on your Google identity.</p>
           <div className="inline-edit">
             <input
               type="email"
@@ -401,14 +404,15 @@ export function PlanReview({
               value={notificationRecipient}
               placeholder={draft.plan.notificationRecipient ?? "you@example.com"}
               onChange={(event) => { setNotificationRecipient(event.target.value); }}
+              readOnly={activeChannelType === "MANAGED_EMAIL" && Boolean(verifiedOwnerEmail)}
             />
             <button
               type="button"
-              disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationRecipient)}
+              disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(notificationRecipient) || (activeChannelType === "MANAGED_EMAIL" && notificationRecipient.toLowerCase() !== verifiedOwnerEmail?.toLowerCase())}
               onClick={() => void saveRevision({ notificationRecipient: notificationRecipient.trim() })}
             >Save update email</button>
           </div>
-          <small>{draft.plan.notificationRecipient ? `Updates configured for ${draft.plan.notificationRecipient}.` : "Optional. DueBack works without inbox access."}</small>
+          <small>{draft.plan.notificationRecipient ? `Updates configured for ${draft.plan.notificationRecipient}.` : activeChannelType === "MANAGED_EMAIL" ? "Link Google, then save its verified email for updates." : "Optional for the controlled demo."}</small>
         </div>
         <label className="legitimate-contact">
           <input type="checkbox" checked={legitimateContact} onChange={(event) => { setLegitimateContact(event.target.checked); }} />

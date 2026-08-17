@@ -10,6 +10,7 @@ import { CaseTimeline } from "./case-timeline";
 import { activeCaseChannel, channelCopy } from "../lib/channel-copy";
 import { OutcomeComparison } from "./outcome-comparison";
 import { CaseConversation } from "./case-conversation";
+import { GoogleSignIn } from "./google-sign-in";
 
 interface ResultPayload {
   case: FollowThroughCase;
@@ -57,7 +58,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
     };
   }, [caseId, refreshKey]);
 
-  if (error && !payload) return <section className="card error" role="alert">We could not load this case. <button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try again</button></section>;
+  if (error && !payload) return <section className="card error case-access-error" role="alert"><h2>Sign in to open this private case</h2><p>The link does not grant access by itself. Use the Google account that owns this follow-up.</p><GoogleSignIn onSignedIn={() => { setRefreshKey((value) => value + 1); }} /><button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try current session</button></section>;
   if (!payload) return <section className="card">Loading the auditable timeline…</section>;
   const done = payload.case.state === "DONE";
   const monetaryPromise = payload.case.plan.evidenceRequirements.some(

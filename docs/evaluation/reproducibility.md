@@ -408,3 +408,20 @@ Build `142f204d-8cd8-4f94-8c9b-4319c438e315` deployed web revision
 The production Playwright matrix then clicked all four visible examples in independent sessions—
 Missing refund, Cancellation, Replacement and Missing document—and all four reached a reviewable
 plan with zero retries (4/4 passed in 1.3 minutes).
+
+## Accelerated complete-example gate
+
+Commit `781d5db` introduced an approved `ACCELERATED_DEMO` timing policy and changed the deployed
+four-example test from review-only to full approval/action/evidence/result assertions. Its first
+production run correctly failed: the plan and Cloud Task used the accelerated follow-up time, but
+the persisted `caseRun.dueAt` still preferred the company's future promise date, leaving the case
+`SCHEDULED`. This failure was not retried into green.
+
+Commit `1ea40fd` made the durable run use the approved plan follow-up time before the company date
+and added a persistence regression test for that ordering. Cloud Build
+`101f7c8d-42b5-4beb-8dbc-544648e319e6` deployed revision `dueback-web-00037-6z8` at 100% traffic.
+The sequential production matrix then completed Missing refund, Cancellation, Replacement and
+Missing document end to end with one worker and zero retries: 4/4 passed in 1.5 minutes. Each path
+approved the accelerated controlled mode, crossed Cloud Tasks and the controlled HTTP adapter,
+received signed evidence, reached the exact supported result and displayed a `NOT VERIFIED`
+limitation. This is controlled sandbox protocol evidence, not proof that a real company was contacted.

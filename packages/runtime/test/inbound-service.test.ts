@@ -151,6 +151,30 @@ describe("inbound service", () => {
     expect(interpret).not.toHaveBeenCalled();
   });
 
+  it("does not confuse an unknown RFC Message-ID with a contradictory case mapping", async () => {
+    const interpret = vi.fn(() => Promise.resolve({
+      replyType: "ACKNOWLEDGEMENT" as const,
+      evidenceLevel: "REQUEST_ACKNOWLEDGED" as const,
+      changedTerms: [],
+      uncertainty: "NONE" as const
+    }));
+    const reconcile = vi.fn(() => Promise.resolve({ status: "INSUFFICIENT" as const }));
+    const service = new InboundService(
+      {
+        get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId),
+        caseForProviderMessageId: () => Promise.resolve(undefined)
+      },
+      { interpret },
+      { reconcile } as unknown as EvidenceService,
+      { raise: vi.fn() } as unknown as InterventionService
+    );
+    await expect(service.process({ ...email, inReplyTo: "<rfc-message@example.test>" }, "2026-08-16T00:00:00.000Z"))
+      .resolves.toMatchObject({ status: "INSUFFICIENT" });
+    expect(interpret).toHaveBeenCalledOnce();
+    expect(reconcile).toHaveBeenCalledOnce();
+  });
+
   it("escalates an unexpected sender before interpreting content", async () => {
     const interpret = vi.fn();
     const raise = vi.fn(() => Promise.resolve({}));

@@ -67,7 +67,10 @@ export class InboundService {
     if (!caseId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
     if (email.inReplyTo && this.cases.caseForProviderMessageId) {
       const threadedCaseId = await this.cases.caseForProviderMessageId(email.inReplyTo);
-      if (!threadedCaseId || threadedCaseId !== caseId) {
+      // Provider delivery IDs and RFC Message-IDs are different namespaces.
+      // An indexed thread may veto an opaque route, but absence of an index
+      // must not reject an otherwise exact case-specific reply address.
+      if (threadedCaseId && threadedCaseId !== caseId) {
         return { status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] };
       }
     }

@@ -48,10 +48,10 @@
 - [ ] T027 [US2] Implement consumer detail projection and redaction in `apps/web/lib/case-projection.ts`
 - [ ] T028 [US2] Add owner-checked detail route in `apps/web/app/api/cases/[caseId]/detail/route.ts`
 - [ ] T029 [US2] Build human case header and next-action component in `apps/web/components/case-status.tsx`
-- [ ] T030 [US2] Build readable bounded conversation in `apps/web/components/case-conversation.tsx`
+- [x] T030 [US2] Build readable bounded conversation in `apps/web/components/case-conversation.tsx`
 - [x] T031 [US2] Build Promised-versus-Observed result in `apps/web/components/outcome-comparison.tsx`
 - [ ] T032 [US2] Refactor `apps/web/components/case-result.tsx` to use the consumer projection and progressive technical disclosure
-- [ ] T033 [US2] Preserve last-known state and add refresh/retry/last-updated behavior in `apps/web/components/case-result.tsx`
+- [x] T033 [US2] Preserve last-known state and add refresh/retry/last-updated behavior in `apps/web/components/case-result.tsx`
 - [ ] T034 [US2] Add responsive case-detail styles in `apps/web/app/globals.css`
 
 **Gate C**: weak ACK visibly stays open; sufficient explicit evidence closes with exact limitation.

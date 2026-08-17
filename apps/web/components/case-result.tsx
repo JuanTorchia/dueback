@@ -9,6 +9,7 @@ import { anonymousIdToken } from "../lib/firebase-client";
 import { CaseTimeline } from "./case-timeline";
 import { activeCaseChannel, channelCopy } from "../lib/channel-copy";
 import { OutcomeComparison } from "./outcome-comparison";
+import { CaseConversation } from "./case-conversation";
 
 interface ResultPayload {
   case: FollowThroughCase;
@@ -22,6 +23,8 @@ interface ResultPayload {
 export function CaseResult({ caseId }: { readonly caseId: string }) {
   const [payload, setPayload] = useState<ResultPayload>();
   const [error, setError] = useState<string>();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string>();
 
   useEffect(() => {
     let cancelled = false;
@@ -37,6 +40,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         if (!response.ok) throw new Error(result.error ?? "RESULT_FAILED");
         if (cancelled) return;
         setPayload(result);
+        setLastUpdatedAt(new Date().toISOString());
         setError(undefined);
         if (!["DONE", "CANCELLED", "NEEDS_ATTENTION"].includes(result.case.state)) {
           timeout = setTimeout(() => void load(), 2_000);
@@ -51,9 +55,9 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
       cancelled = true;
       if (timeout) clearTimeout(timeout);
     };
-  }, [caseId]);
+  }, [caseId, refreshKey]);
 
-  if (error) return <section className="card error">{error}</section>;
+  if (error && !payload) return <section className="card error" role="alert">We could not load this case. <button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try again</button></section>;
   if (!payload) return <section className="card">Loading the auditable timeline…</section>;
   const done = payload.case.state === "DONE";
   const monetaryPromise = payload.case.plan.evidenceRequirements.some(
@@ -87,6 +91,8 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
     : payload.case.plan.allowedRecipient;
   return (
     <div className="result-grid">
+      {error ? <section className="card error refresh-warning" role="alert"><p>DueBack could not refresh. The saved state below is still available.</p><button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try again</button></section> : null}
+      {lastUpdatedAt ? <p className="last-updated">Last refreshed {new Intl.DateTimeFormat(undefined, { timeStyle: "medium" }).format(new Date(lastUpdatedAt))}</p> : null}
       <p className="preview-label">{activeChannelCopy.disclosure}</p>
       <section className="case-channel-card" aria-label="How this case communicates">
         <div><span>↗</span><p><small>CONTACT</small><strong>{activeChannelCopy.contact}</strong></p></div>
@@ -146,6 +152,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         </div>
       </section>
       <OutcomeComparison item={payload.case} evidence={payload.evidence} />
+      <CaseConversation item={payload.case} evidence={payload.evidence} channelEvents={payload.channelEvents ?? []} />
       <section className="card">
         <h2>Case controls</h2>
         <p>

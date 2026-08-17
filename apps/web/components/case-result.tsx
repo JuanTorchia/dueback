@@ -54,6 +54,9 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   if (error) return <section className="card error">{error}</section>;
   if (!payload) return <section className="card">Loading the auditable timeline…</section>;
   const done = payload.case.state === "DONE";
+  const monetaryPromise = payload.case.plan.evidenceRequirements.some(
+    (requirement) => requirement.amountMinor !== undefined && requirement.currency !== undefined
+  );
   const acknowledgement = payload.evidence.some(
     (item) => item.candidate.level === "REQUEST_ACKNOWLEDGED" && !item.verification.accepted
   );
@@ -109,18 +112,24 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
         <div className="eyebrow">{done ? "Evidence accepted" : "Still working"}</div>
         <h2>
           {done
-            ? "Merchant confirmed the refund instruction"
+            ? monetaryPromise
+              ? "Merchant confirmed the refund instruction"
+              : "The company confirmed the promised outcome"
             : acknowledgement
               ? "Not done — request received only"
               : "Waiting for sufficient proof"}
         </h2>
         <p>
           {done
-            ? "The merchant signed evidence matching this case, amount, currency, and reference."
+            ? monetaryPromise
+              ? "The merchant signed evidence matching this case, amount, currency, and reference."
+              : "The company signed evidence matching this case, reference, and promised outcome."
             : "DueBack keeps the case open until evidence meets the approved contract."}
         </p>
         <div className="claim-limit">
-          Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received.
+          {monetaryPromise
+            ? "Bank settlement: NOT VERIFIED. Check your payment account before treating the money as received."
+            : "Independent fulfillment is NOT VERIFIED. Check that the promised outcome actually arrived."}
         </div>
         <div className="notification-explainer" aria-live="polite">
           <strong>{done ? "Your case update is ready" : "You don’t need to keep refreshing"}</strong>

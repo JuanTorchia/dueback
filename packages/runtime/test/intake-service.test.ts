@@ -94,4 +94,32 @@ describe("IntakeService", () => {
     expect(result.draft.activationBlocked).toBe(true);
     expect(result.draft.blockingFields).toContain("amountMinor");
   });
+
+  it("creates a usable general follow-up when the promise has no money", async () => {
+    const draft = promiseDraft();
+    const general: PromiseDraft = {
+      promiseType: "GENERAL",
+      promisor: draft.promisor,
+      result: { ...draft.result, value: "Email the coverage certificate" },
+      transactionRef: { ...draft.transactionRef, value: "CASE-441" },
+      dueAt: draft.dueAt,
+      proposedEvidenceLevel: "MERCHANT_CONFIRMED"
+    };
+    const service = new IntakeService(
+      new MemoryIntakeStore(),
+      { extract: () => Promise.resolve(general) },
+      "merchant@controlled.test"
+    );
+    const result = await service.intake({
+      artifactId: "artifact_12345678", ownerId: "person_12345678",
+      sourceChannel: "paste", sha256: "general-promise", content: "certificate promise"
+    }, "2026-08-15T12:00:00.000Z");
+    expect(result.draft.activationBlocked).toBe(false);
+    expect(result.draft.plan.promiseType).toBe("GENERAL");
+    expect(result.draft.plan.sharedFields).toEqual(["transactionRef"]);
+    expect(result.draft.plan.messageBody).not.toContain("Amount:");
+    expect(result.draft.plan.evidenceRequirements[0]).toMatchObject({
+      transactionRef: "CASE-441", minimumLevel: "MERCHANT_CONFIRMED"
+    });
+  });
 });

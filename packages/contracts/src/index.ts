@@ -124,6 +124,7 @@ export const extractedFieldSchema = <T extends z.ZodType>(value: T) =>
   });
 
 export const promiseDraftSchema = z.object({
+  promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
   promisor: extractedFieldSchema(z.string().min(1).max(200)),
   result: extractedFieldSchema(z.string().min(1).max(500)),
   amountMinor: extractedFieldSchema(z.int().nonnegative()).optional(),
@@ -188,7 +189,7 @@ export const resolutionPlanSchema = z
     version: z.int().positive(),
     planHash: sha256Schema,
     goal: z.string().min(1).max(500),
-    promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT"]).optional(),
+    promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
     allowedActions: z
       .array(z.enum(["SEND_FOLLOW_UP", "CHECK_STATUS"]))
       .min(1)

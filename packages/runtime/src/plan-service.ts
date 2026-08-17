@@ -98,7 +98,6 @@ function revisedPlan(
   revision: PlanRevision,
   selectedChannel?: TrustedChannelSelection
 ) {
-  if (!draft.amountMinor || !draft.currency) throw new Error("REFUND_MONEY_FIELDS_REQUIRED");
   const hashable = {
     planId: current.planId,
     caseId: current.caseId,
@@ -139,8 +138,8 @@ function revisedPlan(
     evidenceRequirements: [
       {
         ...current.evidenceRequirements[0],
-        amountMinor: draft.amountMinor.value,
-        currency: draft.currency.value,
+        ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
+        ...(draft.currency ? { currency: draft.currency.value } : {}),
         transactionRef: draft.transactionRef.value,
         trustedIssuer:
           selectedChannel?.trustedIssuer ?? current.evidenceRequirements[0]?.trustedIssuer

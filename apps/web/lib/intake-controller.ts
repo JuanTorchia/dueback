@@ -64,6 +64,12 @@ export async function handleIntake(
     );
   } catch (cause) {
     const error = redactedPublicError(cause);
+    const diagnostic = cause instanceof Error && /^[A-Z0-9_:,-]{1,200}$/.test(cause.message)
+      ? cause.message
+      : cause instanceof Error
+        ? cause.name
+        : "UNKNOWN_ERROR";
+    console.error("[intake] failed", { publicCode: error, diagnostic });
     const candidateStatus =
       "status" in Object(cause) ? (cause as { status?: unknown }).status : undefined;
     const status =

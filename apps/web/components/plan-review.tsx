@@ -182,7 +182,10 @@ export function PlanReview({
   const saveRevision = (revision: Record<string, unknown>) =>
     command({ action: "revise", expectedPlanVersion: draft.plan.version, revision });
   const referenceValue = draft.promiseDraft.transactionRef.value;
-  const amountValue = `${draft.promiseDraft.currency?.value ?? ""} ${((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}`.trim();
+  const amountValue = draft.promiseDraft.amountMinor && draft.promiseDraft.currency
+    ? `${draft.promiseDraft.currency.value} ${(draft.promiseDraft.amountMinor.value / 100).toFixed(2)}`
+    : "No monetary amount in this promise";
+  const monetaryPromise = Boolean(draft.promiseDraft.amountMinor && draft.promiseDraft.currency);
   const followUpSubject = draft.plan.messageSubject ?? `Follow-up for ${referenceValue}`;
   const followUpBody = draft.plan.messageBody;
   const activeChannelType = draft.plan.channelType ??
@@ -223,8 +226,9 @@ export function PlanReview({
           <div>
             <dt>Amount</dt>
             <dd>
-              {draft.promiseDraft.currency?.value}{" "}
-              {((draft.promiseDraft.amountMinor?.value ?? 0) / 100).toFixed(2)}
+              {draft.promiseDraft.amountMinor && draft.promiseDraft.currency
+                ? `${draft.promiseDraft.currency.value} ${(draft.promiseDraft.amountMinor.value / 100).toFixed(2)}`
+                : "Not applicable"}
               {uncertainty(draft.promiseDraft.amountMinor)}
             </dd>
           </div>
@@ -351,9 +355,9 @@ export function PlanReview({
           <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
           <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>{activeChannelType === "MANAGED_EMAIL" ? "Verified outbound email with a case-specific reply address. Automated reply processing requires the inbound webhook." : "Controlled HTTP merchant adapter in this public demo."}</p></div></div>
           <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
-          <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>Signed evidence matching this case, amount, currency, and reference. “Request received” is not completion.</p></div></div>
+          <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>{monetaryPromise ? "Signed evidence matching this case, amount, currency, and reference." : "Signed evidence matching this case, reference, and promised outcome."} “Request received” is not completion.</p></div></div>
         </div>
-        <details className="shared-data"><summary>Exactly what data will be shared</summary><p>Order/case reference, refund amount, and currency. No inbox access or extra fields.</p></details>
+        <details className="shared-data"><summary>Exactly what data will be shared</summary><p>{monetaryPromise ? "Order/case reference, amount, and currency." : "Case reference and the promised outcome."} No inbox access or extra fields.</p></details>
         {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
         <div className="return-promise">
           <strong>3 · How the result comes back to you</strong>

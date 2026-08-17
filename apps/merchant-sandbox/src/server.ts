@@ -112,8 +112,10 @@ export function createMerchantServer(input: {
               evidenceId: `evidence_${randomUUID()}`,
               caseId,
               level,
-              amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor),
-              currency: sharedFields.currency,
+              ...(sharedFields.amountMinor !== undefined
+                ? { amountMinor: step.mismatch === "amount" ? 1 : Number(sharedFields.amountMinor) }
+                : {}),
+              ...(sharedFields.currency !== undefined ? { currency: sharedFields.currency } : {}),
               transactionRef:
                 step.mismatch === "reference" ? "WRONG-REFERENCE" : sharedFields.transactionRef,
               issuedAt: now(),

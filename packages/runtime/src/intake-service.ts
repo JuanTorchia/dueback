@@ -84,10 +84,11 @@ export function blockingCriticalFields(
   const fields: [string, { uncertainty: string } | undefined][] = [
     ["promisor", draft.promisor],
     ["result", draft.result],
-    ["amountMinor", draft.amountMinor],
-    ["currency", draft.currency],
     ["transactionRef", draft.transactionRef]
   ];
+  if (draft.promiseType === "REFUND" || draft.promiseType === "BILL_CREDIT" || draft.amountMinor || draft.currency) {
+    fields.push(["amountMinor", draft.amountMinor], ["currency", draft.currency]);
+  }
   const blocked = fields
     .filter(([, field]) => !field || field.uncertainty !== "NONE")
     .map(([name]) => name);
@@ -110,13 +111,18 @@ function buildPlan(input: {
   };
 }): ResolutionPlan {
   const { draft } = input;
-  if (!draft.amountMinor || !draft.currency) throw new Error("REFUND_MONEY_FIELDS_REQUIRED");
+  const promiseType = draft.promiseType ??
+    (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
+  const amountLine = draft.amountMinor && draft.currency
+    ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
+    : undefined;
   const unsigned = {
     planId: `plan_${randomUUID()}`,
     caseId: input.caseId,
     ownerId: input.ownerId,
     version: 1,
     goal: draft.result.value,
+    promiseType,
     allowedActions: ["SEND_FOLLOW_UP"] as const,
     allowedRecipient: input.recipient,
     channelType: input.channel.channelType,
@@ -129,19 +135,23 @@ function buildPlan(input: {
       "",
       "DueBack is following up on an outcome requested by your customer.",
       `Reference: ${draft.transactionRef.value}`,
-      `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`,
+      amountLine,
       "Please reply with the current status and verifiable confirmation when the outcome is complete.",
       "An acknowledgement that the request was received will not be treated as completion."
-    ].join("\n"),
+    ].filter((line): line is string => Boolean(line)).join("\n"),
     followUpIntervalSeconds: 2 * 24 * 60 * 60,
     maxLogicalSends: 3,
-    sharedFields: ["transactionRef", "amountMinor", "currency"],
+    sharedFields: [
+      "transactionRef",
+      ...(draft.amountMinor ? ["amountMinor"] : []),
+      ...(draft.currency ? ["currency"] : [])
+    ],
     ...(draft.dueAt?.uncertainty === "NONE" ? { followUpAt: draft.dueAt.value } : {}),
     evidenceRequirements: [
       {
         minimumLevel: "MERCHANT_CONFIRMED" as const,
-        amountMinor: draft.amountMinor.value,
-        currency: draft.currency.value,
+        ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
+        ...(draft.currency ? { currency: draft.currency.value } : {}),
         transactionRef: draft.transactionRef.value,
         maxAgeSeconds: 30 * 24 * 60 * 60,
         trustedIssuer: input.channel.channelType === "MANAGED_EMAIL"

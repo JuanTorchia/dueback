@@ -15,7 +15,7 @@ function humanSummary(event: RuntimeTimelineEvent): string {
   if (event.reasonCodes.includes("INSUFFICIENT_LEVEL"))
     return "Not enough: this reply only acknowledged the request, so the case stayed open.";
   if (event.reasonCodes.includes("ACCEPTED"))
-    return "Accepted: signed evidence matched this case, amount, currency, and reference.";
+    return "Accepted: signed evidence matched this case and its approved evidence contract.";
   return "DueBack recorded this step without changing the approved limits.";
 }
 

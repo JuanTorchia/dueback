@@ -8,7 +8,7 @@ labeled on screen. Never call the Merchant Sandbox a real merchant.
 | 0:00–0:20 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps a commercial promise open until there is proof.” | Mobile landing; no dashboard or empty chat                                          |
 | 0:20–0:48 | Paste the Spanish USD 79 refund fixture.                                                                                                    | Formats, privacy line, Spanish source                                               |
 | 0:48–1:12 | “Gemini 3.5 Flash extracts a typed candidate with citations. It cannot call tools or close a case.”                                         | Promise Contract, amount/reference/date, provenance, uncertainty                    |
-| 1:12–1:34 | Show channel health, exact sender/recipient/reply route/message, cadence, `may / never / data shared / done means`; simulate, then approve.      | Active sandbox; managed email honestly unavailable unless the external gate passed; plan hash/version |
+| 1:12–1:34 | Show channel health, exact sender/recipient/reply route/message, cadence, `may / never / data shared / done means`; choose the controlled sandbox and approve. | Sandbox selected for deterministic timing; managed email labeled as a controlled available pilot, not arbitrary-company support; plan hash/version |
 | 1:34–1:52 | Close/reload the tab. Label the demo clock acceleration.                                                                                    | Cloud Task and persisted case; user is not keeping the session alive                |
 | 1:52–2:16 | Merchant Sandbox sends `REQUEST_ACKNOWLEDGED`.                                                                                              | Separate controlled-service page; timeline says `Not done` and `INSUFFICIENT_LEVEL` |
 | 2:16–2:38 | Show one injected retry/redelivery fixture.                                                                                                 | Stable idempotency key, one merchant ledger entry, bounded retry                    |
@@ -31,8 +31,8 @@ labeled on screen. Never call the Merchant Sandbox a real merchant.
 
 ## Optional controlled-email insert
 
-Use this only after Gates A–C have redacted external evidence. Replace, rather than extend, 25
-seconds of the sandbox section: show one allowlisted send receipt, signed inbound event reservation,
-ACK rejection and sufficient reply. State the provider and controlled mailbox; do not expose an
-address, token, body or signing secret. If the gate has not passed, keep the reproducible sandbox
-story above.
+The deployed controlled pilot has redacted evidence for one allowlisted real send and one signed
+inbound weak-ACK rejection. Those two facts may replace, rather than extend, up to 20 seconds of the
+sandbox section. Do not show or claim a sufficient real-email completion until that separate gate
+passes. State “Resend controlled pilot” and “owned mailbox”; do not expose an address, token, body or
+signing secret. The reproducible sandbox remains the only accelerated complete outcome in the demo.

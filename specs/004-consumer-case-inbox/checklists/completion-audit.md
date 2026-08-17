@@ -7,7 +7,7 @@
 
 | Gate | Status | Current evidence | Missing evidence |
 |---|---|---|---|
-| A — Product truth | PARTIAL | Channel-aware copy helpers/tests and managed-email false-DONE deployment | Full managed-email projection fixture plus README/architecture/demo-script consistency pass |
+| A — Product truth | PARTIAL | Channel-aware copy helpers/tests, managed-email false-DONE deployment and aligned README/architecture/compliance/demo claims | Full managed-email rendered-screen fixture |
 | B — Personal inbox | PARTIAL | Owner-scoped `/api/cases`, Google sign-in, Firebase Hosting OAuth boundary, authenticated empty state | Same real case recovered in a clean browser; non-owner denial recorded; pagination remains unimplemented |
 | C — Understandable case | PARTIAL | Safe bounded conversation, Promised-vs-Observed, ACK rejection and last-known refresh behavior | One continuous managed-email weak→sufficient journey on the consumer projection |
 | D — Durable return | PARTIAL | Attention persistence is connected to idempotent delivery; completion notification exists | Terminal-failure path, bounce/suppression truth, retry and closed-tab E2E |

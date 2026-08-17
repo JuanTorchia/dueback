@@ -11,7 +11,7 @@
 - [ ] T003 [P] Add channel-copy failures to `apps/web/test/case-projection.test.ts`
 - [ ] T004 Implement server-side channel-aware projection in `apps/web/lib/case-projection.ts`
 - [x] T005 Replace unconditional sandbox/callback copy in `apps/web/components/case-result.tsx` and `apps/web/components/case-timeline.tsx`
-- [ ] T006 Align live controlled-email claims in `README.md`, `docs/architecture/dueback.md`, `docs/hackathon/compliance-checklist.md` and `docs/submission/demo-script.md`
+- [x] T006 Align live controlled-email claims in `README.md`, `docs/architecture/dueback.md`, `docs/hackathon/compliance-checklist.md` and `docs/submission/demo-script.md`
 
 **Gate A**: managed-email UI contains zero sandbox-only labels; sandbox disclosure remains.
 

@@ -76,6 +76,15 @@ export class FirestoreRuntimeStore
     return document.exists ? (document.data() as FollowThroughCase) : undefined;
   }
 
+  async listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughCase[]> {
+    const snapshot = await this.db
+      .collection("caseRuns")
+      .where("ownerId", "==", ownerId)
+      .limit(Math.min(Math.max(limit, 1), 50))
+      .get();
+    return snapshot.docs.map((document) => document.data() as FollowThroughCase);
+  }
+
   async listEvidence(caseId: string): Promise<readonly EvidenceRecord[]> {
     const snapshot = await this.db
       .collection("caseRuns")

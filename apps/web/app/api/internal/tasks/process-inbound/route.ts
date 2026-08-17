@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, ["NON_INBOUND_EVENT"]);
       return Response.json({ status: "IGNORED", reasonCodes: ["NON_INBOUND_EVENT"] });
     }
-    const interventions = new InterventionService(store, store);
+    const interventions = new InterventionService(store, store, notificationDelivery(store));
     const service = new InboundService(
       store,
       { interpret: (input) => extractInboundFlow(input) },

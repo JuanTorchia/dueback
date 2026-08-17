@@ -1,11 +1,18 @@
 import type { PlanService, TrustedChannelSelection } from "@dueback/runtime/plan-service";
 
 export interface PlanControllerDependencies {
-  readonly authenticate: (request: Request) => Promise<{ uid: string }>;
+  readonly authenticate: (request: Request) => Promise<{
+    uid: string;
+    firebase?: { sign_in_provider?: string };
+  }>;
   readonly service: PlanService;
   readonly now: () => string;
   readonly isChannelAvailable?: (channelType: string | undefined) => boolean;
   readonly resolveChannel?: (channelType: string) => TrustedChannelSelection | undefined;
+  readonly isRecoverableOwner?: (owner: {
+    uid: string;
+    firebase?: { sign_in_provider?: string };
+  }) => boolean;
 }
 
 export async function handlePlanRequest(
@@ -60,6 +67,13 @@ export async function handlePlanRequest(
       const draft = await dependencies.service.inspect(caseId, owner.uid);
       if (dependencies.isChannelAvailable && !dependencies.isChannelAvailable(draft.plan.channelType)) {
         return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
+      }
+      if (
+        draft.plan.channelType === "MANAGED_EMAIL" &&
+        dependencies.isRecoverableOwner &&
+        !dependencies.isRecoverableOwner(owner)
+      ) {
+        return Response.json({ error: "RECOVERABLE_IDENTITY_REQUIRED" }, { status: 409 });
       }
       return Response.json(
         await dependencies.service.approve({

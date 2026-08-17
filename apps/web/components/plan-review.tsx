@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { DraftCase } from "@dueback/runtime/intake-service";
 import type { PlanSimulation } from "@dueback/runtime/plan-service";
 import type { ChannelCapability } from "@dueback/contracts";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
+import { RecoverableIdentity } from "./recoverable-identity";
 
 type PlanResponse = DraftCase & { error?: string };
 
@@ -31,8 +32,12 @@ export function PlanReview({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState("");
+  const [recoverable, setRecoverable] = useState(false);
   const [capabilities, setCapabilities] = useState<ChannelCapability[]>([]);
   const statusRef = useRef<HTMLParagraphElement>(null);
+  const identityChange = useCallback((value: boolean) => {
+    setRecoverable(value);
+  }, []);
 
   async function api(method: "GET" | "POST", body?: object): Promise<PlanResponse> {
     const token = await anonymousIdToken();
@@ -409,6 +414,10 @@ export function PlanReview({
           <input type="checkbox" checked={legitimateContact} onChange={(event) => { setLegitimateContact(event.target.checked); }} />
           <span><strong>I’m authorized to contact this recipient</strong><small>This is a legitimate follow-up about my own case—not bulk outreach, threats, or unsolicited marketing.</small></span>
         </label>
+        <RecoverableIdentity
+          required={activeChannelType === "MANAGED_EMAIL"}
+          onChange={identityChange}
+        />
         <button
           className="secondary"
           type="button"
@@ -427,7 +436,7 @@ export function PlanReview({
         <button
           className="primary"
           type="button"
-          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact || activeCapability?.status !== "AVAILABLE"}
+          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact || activeCapability?.status !== "AVAILABLE" || (activeChannelType === "MANAGED_EMAIL" && !recoverable)}
           onClick={() => {
             void command({
               action: "approve",
@@ -438,7 +447,7 @@ export function PlanReview({
         >
           {draft.state === "READY" ? "Follow-up activated" : "Approve and start follow-up"}
         </button>
-        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : activeCapability?.status !== "AVAILABLE" ? <p className="button-help">This channel cannot be activated until its required configuration and health gates pass.</p> : !legitimateContact ? <p className="button-help">Confirm that this is an authorized, legitimate contact before activation.</p> : null}
+        {draft.activationBlocked ? <p className="button-help">Activation stays locked until every highlighted field above is confirmed.</p> : activeCapability?.status !== "AVAILABLE" ? <p className="button-help">This channel cannot be activated until its required configuration and health gates pass.</p> : !legitimateContact ? <p className="button-help">Confirm that this is an authorized, legitimate contact before activation.</p> : activeChannelType === "MANAGED_EMAIL" && !recoverable ? <p className="button-help">Save recoverable access before activating a real email follow-up.</p> : null}
         <button
           className="text-button"
           type="button"

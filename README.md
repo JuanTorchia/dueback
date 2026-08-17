@@ -140,9 +140,10 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - Merchant confirmation is not bank settlement. Replacement tracking is not delivery. A promised
   bill credit is not proof of the final bill total.
 - Bidirectional company email and user-notification email have separate idempotent,
-  Resend-compatible adapters. They remain disabled in the public deployment until a verified
-  sender, controlled recipient-domain allowlist, reply domain and signed inbound webhook exist. The
-  current complete return path is the controlled Merchant Sandbox plus the durable case UI.
+  Resend-compatible adapters. The public deployment enables them only as a controlled pilot with a
+  verified sender, owned recipient allowlist, case reply domain and signed inbound webhook. A real
+  controlled send and weak-reply rejection have been observed; this is not arbitrary-company email.
+  The Merchant Sandbox remains the reproducible accelerated fallback.
 - Gmail, WhatsApp, banks, general web browsing, and arbitrary merchant APIs are not built. Gmail is
   intentionally reported as unavailable because its OAuth/token/watch gate has not passed. A
   signed HTTPS partner fixture is only a portability proof, not a production partner.

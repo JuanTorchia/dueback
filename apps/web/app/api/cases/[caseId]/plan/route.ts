@@ -26,6 +26,11 @@ function planService() {
   return new PlanService(new FirestoreIntakeStore(firestore), scheduler);
 }
 
+function isRecoverableOwner(owner: { firebase?: { sign_in_provider?: string } }): boolean {
+  const provider = owner.firebase?.sign_in_provider;
+  return Boolean(provider && provider !== "anonymous");
+}
+
 function isChannelAvailable(channelType: string | undefined): boolean {
   if (!channelType) return false;
   const capabilities = publicChannelCapabilities({
@@ -83,7 +88,8 @@ export async function GET(request: Request, context: Context) {
     service: planService(),
     now: () => new Date().toISOString(),
     isChannelAvailable,
-    resolveChannel
+    resolveChannel,
+    isRecoverableOwner
   });
 }
 
@@ -95,6 +101,7 @@ export async function POST(request: Request, context: Context) {
     service: planService(),
     now: () => new Date().toISOString(),
     isChannelAvailable,
-    resolveChannel
+    resolveChannel,
+    isRecoverableOwner
   });
 }

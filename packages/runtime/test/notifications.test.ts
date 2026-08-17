@@ -5,6 +5,7 @@ import {
   type NotificationRecord
 } from "../src/notifications";
 import { notificationSchema } from "@dueback/contracts";
+import { InterventionService, type InterventionRecord } from "../src/interventions";
 
 function fixture(): NotificationRecord {
   return notificationRecord({
@@ -17,6 +18,40 @@ function fixture(): NotificationRecord {
 }
 
 describe("notification delivery", () => {
+  it("delivers a newly persisted attention intervention exactly once", async () => {
+    const deliver = vi.fn(() => Promise.resolve({
+      receipt: { deliveryId: "email_attention_1234", acceptedAt: "2026-08-16T12:00:01.000Z" },
+      duplicate: false
+    }));
+    const notifications = new Map<string, NotificationRecord>();
+    const notificationStore = {
+      createIfAbsent: (record: NotificationRecord) => {
+        const prior = notifications.get(record.dedupeKey);
+        if (prior) return Promise.resolve({ record: prior, duplicate: true });
+        notifications.set(record.dedupeKey, record);
+        return Promise.resolve({ record, duplicate: false });
+      },
+      updateDelivery: () => Promise.resolve()
+    };
+    const interventionStore = {
+      createInterventionIfAbsent: (record: InterventionRecord) => Promise.resolve({ record, duplicate: false }),
+      listInterventions: () => Promise.resolve([])
+    };
+    const service = new InterventionService(
+      interventionStore,
+      notificationStore,
+      new NotificationDeliveryService(notificationStore, { deliver })
+    );
+    const input = {
+      caseId: "case_12345678", ownerId: "owner_12345678", correlationId: "corr_attention_12345678",
+      kind: "EVIDENCE_CONFLICT" as const, reasonCodes: ["UNEXPECTED_SENDER"],
+      notificationRecipient: "owner@example.test", createdAt: "2026-08-16T12:00:00.000Z"
+    };
+    await service.raise(input);
+    await service.raise(input);
+    expect(deliver).toHaveBeenCalledTimes(1);
+  });
+
   it("records unavailable without changing the durable notification", async () => {
     const updateDelivery = vi.fn(() => Promise.resolve());
     const service = new NotificationDeliveryService({

@@ -1,5 +1,9 @@
 import { stableHash } from "@dueback/domain";
-import { notificationRecord, type NotificationStore } from "./notifications";
+import {
+  notificationRecord,
+  type NotificationDeliveryService,
+  type NotificationStore
+} from "./notifications";
 
 export type InterventionKind = "EVIDENCE_CONFLICT" | "RECOVERY_EXHAUSTED";
 
@@ -55,7 +59,8 @@ export function interventionRecord(input: {
 export class InterventionService {
   constructor(
     private readonly interventions: InterventionStore,
-    private readonly notifications: NotificationStore
+    private readonly notifications: NotificationStore,
+    private readonly delivery?: NotificationDeliveryService
   ) {}
 
   async raise(input: {
@@ -65,10 +70,11 @@ export class InterventionService {
     kind: InterventionKind;
     reasonCodes: readonly string[];
     requestedField?: string;
+    notificationRecipient?: string;
     createdAt: string;
   }): Promise<InterventionRecord> {
     const intervention = interventionRecord(input);
-    const [persisted] = await Promise.all([
+    const [persisted, persistedNotification] = await Promise.all([
       this.interventions.createInterventionIfAbsent(intervention),
       this.notifications.createIfAbsent(
         notificationRecord({
@@ -80,6 +86,9 @@ export class InterventionService {
         })
       )
     ]);
+    if (!persistedNotification.duplicate) {
+      await this.delivery?.deliver(persistedNotification.record, input.notificationRecipient);
+    }
     return persisted.record;
   }
 }

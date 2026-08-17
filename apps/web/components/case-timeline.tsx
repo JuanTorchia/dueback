@@ -1,31 +1,39 @@
 import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
+import { channelCopy, type ActiveCaseChannel } from "../lib/channel-copy";
 
-const title: Record<RuntimeTimelineEvent["type"], string> = {
-  PLAN_APPROVED: "Plan approved by you",
-  ACTION_RESULT: "Follow-up accepted by demo merchant",
-  EVIDENCE_RESULT: "Merchant evidence checked",
-  CASE_CONTROL: "Case control used"
-};
-
-function humanSummary(event: RuntimeTimelineEvent): string {
+function humanSummary(event: RuntimeTimelineEvent, channel: ActiveCaseChannel): string {
+  const copy = channelCopy(channel);
   if (event.reasonCodes.includes("CURRENT_PLAN_VERSION_APPROVED"))
     return "You approved this exact version before DueBack acted.";
   if (event.reasonCodes.includes("ACTION_ACCEPTED"))
-    return "One authorized follow-up crossed the demo HTTP boundary.";
+    return copy.actionSummary;
   if (event.reasonCodes.includes("INSUFFICIENT_LEVEL"))
     return "Not enough: this reply only acknowledged the request, so the case stayed open.";
   if (event.reasonCodes.includes("ACCEPTED"))
-    return "Accepted: signed evidence matched this case and its approved evidence contract.";
+    return copy.acceptedEvidence;
   return "DueBack recorded this step without changing the approved limits.";
 }
 
-export function CaseTimeline({ events }: { readonly events: readonly RuntimeTimelineEvent[] }) {
+export function CaseTimeline({
+  events,
+  channel
+}: {
+  readonly events: readonly RuntimeTimelineEvent[];
+  readonly channel: ActiveCaseChannel;
+}) {
   if (events.length === 0) {
     return <p>No persisted timeline events are available for this pre-ledger case.</p>;
   }
   return (
     <ol className="timeline">
       {events.map((event) => {
+        const copy = channelCopy(channel);
+        const title: Record<RuntimeTimelineEvent["type"], string> = {
+          PLAN_APPROVED: "Plan approved by you",
+          ACTION_RESULT: copy.actionTitle,
+          EVIDENCE_RESULT: copy.evidenceTitle,
+          CASE_CONTROL: "Case control used"
+        };
         const rejected = event.reasonCodes.some((reason) =>
           ["INSUFFICIENT", "WRONG", "INVALID", "EXHAUSTED", "DENIED"].some((token) =>
             reason.includes(token)
@@ -41,7 +49,7 @@ export function CaseTimeline({ events }: { readonly events: readonly RuntimeTime
                   new Date(event.occurredAt)
                 )}
               </p>
-              <p>{humanSummary(event)}</p>
+              <p>{humanSummary(event, channel)}</p>
               <details className="technical-details">
                 <summary>Technical details</summary>
                 <code>actor: {event.actor}</code>

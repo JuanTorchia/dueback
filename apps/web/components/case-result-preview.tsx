@@ -83,7 +83,7 @@ export function CaseResultPreview() {
       </section>
       <section className="card">
         <h2>Auditable timeline</h2>
-        <CaseTimeline events={events} />
+        <CaseTimeline events={events} channel="CONTROLLED_SANDBOX" />
       </section>
     </div>
   );

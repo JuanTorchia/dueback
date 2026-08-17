@@ -137,9 +137,9 @@ export function IntakeForm() {
         <ol>
           <li>DueBack sends the one follow-up you approved.</li>
           <li>It rejects acknowledgements that do not prove the result.</li>
-          <li>The live demo updates your case page automatically.</li>
+          <li>Your durable case page records every decision and supported result.</li>
         </ol>
-        <p>Demo channel: controlled merchant adapter + in-app updates. Production email is not enabled here.</p>
+        <p>The accelerated demo uses a controlled adapter. A controlled email pilot is available only for reviewed, allowlisted recipients.</p>
       </details>
       {busy ? (
         <div className="analysis-progress">

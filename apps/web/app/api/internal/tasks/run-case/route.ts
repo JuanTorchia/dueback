@@ -18,6 +18,7 @@ import {
   assertControlledRecipient,
   parseAllowedRecipientDomains
 } from "../../../../../lib/security-limits";
+import { notificationDelivery } from "../../../../../lib/notification-delivery";
 
 export const runtime = "nodejs";
 
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
     scheduler,
     30,
     5,
-    new InterventionService(store, store)
+    new InterventionService(store, store, notificationDelivery(store))
   );
   return handleRunCaseTask(request, runner, () => new Date().toISOString());
 }

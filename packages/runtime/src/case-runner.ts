@@ -168,6 +168,9 @@ export class CaseRunner {
           correlationId,
           kind: "RECOVERY_EXHAUSTED",
           reasonCodes: [error instanceof Error ? error.message : "ACTION_FAILED"],
+          ...(item.plan.notificationRecipient
+            ? { notificationRecipient: item.plan.notificationRecipient }
+            : {}),
           createdAt: input.now
         });
         return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };

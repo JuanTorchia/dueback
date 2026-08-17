@@ -1694,3 +1694,26 @@ summary {
   color: var(--muted);
   font-size: 10px;
 }
+.case-inbox { display: grid; gap: 14px; padding-bottom: 64px; }
+.case-inbox-card { display: grid; gap: 6px; padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: white; color: var(--ink); text-decoration: none; box-shadow: 0 10px 35px rgba(25,35,29,.05); }
+.case-inbox-card:hover { border-color: var(--ink); transform: translateY(-1px); }
+.case-inbox-card.needs-you { border-color: #d97706; background: #fffbeb; }
+.case-inbox-card > div { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.case-inbox-card h2, .case-inbox-card p { margin: 0; }
+.case-inbox-card .case-outcome { color: var(--muted); }
+.case-bucket { width: fit-content; padding: 4px 9px; border-radius: 999px; background: #edf3ef; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.needs-you .case-bucket { background: #fef3c7; color: #92400e; }
+.empty-state { text-align: center; padding: 40px 24px; }
+.identity-gate { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #f7f8f6; }
+.identity-gate[data-required="true"] { border-color: #d97706; background: #fffbeb; }
+.identity-gate.ready { border-color: #86b69a; background: #f0f8f3; }
+.identity-gate > span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--ink); color: white; font-weight: 900; }
+.identity-gate p { margin: 4px 0 12px; color: var(--muted); }
+.comparison-table { display: grid; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.comparison-table > div { display: grid; grid-template-columns: minmax(90px,.7fr) 1fr 1fr; gap: 12px; padding: 11px 13px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.comparison-table > div:last-child { border-bottom: 0; }
+.comparison-head { background: #f3f5f1; }
+.comparison-table small { display: block; margin-top: 3px; font-weight: 800; color: #9a3412; }
+.comparison-table [data-status="MATCH"] small { color: #166534; }
+@media (max-width: 520px) { .comparison-head { display: none !important; } .comparison-table > div { grid-template-columns: 1fr; gap: 4px; } .comparison-table > div > span::before { display: block; font-size: 11px; color: var(--muted); } .comparison-table > div > span:nth-child(2)::before { content: "Promised"; } .comparison-table > div > span:nth-child(3)::before { content: "Observed"; } }
+@media (min-width: 760px) { .case-inbox { grid-template-columns: repeat(2, minmax(0, 1fr)); } .case-inbox .empty-state, .case-inbox .error { grid-column: 1 / -1; } }

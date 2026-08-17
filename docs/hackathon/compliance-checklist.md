@@ -23,7 +23,10 @@ Marcar únicamente con evidencia verificable.
 - [x] Ejecuta acciones autónomas más allá de responder en un chat. Evidencia: [walking skeleton](../../tests/e2e/refund-walking-skeleton.spec.ts).
 - [x] Tiene estado y recuperación ante fallos demostrable. Evidencia: [pruebas de durabilidad](../../tests/integration/durable-follow-through.test.ts).
 - [x] Los canales declaran capacidades y salud reales; uno no disponible no puede aprobarse. Evidencia: `channel-registry.test.ts`, `plan-controller.test.ts` y `channel-plan.spec.ts`.
-- [x] Email administrado tiene envío, webhook firmado, procesamiento inbound y false-DONE probados con fixtures. No se afirma entrega externa. Evidencia: `email-webhook.test.ts`, `email-inbound.test.ts` y auditoría del spec.
+- [x] Email administrado tiene envío controlado real, webhook firmado, procesamiento inbound y
+  rechazo false-DONE. No se afirma soporte arbitrario ni resolución del resultado. Evidencia:
+  `email-webhook.test.ts`, `email-inbound.test.ts`, `deployed-managed-email.spec.ts` y el registro
+  redactado en `docs/evaluation/reproducibility.md`.
 - [x] APIs, datos y activos implementados tienen autorización/licencia documentada. Evidencia: [registro](../compliance/dependencies.md).
 - [x] Funciona en inglés como mínimo y procesa un fixture español. Evidencia: [fixtures](../../packages/test-fixtures/src/promises.ts).
 

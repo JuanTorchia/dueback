@@ -89,6 +89,9 @@ export class InboundService {
         kind: "EVIDENCE_CONFLICT",
         reasonCodes: ["UNEXPECTED_SENDER"],
         requestedField: "sender identity",
+        ...(item.plan.notificationRecipient
+          ? { notificationRecipient: item.plan.notificationRecipient }
+          : {}),
         createdAt: now
       });
       return { status: "NEEDS_ATTENTION", reasonCodes: ["UNEXPECTED_SENDER"] };
@@ -108,6 +111,9 @@ export class InboundService {
           ? ["PROPOSAL_CHANGE", ...interpretation.changedTerms]
           : ["AMBIGUOUS_REPLY"],
         requestedField: "reply terms",
+        ...(item.plan.notificationRecipient
+          ? { notificationRecipient: item.plan.notificationRecipient }
+          : {}),
         createdAt: now
       });
       return { status: "NEEDS_ATTENTION", reasonCodes: ["PROPOSAL_CHANGE"] };

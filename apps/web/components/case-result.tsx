@@ -7,6 +7,8 @@ import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 import type { NotificationRecord } from "@dueback/runtime/notifications";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { CaseTimeline } from "./case-timeline";
+import { activeCaseChannel, channelCopy } from "../lib/channel-copy";
+import { OutcomeComparison } from "./outcome-comparison";
 
 interface ResultPayload {
   case: FollowThroughCase;
@@ -62,6 +64,10 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   );
   const latestNotification = payload.notifications?.at(-1);
   const latestChannelEvent = payload.channelEvents?.at(-1);
+  const activeChannel = activeCaseChannel(
+    latestChannelEvent?.channelType ?? payload.case.plan.channelType
+  );
+  const activeChannelCopy = channelCopy(activeChannel);
   const stateCopy: Record<FollowThroughCase["state"], { label: string; next: string }> = {
     DRAFT: { label: "Draft", next: "Review the extracted outcome" },
     AWAITING_APPROVAL: { label: "Approval required", next: "Approve the exact conversation" },
@@ -81,14 +87,11 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
     : payload.case.plan.allowedRecipient;
   return (
     <div className="result-grid">
-      <p className="preview-label">
-        Controlled hackathon demo — Merchant Sandbox is not a real merchant; callback timing is
-        accelerated.
-      </p>
+      <p className="preview-label">{activeChannelCopy.disclosure}</p>
       <section className="case-channel-card" aria-label="How this case communicates">
-        <div><span>↗</span><p><small>CONTACT</small><strong>{latestChannelEvent?.channelType === "MANAGED_EMAIL" ? "Managed company email" : "Controlled merchant adapter"}</strong></p></div>
+        <div><span>↗</span><p><small>CONTACT</small><strong>{activeChannelCopy.contact}</strong></p></div>
         <i aria-hidden="true">→</i>
-        <div><span>✓</span><p><small>REPLY</small><strong>Signed case callback</strong></p></div>
+        <div><span>✓</span><p><small>REPLY</small><strong>{activeChannelCopy.reply}</strong></p></div>
         <i aria-hidden="true">→</i>
         <div><span>●</span><p><small>YOUR UPDATE</small><strong>This page, automatically</strong></p></div>
       </section>
@@ -142,6 +145,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
           </p>
         </div>
       </section>
+      <OutcomeComparison item={payload.case} evidence={payload.evidence} />
       <section className="card">
         <h2>Case controls</h2>
         <p>
@@ -154,7 +158,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
       <section className="card">
         <h2>What happened</h2>
         <p className="timeline-intro">Every action and decision stays attached to this case.</p>
-        <CaseTimeline events={payload.events ?? []} />
+        <CaseTimeline events={payload.events ?? []} channel={activeChannel} />
       </section>
     </div>
   );

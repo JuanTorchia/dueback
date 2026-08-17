@@ -258,3 +258,26 @@
   arquitectura es competitiva pero el producto actual rompe su promesa al terminar en fechas futuras,
   ocultar la autonomía, no permitir correcciones generales y contactar sólo al simulador. Cerrar el
   loop mejora simultáneamente utilidad, demo y comprensión de la arquitectura sin inventar alcance.
+
+## D-022 — Email como transporte; la app como hogar recuperable
+
+- Fecha: 17 de agosto de 2026
+- Estado: aceptada; precisa D-018–D-021
+- Decisión: la siguiente iteración se rige por `specs/004-consumer-case-inbox`. DueBack añadirá una
+  identidad recuperable y un inbox personal `My follow-ups`; la página de caso será la fuente de
+  verdad, control y evidencia. Email seguirá siendo el transporte controlado entre DueBack y la
+  contraparte y el canal de retorno al dueño, no la interfaz completa del producto.
+- Alcance P0: navegación e historial owner-scoped, detalle channel-aware, conversación segura,
+  comparación `Promised vs Observed`, notificación durable de intervenciones y regreso cross-device.
+  Una acción real requerirá identidad recuperable; el sandbox acelerado podrá conservar exploración
+  anónima.
+- Seguridad: ningún deep link será bearer; cambios de destinatario, resultado, importe, fecha o
+  evidencia invalidarán la aprobación y exigirán una versión nueva. El piloto email conserva
+  destinatarios propios allowlisted y separa aceptación de transporte, autenticidad, suficiencia de
+  evidencia y resolución.
+- Recorte: no se construirán dashboard empresarial, cliente de correo, Gmail OAuth, WhatsApp,
+  automatización web arbitraria, directorio de empresas, banco, app nativa ni marketplace antes de
+  cerrar este recorrido.
+- Motivo: el runtime ya prueba acción durable y false-DONE, pero la identidad anónima ligada al
+  navegador, la ausencia de una lista de casos y el retorno incompleto impiden que una persona lo
+  use como producto. Esta decisión mejora utilidad y demo sin diluir la arquitectura ganadora.

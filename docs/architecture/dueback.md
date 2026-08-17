@@ -88,9 +88,11 @@ deletion.
 
 - Merchant Sandbox is a separate, real HTTP service but not a real merchant.
 - `MERCHANT_CONFIRMED` does not prove bank settlement, bill posting, shipment delivery, or receipt.
-- Bidirectional managed-email code exists but is disabled unless a provider key, verified sender,
-  inbound domain, webhook secret and controlled recipient-domain allowlist are configured. The
-  deployed return channel is the durable case URL.
+- Bidirectional managed email is enabled only as a controlled pilot when a provider key, verified
+  sender, inbound domain, webhook secret and owned recipient-domain allowlist are configured. The
+  deployed pilot has crossed a real provider boundary and rejected an insufficient reply; it does
+  not authorize arbitrary recipients or prove the promised outcome. The durable case URL remains
+  the source of truth.
 - The public MVP handles paste/upload. Gmail, WhatsApp, arbitrary browsing, banks, and production
   merchant integrations are not implemented. Gmail is a tested unavailable capability.
 - A signed HTTPS partner fixture demonstrates adapter portability but is not a production partner.

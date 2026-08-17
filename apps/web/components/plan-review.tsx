@@ -23,7 +23,8 @@ export function PlanReview({
   const [result, setResult] = useState("");
   const [currency, setCurrency] = useState("");
   const [reference, setReference] = useState("");
-  const [dueAt, setDueAt] = useState("");
+  const [promisedDueAt, setPromisedDueAt] = useState("");
+  const [followUpAt, setFollowUpAt] = useState("");
   const [recipient, setRecipient] = useState("");
   const [notificationRecipient, setNotificationRecipient] = useState("");
   const [legitimateContact, setLegitimateContact] = useState(false);
@@ -61,6 +62,27 @@ export function PlanReview({
       .then(async (response) => response.ok ? await response.json() as ChannelCapability[] : [])
       .then(setCapabilities);
   }, []);
+
+  useEffect(() => {
+    if (!draft) return;
+    const localDateTime = (value: string | undefined) => {
+      if (!value) return "";
+      const date = new Date(value);
+      const offset = date.getTimezoneOffset() * 60_000;
+      return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    };
+    setCompany(draft.promiseDraft.promisor.value);
+    setResult(draft.promiseDraft.result.value);
+    setAmount(draft.promiseDraft.amountMinor
+      ? (draft.promiseDraft.amountMinor.value / 100).toFixed(2)
+      : "");
+    setCurrency(draft.promiseDraft.currency?.value ?? "");
+    setReference(draft.promiseDraft.transactionRef.value);
+    setPromisedDueAt(localDateTime(draft.promiseDraft.dueAt?.value));
+    setFollowUpAt(localDateTime(draft.plan.followUpAt));
+    setRecipient(draft.plan.allowedRecipient);
+    setNotificationRecipient(draft.plan.notificationRecipient ?? "");
+  }, [draft?.plan.version]);
 
   async function command(body: object) {
     setBusy(true);
@@ -181,11 +203,26 @@ export function PlanReview({
     ) : null;
   const saveRevision = (revision: Record<string, unknown>) =>
     command({ action: "revise", expectedPlanVersion: draft.plan.version, revision });
+  const parsedAmount = Number(amount);
+  const monetaryPromise = Boolean(draft.promiseDraft.amountMinor && draft.promiseDraft.currency);
+  const contractEditValid = Boolean(
+    company.trim() && result.trim() && reference.trim() && followUpAt &&
+    (!monetaryPromise || amount) &&
+    (!amount || (Number.isFinite(parsedAmount) && parsedAmount >= 0 && /^[A-Z]{3}$/.test(currency)))
+  );
+  const saveContract = () => void saveRevision({
+    promisor: company.trim(),
+    result: result.trim(),
+    amountMinor: amount ? Math.round(parsedAmount * 100) : null,
+    currency: amount ? currency : null,
+    transactionRef: reference.trim(),
+    dueAt: promisedDueAt ? new Date(promisedDueAt).toISOString() : null,
+    followUpAt: new Date(followUpAt).toISOString()
+  });
   const referenceValue = draft.promiseDraft.transactionRef.value;
   const amountValue = draft.promiseDraft.amountMinor && draft.promiseDraft.currency
     ? `${draft.promiseDraft.currency.value} ${(draft.promiseDraft.amountMinor.value / 100).toFixed(2)}`
     : "No monetary amount in this promise";
-  const monetaryPromise = Boolean(draft.promiseDraft.amountMinor && draft.promiseDraft.currency);
   const followUpSubject = draft.plan.messageSubject ?? `Follow-up for ${referenceValue}`;
   const followUpBody = draft.plan.messageBody;
   const activeChannelType = draft.plan.channelType ??
@@ -269,32 +306,21 @@ export function PlanReview({
         {draft.blockingFields.length > 0 ? (
           <p className="warning">Before activation, confirm: {draft.blockingFields.map((field) => fieldLabels[field] ?? field).join(", ")}.</p>
         ) : null}
-        {draft.blockingFields.includes("promisor") ? <details open><summary>Confirm the company name</summary><div className="inline-edit"><input aria-label="Company name" value={company} placeholder={draft.promiseDraft.promisor.value} onChange={(event) => { setCompany(event.target.value); }} /><button type="button" disabled={busy || !company.trim()} onClick={() => void saveRevision({ promisor: company.trim() })}>Confirm company</button></div></details> : null}
-        {draft.blockingFields.includes("result") ? <details open><summary>Confirm the promised result</summary><div className="inline-edit"><input aria-label="Promised result" value={result} placeholder={draft.promiseDraft.result.value} onChange={(event) => { setResult(event.target.value); }} /><button type="button" disabled={busy || !result.trim()} onClick={() => void saveRevision({ result: result.trim() })}>Confirm result</button></div></details> : null}
-        {draft.blockingFields.includes("amountMinor") ? <details open>
-          <summary>Confirm the correct amount</summary>
-          <div className="inline-edit">
-            <input
-              aria-label="Correct amount"
-              inputMode="decimal"
-              placeholder="79.00"
-              value={amount}
-              onChange={(event) => {
-                setAmount(event.target.value);
-              }}
-            />
-            <button
-              type="button"
-              disabled={busy || !amount}
-              onClick={() => void saveRevision({ amountMinor: Math.round(Number(amount) * 100) })}
-            >
-              Save new version
-            </button>
+        <details className="contract-editor" open={draft.activationBlocked}>
+          <summary>{draft.activationBlocked ? "Fix the details Gemini could not confirm" : "Edit what Gemini understood"}</summary>
+          <p>Correct any detail before delegating. Saving creates a new version and invalidates the previous approval hash.</p>
+          <div className="contract-editor-grid">
+            <label>Company<input aria-label="Company name" value={company} onChange={(event) => { setCompany(event.target.value); }} /></label>
+            <label>Promised result<input aria-label="Promised result" value={result} onChange={(event) => { setResult(event.target.value); }} /></label>
+            <label>Amount<input aria-label="Correct amount" inputMode="decimal" placeholder={monetaryPromise ? "Required" : "Not applicable"} value={amount} onChange={(event) => { setAmount(event.target.value); }} /></label>
+            <label>Currency<input aria-label="Currency" value={currency} maxLength={3} placeholder={monetaryPromise ? "Required" : "Not applicable"} onChange={(event) => { setCurrency(event.target.value.toUpperCase()); }} /></label>
+            <label>Order or case reference<input aria-label="Order or case reference" value={reference} onChange={(event) => { setReference(event.target.value); }} /></label>
+            <label>Company deadline<input aria-label="Company deadline" type="datetime-local" value={promisedDueAt} onChange={(event) => { setPromisedDueAt(event.target.value); }} /></label>
+            <label>DueBack follows up<input aria-label="Follow-up date" type="datetime-local" value={followUpAt} onChange={(event) => { setFollowUpAt(event.target.value); }} /></label>
           </div>
-        </details> : null}
-        {draft.blockingFields.includes("currency") ? <details open><summary>Confirm the currency</summary><div className="inline-edit"><input aria-label="Currency" value={currency} maxLength={3} placeholder={draft.promiseDraft.currency?.value ?? "USD"} onChange={(event) => { setCurrency(event.target.value.toUpperCase()); }} /><button type="button" disabled={busy || !/^[A-Z]{3}$/.test(currency)} onClick={() => void saveRevision({ currency })}>Confirm currency</button></div></details> : null}
-        {draft.blockingFields.includes("transactionRef") ? <details open><summary>Confirm the order or case reference</summary><div className="inline-edit"><input aria-label="Order or case reference" value={reference} placeholder={draft.promiseDraft.transactionRef.value} onChange={(event) => { setReference(event.target.value); }} /><button type="button" disabled={busy || !reference.trim()} onClick={() => void saveRevision({ transactionRef: reference.trim() })}>Confirm reference</button></div></details> : null}
-        {draft.blockingFields.includes("followUpAt") ? <details open><summary>No company deadline was found — choose when DueBack should follow up</summary><p className="button-help">This is your follow-up date. DueBack will not claim the company promised it.</p><div className="inline-edit"><input aria-label="Follow-up date" type="datetime-local" value={dueAt} onChange={(event) => { setDueAt(event.target.value); }} /><button type="button" disabled={busy || !dueAt} onClick={() => void saveRevision({ followUpAt: new Date(dueAt).toISOString() })}>Confirm follow-up date</button></div></details> : null}
+          <button className="secondary save-contract" type="button" disabled={busy || !contractEditValid} onClick={saveContract}>Save corrected contract</button>
+          {!contractEditValid ? <p className="button-help">Company, result, reference, and follow-up date are required. Refunds also require an amount and three-letter currency.</p> : null}
+        </details>
       </section>
 
       <section className="card boundaries">
@@ -326,9 +352,8 @@ export function PlanReview({
                 <small>{selected ? "Selected" : available ? "Available" : "Unavailable — setup required"}</small>
               </button>;
             })}
-            <button type="button" className="channel-option" disabled><span aria-hidden="true">▤</span><strong>Web form</strong><small>Not implemented</small></button>
-            <button type="button" className="channel-option" disabled><span aria-hidden="true">◉</span><strong>WhatsApp</strong><small>Not implemented</small></button>
           </div>
+          <p className="button-help">Only channels that can actually run are shown. Web forms and WhatsApp are not implied as working integrations.</p>
         </div>
         <div className="message-preview">
           <div className="message-preview-heading"><span>2</span><div><strong>The first follow-up</strong><p>This exact scope is bound to your approval.</p></div></div>
@@ -352,12 +377,12 @@ export function PlanReview({
             <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
           ) : null}
         </div>
-        <div className="permission-list">
-          <div><span className="permission-icon">→</span><div><strong>Action</strong><p>Send one follow-up after the due time.</p></div></div>
-          <div><span className="permission-icon">○</span><div><strong>Recipient</strong><p>{draft.plan.allowedRecipient}</p></div></div>
-          <div><span className="permission-icon">↗</span><div><strong>Contact channel</strong><p>{activeChannelType === "MANAGED_EMAIL" ? "Verified outbound email with a case-specific reply address. Automated reply processing requires the inbound webhook." : "Controlled HTTP merchant adapter in this public demo."}</p></div></div>
-          <div><span className="permission-icon">⊘</span><div><strong>DueBack will never</strong><p>Change the outcome, share extra data, spend money, or claim bank settlement.</p></div></div>
-          <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>{monetaryPromise ? "Signed evidence matching this case, amount, currency, and reference." : "Signed evidence matching this case, reference, and promised outcome."} “Request received” is not completion.</p></div></div>
+        <div className="permission-list approval-summary" aria-label="Approval summary">
+          <div><span className="permission-icon">1</span><div><strong>Request</strong><p>{draft.plan.goal}</p></div></div>
+          <div><span className="permission-icon">2</span><div><strong>Contact</strong><p>{draft.plan.allowedRecipient} via {activeChannelType === "MANAGED_EMAIL" ? "managed email" : "controlled demo API"}.</p></div></div>
+          <div><span className="permission-icon">3</span><div><strong>Timing</strong><p>{draft.plan.executionMode === "ACCELERATED_DEMO" ? "Runs in seconds after approval for this demo." : `First follow-up ${draft.plan.followUpAt ? dateTime(draft.plan.followUpAt) : "after the due time"}.`}</p></div></div>
+          <div><span className="permission-icon">4</span><div><strong>Limits</strong><p>Up to {draft.plan.maxLogicalSends ?? 3} sends. No spending, outcome changes, extra data, or bank-settlement claims.</p></div></div>
+          <div><span className="permission-icon">5</span><div><strong>Done only with proof</strong><p>{monetaryPromise ? "Signed evidence matching this case, amount, currency, and reference." : "Signed evidence matching this case, reference, and promised outcome."} “Request received” is not completion.</p></div></div>
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>{monetaryPromise ? "Order/case reference, amount, and currency." : "Case reference and the promised outcome."} No inbox access or extra fields.</p></details>
         {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Accelerated controlled demo:</strong> after approval, real Cloud Tasks and the isolated merchant adapter run in seconds instead of waiting for the promised date. The action goes to DueBack’s simulator, not {draft.promiseDraft.promisor.value}; no real company will be contacted.</p> : null}

@@ -98,6 +98,25 @@ export function blockingCriticalFields(
   return blocked;
 }
 
+export function followUpMessage(draft: PromiseDraft): { subject: string; body: string } {
+  const amountLine = draft.amountMinor && draft.currency
+    ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
+    : undefined;
+  return {
+    subject: `Follow-up for ${draft.transactionRef.value}`,
+    body: [
+      "Hello,",
+      "",
+      "DueBack is following up on an outcome requested by your customer.",
+      `Requested outcome: ${draft.result.value}`,
+      `Reference: ${draft.transactionRef.value}`,
+      amountLine,
+      "Please reply with the current status and verifiable confirmation when the outcome is complete.",
+      "An acknowledgement that the request was received will not be treated as completion."
+    ].filter((line): line is string => Boolean(line)).join("\n")
+  };
+}
+
 function buildPlan(input: {
   readonly caseId: string;
   readonly ownerId: string;
@@ -117,9 +136,7 @@ function buildPlan(input: {
   const extractedPromiseType = draft.promiseType === "BILL_CREDIT" ? "GENERAL" : draft.promiseType;
   const promiseType = extractedPromiseType ??
     (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
-  const amountLine = draft.amountMinor && draft.currency
-    ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
-    : undefined;
+  const message = followUpMessage(draft);
   const unsigned = {
     planId: `plan_${randomUUID()}`,
     caseId: input.caseId,
@@ -139,16 +156,8 @@ function buildPlan(input: {
     senderIdentity: input.channel.senderIdentity,
     replyRoute: input.channel.replyRoute,
     messageTemplateVersion: "company-follow-up/v1",
-    messageSubject: `Follow-up for ${draft.transactionRef.value}`,
-    messageBody: [
-      "Hello,",
-      "",
-      "DueBack is following up on an outcome requested by your customer.",
-      `Reference: ${draft.transactionRef.value}`,
-      amountLine,
-      "Please reply with the current status and verifiable confirmation when the outcome is complete.",
-      "An acknowledgement that the request was received will not be treated as completion."
-    ].filter((line): line is string => Boolean(line)).join("\n"),
+    messageSubject: message.subject,
+    messageBody: message.body,
     followUpIntervalSeconds: 2 * 24 * 60 * 60,
     maxLogicalSends: 3,
     sharedFields: [

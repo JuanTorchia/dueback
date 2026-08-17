@@ -1204,6 +1204,50 @@ summary {
   font-weight: 700;
   cursor: pointer;
 }
+.contract-editor {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fbfcfa;
+}
+.contract-editor > p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.contract-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 14px;
+}
+.contract-editor-grid label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.contract-editor-grid input {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.save-contract {
+  width: 100%;
+  margin-top: 12px;
+}
 .boundaries h2 {
   margin-top: 0;
 }
@@ -1252,9 +1296,12 @@ summary {
 }
 .channel-options {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   margin-top: 13px;
+}
+.approval-summary {
+  counter-reset: approval;
 }
 .channel-option {
   display: grid;
@@ -1455,6 +1502,10 @@ summary {
   }
   .review-steps {
     gap: 4px;
+  }
+  .contract-editor-grid,
+  .channel-options {
+    grid-template-columns: 1fr;
   }
   .review-steps div {
     justify-content: center;

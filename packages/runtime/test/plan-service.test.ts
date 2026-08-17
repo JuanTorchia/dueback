@@ -94,6 +94,38 @@ describe("PlanService", () => {
     expect(revised.plan.evidenceRequirements[0]?.amountMinor).toBe(5900);
   });
 
+  it("lets a person correct certain fields and remove an inapplicable amount or deadline", async () => {
+    const initial = caseDraft();
+    const service = new PlanService(new MemoryPlanStore({
+      ...initial,
+      plan: { ...initial.plan, promiseType: "GENERAL" }
+    }));
+    const revised = await service.revise("case_12345678", "person_12345678", 1, {
+      promisor: "Northstar Argentina",
+      result: "Replacement delivered",
+      amountMinor: null,
+      currency: null,
+      transactionRef: "CASE-AR-42",
+      dueAt: null,
+      followUpAt: "2026-08-19T12:00:00.000Z"
+    });
+
+    expect(revised.promiseDraft).toMatchObject({
+      promisor: { value: "Northstar Argentina", uncertainty: "NONE" },
+      result: { value: "Replacement delivered", uncertainty: "NONE" },
+      transactionRef: { value: "CASE-AR-42", uncertainty: "NONE" }
+    });
+    expect(revised.promiseDraft.amountMinor).toBeUndefined();
+    expect(revised.promiseDraft.currency).toBeUndefined();
+    expect(revised.promiseDraft.dueAt).toBeUndefined();
+    expect(revised.plan.evidenceRequirements[0]).not.toHaveProperty("amountMinor");
+    expect(revised.plan.evidenceRequirements[0]).not.toHaveProperty("currency");
+    expect(revised.plan.followUpAt).toBe("2026-08-19T12:00:00.000Z");
+    expect(revised.plan.messageSubject).toBe("Follow-up for CASE-AR-42");
+    expect(revised.plan.messageBody).toContain("Requested outcome: Replacement delivered");
+    expect(revised.plan.messageBody).not.toContain("Amount:");
+  });
+
   it("binds a corrected company email into a new plan version", async () => {
     const service = new PlanService(new MemoryPlanStore());
     const revised = await service.revise("case_12345678", "person_12345678", 1, {
@@ -125,7 +157,7 @@ describe("PlanService", () => {
     expect(revised.plan.planHash).not.toBe(hash);
   });
 
-  it("preserves the approved message contract and cadence across a return-channel revision", async () => {
+  it("keeps the message derived from the current contract across a return-channel revision", async () => {
     const initial = caseDraft();
     const configured: DraftCase = {
       ...initial,
@@ -149,11 +181,12 @@ describe("PlanService", () => {
       channelType: "MANAGED_EMAIL",
       messageTemplateVersion: "follow-up/v1",
       messageSubject: "Follow-up for ORDER-79",
-      messageBody: "Please confirm ORDER-79.",
       followUpIntervalSeconds: 172800,
       maxLogicalSends: 3,
       notificationRecipient: "owner@example.test"
     });
+    expect(revised.plan.messageBody).toContain("Requested outcome:");
+    expect(revised.plan.messageBody).toContain("ORDER-79");
     expect(revised.plan.version).toBe(2);
     expect(revised.plan.planHash).not.toBe(hash);
   });

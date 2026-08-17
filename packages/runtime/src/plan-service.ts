@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
 import type { PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { stableHash } from "@dueback/domain";
-import { blockingCriticalFields, commercialOutcomeContract } from "./intake-service";
+import { blockingCriticalFields, commercialOutcomeContract, followUpMessage } from "./intake-service";
 import type { DraftCase, PlanApproval } from "./intake-service";
 
 export interface PlanStore {
@@ -22,10 +22,10 @@ export interface ActivationScheduler {
 export interface PlanRevision {
   readonly promisor?: string;
   readonly result?: string;
-  readonly amountMinor?: number;
-  readonly currency?: string;
+  readonly amountMinor?: number | null;
+  readonly currency?: string | null;
   readonly transactionRef?: string;
-  readonly dueAt?: string;
+  readonly dueAt?: string | null;
   readonly followUpAt?: string;
   readonly goal?: string;
   readonly expiresAt?: string;
@@ -75,20 +75,26 @@ function correction<T>(
 }
 
 function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDraft {
+  const stable: Partial<PromiseDraft> = { ...current };
+  delete stable.amountMinor;
+  delete stable.currency;
+  delete stable.dueAt;
   return promiseDraftSchema.parse({
-    ...current,
+    ...stable,
+    ...(revision.amountMinor === undefined
+      ? current.amountMinor ? { amountMinor: current.amountMinor } : {}
+      : revision.amountMinor === null ? {} : { amountMinor: correction(revision.amountMinor, "amountMinor") }),
+    ...(revision.currency === undefined
+      ? current.currency ? { currency: current.currency } : {}
+      : revision.currency === null ? {} : { currency: correction(revision.currency, "currency") }),
+    ...(revision.dueAt === undefined
+      ? current.dueAt ? { dueAt: current.dueAt } : {}
+      : revision.dueAt === null ? {} : { dueAt: correction(revision.dueAt, "dueAt") }),
     ...(revision.promisor === undefined ? {} : { promisor: correction(revision.promisor, "promisor") }),
     ...(revision.result === undefined ? {} : { result: correction(revision.result, "result") }),
-    ...(revision.amountMinor === undefined
-      ? {}
-      : { amountMinor: correction(revision.amountMinor, "amountMinor") }),
-    ...(revision.currency === undefined
-      ? {}
-      : { currency: correction(revision.currency, "currency") }),
     ...(revision.transactionRef === undefined
       ? {}
-      : { transactionRef: correction(revision.transactionRef, "transactionRef") }),
-    ...(revision.dueAt === undefined ? {} : { dueAt: correction(revision.dueAt, "dueAt") })
+      : { transactionRef: correction(revision.transactionRef, "transactionRef") })
   });
 }
 
@@ -98,6 +104,10 @@ function revisedPlan(
   revision: PlanRevision,
   selectedChannel?: TrustedChannelSelection
 ) {
+  const stableRequirement = { ...current.evidenceRequirements[0] };
+  delete stableRequirement.amountMinor;
+  delete stableRequirement.currency;
+  const message = followUpMessage(draft);
   const hashable = {
     planId: current.planId,
     caseId: current.caseId,
@@ -115,8 +125,8 @@ function revisedPlan(
     ...(current.messageTemplateVersion
       ? { messageTemplateVersion: current.messageTemplateVersion }
       : {}),
-    ...(current.messageSubject ? { messageSubject: current.messageSubject } : {}),
-    ...(current.messageBody ? { messageBody: current.messageBody } : {}),
+    messageSubject: message.subject,
+    messageBody: message.body,
     ...(current.followUpIntervalSeconds
       ? { followUpIntervalSeconds: current.followUpIntervalSeconds }
       : {}),
@@ -140,7 +150,7 @@ function revisedPlan(
     expiresAt: revision.expiresAt ?? current.expiresAt,
     evidenceRequirements: [
       {
-        ...current.evidenceRequirements[0],
+        ...stableRequirement,
         ...(draft.amountMinor ? { amountMinor: draft.amountMinor.value } : {}),
         ...(draft.currency ? { currency: draft.currency.value } : {}),
         transactionRef: draft.transactionRef.value,

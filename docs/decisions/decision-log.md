@@ -237,3 +237,24 @@
   endpoint exacto. Demuestra el contrato común sin afirmar una integración comercial.
 - Motivo: maximiza una demostración honesta y segura sin solicitar acceso amplio al correo de las
   personas ni permitir que el hackathon se convierta en una plataforma de correo arbitrario.
+
+## D-021 — Cerrar el winning loop antes de ampliar canales o recetas
+
+- Fecha: 17 de agosto de 2026
+- Estado: aceptada; prioriza y precisa D-016, D-017, D-018 y D-019
+- Decisión: la siguiente entrega se rige por `specs/003-winning-product-loop`. DueBack conserva
+  `Proof of Done` y Taskmaster, pero separa explícitamente `Accelerated Demo` de
+  `Controlled Real Pilot`. La prioridad P1 es completar durante una sesión el circuito editable y
+  durable `intake → aprobación → acción → evidencia insuficiente → retry/dedupe → prueba aceptada →
+  retorno`, con timeline y evidencia técnica visibles.
+- Bloqueo de seguridad: antes de habilitar email se elimina cualquier copia de valores esperados
+  del plan hacia evidencia inbound ausente. La firma del proveedor, la identidad de contraparte y la
+  suficiencia de la prueba se evalúan como propiedades separadas y fail-closed.
+- Recorte: no se añaden recetas, canales nominales ni rediseños cosméticos que desplacen el intake
+  durable, la edición completa, la identidad recuperable, el retorno verificable o la demo completa.
+  Email real sigue limitado a buzones propios allowlisted y puede quedar fuera del recorrido público
+  si sus gates no pasan; el sandbox controlado conserva la ruta reproducible.
+- Motivo: auditorías independientes de consumidor, operación y jurado coincidieron en que la
+  arquitectura es competitiva pero el producto actual rompe su promesa al terminar en fechas futuras,
+  ocultar la autonomía, no permitir correcciones generales y contactar sólo al simulador. Cerrar el
+  loop mejora simultáneamente utilidad, demo y comprensión de la arquitectura sin inventar alcance.

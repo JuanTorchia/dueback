@@ -8,7 +8,8 @@
 - Package manager: pnpm 10.34.5
 - Google Cloud project: `bulbasour-503317`
 - Region: `us-central1`; Vertex AI model location: `global`
-- Public web service: <https://dueback-web-5m3karqdwa-uc.a.run.app>
+- Public app: <https://bulbasour-503317.web.app>
+- Cloud Run origin: <https://dueback-web-5m3karqdwa-uc.a.run.app>
 - Controlled merchant service: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
 
 ## Local quality gate
@@ -60,7 +61,7 @@ provisions it when absent.
 The authoritative command is:
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://dueback-web-5m3karqdwa-uc.a.run.app' pnpm test:deployed
+DUEBACK_DEPLOYED_URL='https://bulbasour-503317.web.app' pnpm test:deployed
 ```
 
 After the Cloud index reached `READY`, the test was rerun against the same public URL and passed in
@@ -478,3 +479,18 @@ Missing document end to end with one worker and zero retries: 4/4 passed in 1.5 
 approved the accelerated controlled mode, crossed Cloud Tasks and the controlled HTTP adapter,
 received signed evidence, reached the exact supported result and displayed a `NOT VERIFIED`
 limitation. This is controlled sandbox protocol evidence, not proof that a real company was contacted.
+
+## Firebase Hosting and Google sign-in deployment
+
+On 2026-08-17, Google sign-in was enabled for Firebase project `bulbasour-503317`. Firebase Hosting
+was deployed as the stable public OAuth boundary at <https://bulbasour-503317.web.app>; the shared
+Cloud Run `run.app` suffix was not added to Firebase authorized domains. Cloud Build
+`fef9e899-0017-4f2c-996c-406bbc1578d4` built commit image `7c82183`, and Cloud Run revision
+`dueback-web-00045-h6j` received 100% of traffic. Hosting was then redeployed to pin its Cloud Run
+rewrite to that revision.
+
+Public probes returned HTTP 200 for `/cases` and `/api/config/firebase`; `/api/channels` continued to
+report both `CONTROLLED_SANDBOX` and `MANAGED_EMAIL` as available. The portal rendered the explicit
+Google sign-in control. An automated DOM click was blocked from completing the OAuth popup, as
+expected for a non-user-initiated popup, so this evidence does not claim a successful real-account or
+cross-device journey. That remains an explicit release gate.

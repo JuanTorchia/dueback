@@ -30,9 +30,11 @@ pnpm exec vitest run apps/web/test/case-projection.test.ts
 ## Kill gate 2 — Identity and inbox
 
 Before running this gate, confirm in Firebase Authentication that the Google provider is enabled and
-that the exact deployed Cloud Run hostname is an authorized domain. The 2026-08-17 preflight found
-Google provider configuration absent and only the Firebase hosting domains authorized; therefore
-cross-device recovery is not yet a deployable claim.
+that the exact public hostname is an authorized domain. On 2026-08-17 Google sign-in was enabled and
+Firebase Hosting `bulbasour-503317.web.app` was placed in front of Cloud Run because Firebase correctly
+rejects the shared `run.app` suffix as an authorized OAuth domain. Provider configuration and page
+delivery are verified; cross-device recovery remains a claim gate until the two-browser journey below
+passes with a real linked case.
 
 Run emulator tests for anonymous linking, explicit draft claim, cross-owner denial and paginated
 owner history, then the two-browser journey.
@@ -79,7 +81,7 @@ IDs, deployed Cloud Run revision and timestamps. Never place addresses, API keys
 committed output.
 
 ```bash
-DUEBACK_DEPLOYED_URL='https://your-service.run.app' \
+DUEBACK_DEPLOYED_URL='https://your-project.web.app' \
 DUEBACK_EMAIL_E2E='1' \
 pnpm exec playwright test tests/e2e/deployed-managed-email.spec.ts --workers=1 --retries=0
 ```

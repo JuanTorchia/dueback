@@ -10,7 +10,7 @@ individual participant in Argentina. The project also targets the Individual/Hob
 
 ## Judge access
 
-- App: <https://dueback-web-5m3karqdwa-uc.a.run.app>
+- App: <https://bulbasour-503317.web.app>
 - Controlled Merchant Sandbox: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
 
 The sandbox is intentionally public for inspection and visibly labeled. Its action endpoint still

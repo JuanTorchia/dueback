@@ -3,6 +3,20 @@
     "rules": "infra/firestore/firestore.rules",
     "indexes": "infra/firestore/firestore.indexes.json"
   },
+  "hosting": {
+    "public": "infra/firebase-hosting/public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "dueback-web",
+          "region": "us-central1",
+          "pinTag": true
+        }
+      }
+    ]
+  },
   "emulators": {
     "firestore": {
       "port": 8080

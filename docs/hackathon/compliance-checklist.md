@@ -34,9 +34,9 @@ Marcar únicamente con evidencia verificable.
 
 - [x] Aplicación alojada e instrucciones de acceso para jueces. Evidencia: [README](../../README.md#judge-access).
 - [x] Acceso gratuito sin credenciales pagas ni datos personales; se mantendrá disponible durante la evaluación. Evidencia: URL pública y Firebase anonymous en [README](../../README.md#judge-access).
-- [ ] Recuperación Google desplegada: proveedor Google habilitado, hostname exacto de Cloud Run en
-  dominios autorizados y recorrido cross-device probado. El preflight del 17 de agosto encontró este
-  gate pendiente; no afirmar recuperación entre dispositivos hasta cerrarlo.
+- [ ] Recuperación Google desplegada: proveedor Google habilitado y Firebase Hosting autorizado ya
+  están activos; falta completar y registrar el recorrido real cross-device con un caso vinculado.
+  No afirmar recuperación entre dispositivos hasta cerrar ese gate.
 - [ ] Repositorio accesible para los jueces.
 - [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).

@@ -88,8 +88,9 @@ sandbox_url="$(gcloud run services describe dueback-merchant-sandbox --region="$
 
 gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 web_url="$(gcloud run services describe dueback-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
+public_base_url="${DUEBACK_PUBLIC_BASE_URL:-${web_url}}"
 
-gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${web_url},DUEBACK_PUBLIC_BASE_URL=${web_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
+gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},DUEBACK_PUBLIC_BASE_URL=${public_base_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
 
 # Managed email is opt-in and fail-closed. The sandbox deploy remains reproducible without these
 # external credentials. To enable it, provision both named secrets and set every bounded channel
@@ -108,4 +109,8 @@ fi
 gcloud run services update dueback-merchant-sandbox --region="${region}" --update-env-vars="DUEBACK_CALLBACK_URL=${web_url}/api/callbacks/merchant" --project="${project_id}" >/dev/null
 gcloud run services add-iam-policy-binding dueback-web --region="${region}" --member="serviceAccount:${tasks_sa}" --role=roles/run.invoker --project="${project_id}" >/dev/null
 
-printf 'DueBack web: %s\nMerchant sandbox (controlled demo service): %s\n' "${web_url}" "${sandbox_url}"
+if [[ "${DUEBACK_DEPLOY_FIREBASE_HOSTING:-0}" == "1" ]]; then
+  pnpm exec firebase deploy --only hosting --project="${project_id}"
+fi
+
+printf 'DueBack public app: %s\nCloud Run origin: %s\nMerchant sandbox (controlled demo service): %s\n' "${public_base_url}" "${web_url}" "${sandbox_url}"

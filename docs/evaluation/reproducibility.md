@@ -380,3 +380,19 @@ suites contain 141 passing tests and the root suite contains 52 passing tests (1
 separate passing Firestore Emulator rule tests. The cancelled intermediate Cloud Build operation
 `6322ae42-6c7f-46af-9c9f-e7083c8cf7e7` was superseded before deployment and is not evidence for
 the public revision.
+
+## Non-monetary intake production incident
+
+On 2026-08-17 at 04:35 UTC, a public intake returned HTTP 422 after 10.7 seconds. Firestore model
+usage showed Gemini completed successfully, while the post-model plan builder still required amount
+and currency for every commercial promise. This incorrectly rejected valid document, replacement
+and other non-monetary outcomes and the UI collapsed the internal error to `REQUEST_FAILED`.
+
+Commit `3e79766` removes that refund-only invariant, adds `GENERAL` promise classification, keeps
+money fields conditional through plan/review/evidence/sandbox/result, and adds redacted diagnostic
+logging. Cloud Build operation `9e9238be-3ea7-4622-ba8e-0ec266cc6c99` deployed web revision
+`dueback-web-00034-724` and sandbox revision `dueback-merchant-sandbox-00007-4c9`, both at 100%
+traffic. A fresh deployed document-promise journey with an overdue date passed end to end in 18.7
+seconds without retries: intake 201, amount shown as not applicable, approval, Cloud Task, signed
+general evidence and a truthful non-settlement completion claim. A future-dated variant remained
+`Scheduled`, confirming it did not act early.

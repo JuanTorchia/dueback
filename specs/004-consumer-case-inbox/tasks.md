@@ -58,11 +58,11 @@
 
 ## Phase 5 — User Story 3: Durable Return (P1)
 
-- [ ] T035 [P] [US3] Add attention/completion/failure notification transition tests in `packages/runtime/test/notifications.test.ts`
+- [x] T035 [P] [US3] Add attention/completion/failure notification transition tests in `packages/runtime/test/notifications.test.ts`
 - [ ] T036 [P] [US3] Add concurrent replay/bounce/suppression tests in `tests/integration/attention-notification.test.ts`
-- [ ] T037 [US3] Extend truthful notification lifecycle contracts in `packages/runtime/src/notifications.ts`
+- [x] T037 [US3] Extend truthful notification lifecycle contracts in `packages/runtime/src/notifications.ts`
 - [x] T038 [US3] Connect intervention persistence to bounded delivery in `packages/runtime/src/interventions.ts` and all construction sites
-- [ ] T039 [US3] Emit terminal-failure notifications from `packages/runtime/src/case-runner.ts`
+- [x] T039 [US3] Emit terminal-failure notifications from `packages/runtime/src/case-runner.ts`
 - [ ] T040 [US3] Persist destination redaction, attempts and provider transitions in `packages/persistence/src/runtime-store.ts`
 - [ ] T041 [US3] Add owner notification retry controller/route in `apps/web/lib/notification-controller.ts` and `apps/web/app/api/cases/[caseId]/notifications/retry/route.ts`
 - [ ] T042 [US3] Render accepted/delivered/bounced/suppressed truth and retry action in `apps/web/components/case-result.tsx`

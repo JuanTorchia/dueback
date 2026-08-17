@@ -1,6 +1,6 @@
 import { stableHash } from "@dueback/domain";
 
-export type NotificationKind = "NEEDS_ATTENTION" | "CASE_COMPLETED";
+export type NotificationKind = "NEEDS_ATTENTION" | "CASE_COMPLETED" | "CASE_FAILED";
 
 export interface NotificationRecord {
   readonly notificationId: string;
@@ -74,6 +74,26 @@ export class NotificationDeliveryService {
       await this.store.updateDelivery?.(record.dedupeKey, update);
       return { ...record, ...update };
     }
+  }
+}
+
+export class CaseNotificationService {
+  constructor(
+    private readonly store: NotificationStore,
+    private readonly delivery?: NotificationDeliveryService
+  ) {}
+
+  async notify(input: {
+    caseId: string;
+    ownerId: string;
+    kind: NotificationKind;
+    createdAt: string;
+    correlationId: string;
+    recipient?: string;
+  }): Promise<NotificationRecord> {
+    const persisted = await this.store.createIfAbsent(notificationRecord(input));
+    if (persisted.duplicate || !this.delivery) return persisted.record;
+    return this.delivery.deliver(persisted.record, input.recipient);
   }
 }
 

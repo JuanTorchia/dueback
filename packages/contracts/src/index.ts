@@ -311,7 +311,7 @@ export const notificationSchema = z.object({
   dedupeKey: sha256Schema,
   caseId: opaqueIdSchema,
   correlationId: opaqueIdSchema,
-  kind: z.enum(["APPROVAL_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED"]),
+  kind: z.enum(["APPROVAL_REQUIRED", "NEEDS_ATTENTION", "CASE_COMPLETED", "CASE_FAILED"]),
   deepLinkPath: z.string().startsWith("/cases/"),
   createdAt: isoDateSchema,
   deliveryChannel: z.enum(["IN_APP", "EMAIL"]).optional(),

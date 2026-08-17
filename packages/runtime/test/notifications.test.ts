@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   NotificationDeliveryService,
+  CaseNotificationService,
   notificationRecord,
   type NotificationRecord
 } from "../src/notifications";
@@ -94,6 +95,33 @@ describe("notification delivery", () => {
     await expect(service.deliver(fixture(), "owner@example.test")).resolves.toMatchObject({
       deliveryStatus: "FAILED"
     });
+  });
+
+  it("persists and delivers a terminal failure once under replay", async () => {
+    const records = new Map<string, NotificationRecord>();
+    const deliver = vi.fn(() => Promise.resolve({
+      receipt: { deliveryId: "email_failed_1234", acceptedAt: "2026-08-16T12:00:01.000Z" },
+      duplicate: false
+    }));
+    const store = {
+      createIfAbsent: (record: NotificationRecord) => {
+        const prior = records.get(record.dedupeKey);
+        if (prior) return Promise.resolve({ record: prior, duplicate: true });
+        records.set(record.dedupeKey, record);
+        return Promise.resolve({ record, duplicate: false });
+      },
+      updateDelivery: () => Promise.resolve()
+    };
+    const service = new CaseNotificationService(store, new NotificationDeliveryService(store, { deliver }));
+    const input = {
+      caseId: "case_12345678", ownerId: "owner_12345678", kind: "CASE_FAILED" as const,
+      createdAt: "2026-08-16T12:00:00.000Z", correlationId: "corr_failed_12345678",
+      recipient: "owner@example.test"
+    };
+    await service.notify(input);
+    await service.notify(input);
+    expect(records.size).toBe(1);
+    expect(deliver).toHaveBeenCalledTimes(1);
   });
 
   it.each(["BOUNCED", "SUPPRESSED"] as const)("accepts truthful %s delivery projection", (deliveryStatus) => {

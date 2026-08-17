@@ -2,6 +2,7 @@ import type { ResolutionPlan } from "@dueback/contracts";
 import type { ApprovalBoundary, CaseState, EvidenceLevel, ProposedAction } from "@dueback/domain";
 import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
 import type { InterventionService } from "./interventions";
+import type { CaseNotificationService } from "./notifications";
 
 export interface FollowThroughCase {
   readonly caseId: string;
@@ -45,6 +46,7 @@ export type RunResult =
   | { readonly status: "STALE_TASK" }
   | { readonly status: "WAITING_EXTERNAL"; readonly broker: BrokerResult }
   | { readonly status: "WAITING_RETRY"; readonly wakeAt: string }
+  | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
   | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" };
 
 function actionProposal(item: FollowThroughCase): ProposedAction {
@@ -76,7 +78,8 @@ export class CaseRunner {
     private readonly scheduler: RetryScheduler,
     private readonly retryDelaySeconds = 30,
     private readonly maxAttempts = 5,
-    private readonly interventions?: InterventionService
+    private readonly interventions?: InterventionService,
+    private readonly terminalNotifications?: CaseNotificationService
   ) {}
 
   async run(input: {
@@ -152,6 +155,27 @@ export class CaseRunner {
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
     } catch (error) {
+      if (error instanceof Error && error.message.startsWith("ACTION_DENIED:")) {
+        const failed: FollowThroughCase = {
+          ...item,
+          state: "FAILED",
+          version: item.version + 1,
+          lastError: error.message,
+          lastAttemptAt: input.now,
+          updatedAt: input.now
+        };
+        await this.store.compareAndSet(item.caseId, item.version, failed);
+        const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+        await this.terminalNotifications?.notify({
+          caseId: item.caseId,
+          ownerId: item.ownerId,
+          kind: "CASE_FAILED",
+          createdAt: input.now,
+          correlationId,
+          ...(item.plan.notificationRecipient ? { recipient: item.plan.notificationRecipient } : {})
+        });
+        return { status: "FAILED", reason: "ACTION_DENIED" };
+      }
       const attemptCount = (item.attemptCount ?? 0) + 1;
       if (attemptCount >= this.maxAttempts) {
         const exhausted: FollowThroughCase = {

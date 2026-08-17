@@ -11,6 +11,7 @@ import { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
 import { ActionBroker } from "@dueback/runtime/action-broker";
 import { CaseRunner } from "@dueback/runtime/case-runner";
 import { InterventionService } from "@dueback/runtime/interventions";
+import { CaseNotificationService } from "@dueback/runtime/notifications";
 import { TaskScheduler } from "@dueback/runtime/task-scheduler";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { handleRunCaseTask } from "../../../../../lib/task-controller";
@@ -109,7 +110,8 @@ export async function POST(request: Request) {
     scheduler,
     30,
     5,
-    new InterventionService(store, store, notificationDelivery(store))
+    new InterventionService(store, store, notificationDelivery(store)),
+    new CaseNotificationService(store, notificationDelivery(store))
   );
   return handleRunCaseTask(request, runner, () => new Date().toISOString());
 }

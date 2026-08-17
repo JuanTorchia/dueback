@@ -16,6 +16,7 @@ import {
   type InterventionRecord
 } from "../../packages/runtime/src/interventions";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
+import { CaseNotificationService } from "../../packages/runtime/src/notifications";
 
 class Records implements ActionRecordStore {
   readonly records = new Map<string, Reservation>();
@@ -212,5 +213,42 @@ describe("durable follow-through", () => {
     expect(cases.value.updatedAt).toBe("2026-08-15T12:00:00.000Z");
     expect(interventionRecords.size).toBe(1);
     expect(notificationRecords.size).toBe(1);
+  });
+
+  it("fails a revoked approval without retry and emits one terminal notification", async () => {
+    const base = readyCase();
+    const cases = new Cases({
+      ...base,
+      approval: { ...base.approval, revokedAt: "2026-08-15T11:59:00.000Z" }
+    });
+    const notifications = new Map<string, NotificationRecord>();
+    const notify = new CaseNotificationService({
+      createIfAbsent: async (record) => {
+        const prior = notifications.get(record.dedupeKey);
+        if (prior) return { record: prior, duplicate: true };
+        notifications.set(record.dedupeKey, record);
+        return { record, duplicate: false };
+      }
+    });
+    const scheduleCase = vi.fn(() => Promise.resolve({}));
+    const runner = new CaseRunner(
+      cases,
+      new ActionBroker(new Records(), { execute: vi.fn() }),
+      { scheduleCase },
+      30,
+      5,
+      undefined,
+      notify
+    );
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 1,
+      now: "2026-08-15T12:00:00.000Z",
+      correlationId: "corr_denied_12345678"
+    })).resolves.toEqual({ status: "FAILED", reason: "ACTION_DENIED" });
+    expect(cases.value).toMatchObject({ state: "FAILED", updatedAt: "2026-08-15T12:00:00.000Z" });
+    expect(scheduleCase).not.toHaveBeenCalled();
+    expect(notifications.size).toBe(1);
+    expect([...notifications.values()][0]?.kind).toBe("CASE_FAILED");
   });
 });

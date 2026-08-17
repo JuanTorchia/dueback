@@ -4,6 +4,11 @@ import type { PlanStore } from "@dueback/runtime/plan-service";
 import { stableHash } from "@dueback/domain";
 import { firestoreDeleteAt } from "./expiry";
 
+export function firstRunDueAt(draft: DraftCase): string {
+  return draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value ??
+    new Date(Date.parse(draft.createdAt) + 1000).toISOString();
+}
+
 export class FirestoreIntakeStore implements IntakeStore, PlanStore {
   constructor(private readonly db: Firestore) {}
 
@@ -72,9 +77,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
           approval: next.approval,
           actionOrdinal: 1,
           correlationId,
-          dueAt:
-            next.promiseDraft.dueAt?.value ??
-            new Date(Date.parse(next.createdAt) + 1000).toISOString(),
+          dueAt: firstRunDueAt(next),
           deleteAt: firestoreDeleteAt(next.plan.expiresAt)
         });
         transaction.create(runReference.collection("events").doc("000001-plan-approved"), {

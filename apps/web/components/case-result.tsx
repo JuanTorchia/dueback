@@ -11,6 +11,7 @@ import { activeCaseChannel, channelCopy } from "../lib/channel-copy";
 import { OutcomeComparison } from "./outcome-comparison";
 import { CaseConversation } from "./case-conversation";
 import { GoogleSignIn } from "./google-sign-in";
+import { NotificationStatus } from "./notification-status";
 
 interface ResultPayload {
   case: FollowThroughCase;
@@ -152,6 +153,7 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
           </p>
         </div>
       </section>
+      {latestNotification ? <NotificationStatus caseId={caseId} notification={latestNotification} onRetried={() => { setRefreshKey((value) => value + 1); }} /> : null}
       <OutcomeComparison item={payload.case} evidence={payload.evidence} />
       <CaseConversation item={payload.case} evidence={payload.evidence} channelEvents={payload.channelEvents ?? []} />
       <section className="card">

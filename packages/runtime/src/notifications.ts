@@ -22,6 +22,9 @@ export interface NotificationRecord {
     | "UNAVAILABLE";
   readonly deliveryId?: string;
   readonly deliveredAt?: string;
+  readonly destinationHint?: string;
+  readonly attemptCount?: number;
+  readonly lastAttemptAt?: string;
 }
 
 export interface NotificationStore {
@@ -33,6 +36,9 @@ export interface NotificationStore {
     update: Pick<NotificationRecord, "deliveryChannel" | "deliveryStatus"> & {
       deliveryId?: string;
       deliveredAt?: string;
+      destinationHint?: string;
+      attemptCount?: number;
+      lastAttemptAt?: string;
     }
   ): Promise<void>;
   listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
@@ -52,12 +58,19 @@ export class NotificationDeliveryService {
   ) {}
 
   async deliver(record: NotificationRecord, recipient: string | undefined): Promise<NotificationRecord> {
+    const attempt = (record.attemptCount ?? 0) + 1;
+    const attemptedAt = new Date().toISOString();
+    const destinationHint = recipient?.includes("@")
+      ? recipient.replace(/(^.).*(@.*$)/, "$1•••$2")
+      : undefined;
     if (!recipient || !this.adapter) {
       await this.store.updateDelivery?.(record.dedupeKey, {
         deliveryChannel: "IN_APP",
-        deliveryStatus: "UNAVAILABLE"
+        deliveryStatus: "UNAVAILABLE",
+        attemptCount: attempt,
+        lastAttemptAt: attemptedAt
       });
-      return { ...record, deliveryChannel: "IN_APP", deliveryStatus: "UNAVAILABLE" };
+      return { ...record, deliveryChannel: "IN_APP", deliveryStatus: "UNAVAILABLE", attemptCount: attempt, lastAttemptAt: attemptedAt };
     }
     try {
       const result = await this.adapter.deliver(record, recipient);
@@ -65,12 +78,20 @@ export class NotificationDeliveryService {
         deliveryChannel: "EMAIL" as const,
         deliveryStatus: "ACCEPTED" as const,
         deliveryId: result.receipt.deliveryId,
-        deliveredAt: result.receipt.acceptedAt
+        ...(destinationHint ? { destinationHint } : {}),
+        attemptCount: attempt,
+        lastAttemptAt: result.receipt.acceptedAt
       };
       await this.store.updateDelivery?.(record.dedupeKey, update);
       return { ...record, ...update };
     } catch {
-      const update = { deliveryChannel: "EMAIL" as const, deliveryStatus: "FAILED" as const };
+      const update = {
+        deliveryChannel: "EMAIL" as const,
+        deliveryStatus: "FAILED" as const,
+        ...(destinationHint ? { destinationHint } : {}),
+        attemptCount: attempt,
+        lastAttemptAt: attemptedAt
+      };
       await this.store.updateDelivery?.(record.dedupeKey, update);
       return { ...record, ...update };
     }

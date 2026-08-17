@@ -431,6 +431,9 @@ export class FirestoreRuntimeStore
     update: Pick<NotificationRecord, "deliveryChannel" | "deliveryStatus"> & {
       deliveryId?: string;
       deliveredAt?: string;
+      destinationHint?: string;
+      attemptCount?: number;
+      lastAttemptAt?: string;
     }
   ): Promise<void> {
     await this.db.collection("notifications").doc(dedupeKey.slice(7)).set(update, { merge: true });

@@ -306,6 +306,11 @@ export const caseEventSchema = z.object({
   schemaVersion: z.literal(1)
 });
 
+const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
+  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
+  "Full email addresses are not allowed in consumer projections"
+);
+
 export const notificationSchema = z.object({
   notificationId: opaqueIdSchema,
   dedupeKey: sha256Schema,
@@ -323,13 +328,12 @@ export const notificationSchema = z.object({
     "SUPPRESSED",
     "FAILED",
     "UNAVAILABLE"
-  ]).optional()
+  ]).optional(),
+  destinationHint: safeDisplayTextSchema(320).optional(),
+  attemptCount: z.int().nonnegative().max(3).optional(),
+  lastAttemptAt: isoDateSchema.optional(),
+  deliveredAt: isoDateSchema.optional()
 });
-
-const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
-  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
-  "Full email addresses are not allowed in consumer projections"
-);
 
 export const identityClaimSchema = z.object({
   claimId: opaqueIdSchema,

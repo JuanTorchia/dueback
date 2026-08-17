@@ -63,9 +63,9 @@
 - [x] T037 [US3] Extend truthful notification lifecycle contracts in `packages/runtime/src/notifications.ts`
 - [x] T038 [US3] Connect intervention persistence to bounded delivery in `packages/runtime/src/interventions.ts` and all construction sites
 - [x] T039 [US3] Emit terminal-failure notifications from `packages/runtime/src/case-runner.ts`
-- [ ] T040 [US3] Persist destination redaction, attempts and provider transitions in `packages/persistence/src/runtime-store.ts`
-- [ ] T041 [US3] Add owner notification retry controller/route in `apps/web/lib/notification-controller.ts` and `apps/web/app/api/cases/[caseId]/notifications/retry/route.ts`
-- [ ] T042 [US3] Render accepted/delivered/bounced/suppressed truth and retry action in `apps/web/components/case-result.tsx`
+- [x] T040 [US3] Persist destination redaction, attempts and provider transitions in `packages/persistence/src/runtime-store.ts`
+- [x] T041 [US3] Add owner notification retry controller/route in `apps/web/lib/notification-controller.ts` and `apps/web/app/api/cases/[caseId]/notifications/retry/route.ts`
+- [x] T042 [US3] Render accepted/delivered/bounced/suppressed truth and retry action in `apps/web/components/case-result.tsx`
 - [ ] T043 [US3] Prove closed-tab attention return in `tests/e2e/consumer-case-inbox.spec.ts`
 
 **Gate D**: replayed attention creates one logical notification and at most one provider send.

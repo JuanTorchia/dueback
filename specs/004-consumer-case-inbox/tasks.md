@@ -7,9 +7,9 @@
 ## Phase 1 — Traceability and Product Truth
 
 - [x] T001 Create FR/SC-to-test traceability in `specs/004-consumer-case-inbox/checklists/completion-audit.md`
-- [ ] T002 [P] Add managed-email and sandbox projection fixtures in `packages/test-fixtures/src/case-projections.ts`
-- [ ] T003 [P] Add channel-copy failures to `apps/web/test/case-projection.test.ts`
-- [ ] T004 Implement server-side channel-aware projection in `apps/web/lib/case-projection.ts`
+- [x] T002 [P] Add managed-email and sandbox projection fixtures in `packages/test-fixtures/src/case-projections.ts`
+- [x] T003 [P] Add channel-copy failures to `apps/web/test/case-projection.test.ts`
+- [x] T004 Implement server-side channel-aware projection in `apps/web/lib/case-projection.ts`
 - [x] T005 Replace unconditional sandbox/callback copy in `apps/web/components/case-result.tsx` and `apps/web/components/case-timeline.tsx`
 - [x] T006 Align live controlled-email claims in `README.md`, `docs/architecture/dueback.md`, `docs/hackathon/compliance-checklist.md` and `docs/submission/demo-script.md`
 
@@ -42,17 +42,17 @@
 
 ## Phase 4 — User Story 2: Understand the Case (P1)
 
-- [ ] T024 [P] [US2] Add safe conversation and Promised-vs-Observed projection tests in `apps/web/test/case-projection.test.ts`
+- [x] T024 [P] [US2] Add safe conversation and Promised-vs-Observed projection tests in `apps/web/test/case-projection.test.ts`
 - [ ] T025 [P] [US2] Add legacy-record and network-failure browser fixtures in `tests/e2e/consumer-case-detail.spec.ts`
-- [ ] T026 [US2] Extend safe action/inbound read methods in `packages/persistence/src/runtime-store.ts`
-- [ ] T027 [US2] Implement consumer detail projection and redaction in `apps/web/lib/case-projection.ts`
-- [ ] T028 [US2] Add owner-checked detail route in `apps/web/app/api/cases/[caseId]/detail/route.ts`
-- [ ] T029 [US2] Build human case header and next-action component in `apps/web/components/case-status.tsx`
+- [x] T026 [US2] Extend safe action/inbound read methods in `packages/persistence/src/runtime-store.ts`
+- [x] T027 [US2] Implement consumer detail projection and redaction in `apps/web/lib/case-projection.ts`
+- [x] T028 [US2] Add owner-checked detail route in `apps/web/app/api/cases/[caseId]/detail/route.ts`
+- [x] T029 [US2] Build human case header and next-action component in `apps/web/components/case-status.tsx`
 - [x] T030 [US2] Build readable bounded conversation in `apps/web/components/case-conversation.tsx`
 - [x] T031 [US2] Build Promised-versus-Observed result in `apps/web/components/outcome-comparison.tsx`
-- [ ] T032 [US2] Refactor `apps/web/components/case-result.tsx` to use the consumer projection and progressive technical disclosure
+- [x] T032 [US2] Refactor `apps/web/components/case-result.tsx` to use the consumer projection and progressive technical disclosure
 - [x] T033 [US2] Preserve last-known state and add refresh/retry/last-updated behavior in `apps/web/components/case-result.tsx`
-- [ ] T034 [US2] Add responsive case-detail styles in `apps/web/app/globals.css`
+- [x] T034 [US2] Add responsive case-detail styles in `apps/web/app/globals.css`
 
 **Gate C**: weak ACK visibly stays open; sufficient explicit evidence closes with exact limitation.
 

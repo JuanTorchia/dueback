@@ -34,7 +34,7 @@ export function caseConversation(
     direction: "OUTBOUND" as const,
     title: index === 0 ? "DueBack sent the approved follow-up" : "DueBack sent an approved follow-up",
     occurredAt: event.acceptedAt,
-    safeBody: item.plan.messageBody ?? `Requested: ${item.plan.goal}`,
+    safeBody: `Requested outcome: ${item.plan.goal}`,
     status: event.transportStatus,
     reason: "Provider transport status only; this does not prove the outcome."
   }));

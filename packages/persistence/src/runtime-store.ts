@@ -93,6 +93,7 @@ export class FirestoreRuntimeStore
       .doc(caseId)
       .collection("evidence")
       .orderBy("recordedAt", "asc")
+      .limit(50)
       .get();
     return snapshot.docs.map((document) => document.data() as EvidenceRecord);
   }
@@ -116,6 +117,7 @@ export class FirestoreRuntimeStore
     const snapshot = await this.db
       .collection("actionRecords")
       .where("receipt.caseId", "==", caseId)
+      .limit(20)
       .get();
     return snapshot.docs.map((document) => {
       const receipt = document.get("receipt") as ActionReceipt & {

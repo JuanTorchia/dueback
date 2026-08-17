@@ -396,3 +396,15 @@ traffic. A fresh deployed document-promise journey with an overdue date passed e
 seconds without retries: intake 201, amount shown as not applicable, approval, Cloud Task, signed
 general evidence and a truthful non-settlement completion claim. A future-dated variant remained
 `Scheduled`, confirming it did not act early.
+
+A second public failure at 04:54 UTC exposed a narrower schema defect: Gemini correctly classified
+the built-in replacement example, but the plan builder selected `REPLACEMENT` without supplying the
+subject and tracking-proof requirement demanded by the contract. The API returned 422 and previously
+reduced the internal `ZodError` to generic copy. Commit `0b3e112` makes replacement evidence explicit,
+teaches the controlled merchant callback to return matching subject and demo tracking evidence, and
+maps any future plan-schema rejection to actionable public copy without exposing internals. Cloud
+Build `142f204d-8cd8-4f94-8c9b-4319c438e315` deployed web revision
+`dueback-web-00035-988` and sandbox revision `dueback-merchant-sandbox-00008-lgl`, both at 100% traffic.
+The production Playwright matrix then clicked all four visible examples in independent sessions—
+Missing refund, Cancellation, Replacement and Missing document—and all four reached a reviewable
+plan with zero retries (4/4 passed in 1.3 minutes).

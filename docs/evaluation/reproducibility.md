@@ -458,6 +458,21 @@ Run recorded the run-case request as HTTP 200 and the signed `sent` and `deliver
 as HTTP 202. This proves provider acceptance and delivery to the recipient mail server; it does not
 prove inbox placement, reading, merchant identity, or refund settlement. Inbound reply and
 false-DONE evidence remain separate gates.
+
+The first controlled Gmail reply exposed an RFC correlation defect rather than being hidden: the
+opaque reply route matched, but DueBack compared Gmail's RFC `In-Reply-To` value with Resend's
+provider delivery ID and recorded `THREAD_CORRELATION_MISMATCH`. Commit `6d1c9df` changed the rule
+so an indexed contradictory thread vetoes the opaque route, while an as-yet-unindexed RFC ID cannot
+invalidate an exact case-specific route. The different identifier namespaces remain explicit.
+All 45 runtime tests passed, Cloud Build `86491822-46c2-4b06-8e30-d516e8182a28` succeeded, and
+Cloud Run revision `dueback-web-00043-k2m` received 100% traffic.
+
+A second real reply containing only “Request received, we are reviewing it” then crossed Resend
+Receiving, a signed webhook (HTTP 202), and the inbound Cloud Task (HTTP 200). The persisted
+evidence level was `REQUEST_ACKNOWLEDGED`, `accepted: false`, with reason codes
+`INSUFFICIENT_LEVEL`, `WRONG_AMOUNT`, `WRONG_CURRENCY`, and `WRONG_REFERENCE`. The case remained
+`WAITING_EXTERNAL`; its event ledger recorded the rejected evidence instead of declaring `DONE`.
+This is the deployed false-DONE proof for the managed-email path.
 The sequential production matrix then completed Missing refund, Cancellation, Replacement and
 Missing document end to end with one worker and zero retries: 4/4 passed in 1.5 minutes. Each path
 approved the accelerated controlled mode, crossed Cloud Tasks and the controlled HTTP adapter,

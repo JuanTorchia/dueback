@@ -5,6 +5,7 @@ coverage/
 playwright-report/
 test-results/
 .playwright-tmp/
+.auth/
 .next/
 *.tsbuildinfo
 .env

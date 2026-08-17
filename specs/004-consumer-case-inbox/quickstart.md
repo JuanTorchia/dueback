@@ -47,6 +47,23 @@ pnpm exec playwright test tests/e2e/cross-device-return.spec.ts --workers=1 --re
 Expected: the clean browser sees the same owned case after sign-in; a second identity receives no
 case facts; concurrent linking produces one owner and one case.
 
+Capture the real Google-linked browser state without sharing credentials or committing tokens:
+
+```bash
+DUEBACK_DEPLOYED_URL='https://bulbasour-503317.web.app' pnpm release:capture-google
+```
+
+The command opens a headed browser and waits up to five minutes for the participant to finish Google
+sign-in. It saves Firebase cookies/local storage/IndexedDB under ignored `.auth/`. After creating one
+case in that authenticated browser, run the gate with its case ID:
+
+```bash
+DUEBACK_DEPLOYED_URL='https://bulbasour-503317.web.app' \
+DUEBACK_OWNER_STORAGE_STATE='.auth/google-owner.json' \
+DUEBACK_CROSS_DEVICE_CASE_ID='case_...' \
+pnpm exec playwright test tests/e2e/cross-device-return.spec.ts --workers=1 --retries=0
+```
+
 ## Kill gate 3 — Conversation and false-DONE
 
 ```bash

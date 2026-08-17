@@ -19,7 +19,8 @@
     "research:report": "tsx scripts/research/report.ts",
     "test:deployed": "playwright test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project dueback-rules-test 'pnpm exec vitest run tests/security/firestore-rules.test.ts --config vitest.security.config.ts'",
-    "demo:reset": "tsx scripts/demo/reset.ts"
+    "demo:reset": "tsx scripts/demo/reset.ts",
+    "release:capture-google": "tsx scripts/release/capture-google-state.ts"
   },
   "devDependencies": {
     "@eslint/js": "9.39.2",

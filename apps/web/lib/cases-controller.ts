@@ -18,6 +18,37 @@ export interface OwnerCaseStore {
   listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughCase[]>;
 }
 
+interface CaseCursor {
+  version: 1;
+  caseId: string;
+  lastActivityAt: string;
+  bucket: CaseBucket | null;
+}
+
+function encodeCursor(item: CaseSummary, requestedBucket: CaseBucket | null): string {
+  return Buffer.from(JSON.stringify({
+    version: 1,
+    caseId: item.caseId,
+    lastActivityAt: item.lastActivityAt,
+    bucket: requestedBucket
+  } satisfies CaseCursor)).toString("base64url");
+}
+
+function decodeCursor(value: string, requestedBucket: CaseBucket | null): CaseCursor {
+  try {
+    if (value.length > 512) throw new Error("CURSOR_INVALID");
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")) as Partial<CaseCursor>;
+    if (parsed.version !== 1 || typeof parsed.caseId !== "string" ||
+      !parsed.caseId.startsWith("case_") || typeof parsed.lastActivityAt !== "string" ||
+      Number.isNaN(Date.parse(parsed.lastActivityAt)) || (parsed.bucket ?? null) !== requestedBucket) {
+      throw new Error("CURSOR_INVALID");
+    }
+    return parsed as CaseCursor;
+  } catch {
+    throw new Error("CURSOR_INVALID");
+  }
+}
+
 function bucket(state: FollowThroughCase["state"]): CaseBucket {
   if (["NEEDS_ATTENTION", "FAILED"].includes(state)) return "NEEDS_YOU";
   if (["DONE", "CANCELLED", "EXPIRED"].includes(state)) return "DONE";
@@ -81,19 +112,35 @@ export async function handleCases(
     const url = new URL(request.url);
     const requestedLimit = Number(url.searchParams.get("limit") ?? 10);
     const limit = Number.isInteger(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 25) : 10;
-    const requestedBucket = url.searchParams.get("bucket");
-    const items = (await dependencies.store.listByOwner(owner.uid, 50))
+    const bucketParam = url.searchParams.get("bucket");
+    const requestedBucket = bucketParam && ["NEEDS_YOU", "WORKING", "DONE"].includes(bucketParam)
+      ? bucketParam as CaseBucket
+      : null;
+    if (bucketParam && !requestedBucket) throw new Error("BUCKET_INVALID");
+    const ordered = (await dependencies.store.listByOwner(owner.uid, 50))
       .map(caseSummary)
       .filter((item) => !requestedBucket || item.bucket === requestedBucket)
-      .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt))
-      .slice(0, limit);
-    return Response.json({ items, nextCursor: null }, { headers: privateHeaders });
+      .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt) || left.caseId.localeCompare(right.caseId));
+    const cursorParam = url.searchParams.get("cursor");
+    const cursor = cursorParam ? decodeCursor(cursorParam, requestedBucket) : undefined;
+    const start = cursor
+      ? ordered.findIndex((item) => item.caseId === cursor.caseId && item.lastActivityAt === cursor.lastActivityAt) + 1
+      : 0;
+    if (cursor && start === 0) throw new Error("CURSOR_INVALID");
+    const items = ordered.slice(start, start + limit);
+    const hasMore = start + items.length < ordered.length;
+    const lastItem = items.at(-1);
+    const nextCursor = hasMore && lastItem
+      ? encodeCursor(lastItem, requestedBucket)
+      : null;
+    return Response.json({ items, nextCursor }, { headers: privateHeaders });
   } catch (error) {
     const code = error instanceof Error ? error.message : "CASES_FAILED";
     const authenticationError = ["AUTHENTICATION_REQUIRED", "INVALID_ID_TOKEN"].includes(code);
+    const requestError = ["CURSOR_INVALID", "BUCKET_INVALID"].includes(code);
     return Response.json(
-      { error: authenticationError ? code : "CASES_FAILED" },
-      { status: authenticationError ? 401 : 500, headers: privateHeaders }
+      { error: authenticationError || requestError ? code : "CASES_FAILED" },
+      { status: authenticationError ? 401 : requestError ? 400 : 500, headers: privateHeaders }
     );
   }
 }

@@ -9,15 +9,23 @@ import { GoogleSignIn } from "./google-sign-in";
 export function CaseInbox() {
   const [items, setItems] = useState<CaseSummary[]>();
   const [identity, setIdentity] = useState<InboxIdentity>();
+  const [nextCursor, setNextCursor] = useState<string | null>();
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string>();
-  const load = useCallback(async () => {
+  const load = useCallback(async (cursor?: string) => {
+    if (cursor) setLoadingMore(true);
     try {
       const [token, currentIdentity] = await Promise.all([anonymousIdToken(), recoverableIdentity()]);
-      const response = await fetch("/api/cases?limit=25", { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
-      const result = await response.json() as { items?: CaseSummary[]; error?: string };
+      const query = new URLSearchParams({ limit: "25" });
+      if (cursor) query.set("cursor", cursor);
+      const response = await fetch(`/api/cases?${query}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+      const result = await response.json() as { items?: CaseSummary[]; nextCursor?: string | null; error?: string };
       if (!response.ok || !result.items) throw new Error(result.error ?? "CASES_FAILED");
-      setItems(result.items); setIdentity(currentIdentity); setError(undefined);
-    } catch { setError("We could not refresh your follow-ups. Sign in if you saved these cases on another device."); }
+      const pageItems = result.items;
+      setItems((current) => cursor && current ? [...current, ...pageItems] : pageItems);
+      setNextCursor(result.nextCursor ?? null); setIdentity(currentIdentity); setError(undefined);
+    } catch { setError(cursor ? "We could not load more follow-ups. Your current list is still here." : "We could not refresh your follow-ups. Sign in if you saved these cases on another device."); }
+    finally { setLoadingMore(false); }
   }, []);
   useEffect(() => { void load(); }, [load]);
 
@@ -32,5 +40,6 @@ export function CaseInbox() {
       <strong>{item.statusLabel}</strong><p>{item.nextStepLabel}</p>
       <small>Updated {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.lastActivityAt))}</small>
     </a>)}
+    {nextCursor ? <button type="button" className="secondary inbox-load-more" disabled={loadingMore} onClick={() => { void load(nextCursor); }}>{loadingMore ? "Loading more…" : "Load more follow-ups"}</button> : null}
   </div>;
 }

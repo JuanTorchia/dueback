@@ -6,7 +6,7 @@
 
 ## Phase 1 — Traceability and Product Truth
 
-- [ ] T001 Create FR/SC-to-test traceability in `specs/004-consumer-case-inbox/checklists/completion-audit.md`
+- [x] T001 Create FR/SC-to-test traceability in `specs/004-consumer-case-inbox/checklists/completion-audit.md`
 - [ ] T002 [P] Add managed-email and sandbox projection fixtures in `packages/test-fixtures/src/case-projections.ts`
 - [ ] T003 [P] Add channel-copy failures to `apps/web/test/case-projection.test.ts`
 - [ ] T004 Implement server-side channel-aware projection in `apps/web/lib/case-projection.ts`

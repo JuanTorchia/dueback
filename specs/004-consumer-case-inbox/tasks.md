@@ -90,10 +90,10 @@
 
 ## Phase 8 — User Story 6: Safe Export (P2)
 
-- [ ] T056 [P] [US6] Add export redaction/no-capability tests in `tests/contract/case-export.test.ts`
-- [ ] T057 [US6] Implement static export projection in `apps/web/lib/case-export.ts`
-- [ ] T058 [US6] Add owner-checked export route in `apps/web/app/api/cases/[caseId]/export/route.ts`
-- [ ] T059 [US6] Add copy/download control in `apps/web/components/case-result.tsx`
+- [x] T056 [P] [US6] Add export redaction/no-capability tests in `tests/contract/case-export.test.ts`
+- [x] T057 [US6] Implement static export projection in `apps/web/lib/case-export.ts`
+- [x] T058 [US6] Add owner-checked export route in `apps/web/app/api/cases/[caseId]/export/route.ts`
+- [x] T059 [US6] Add copy/download control in `apps/web/components/case-result.tsx`
 
 ## Phase 9 — Release Validation
 

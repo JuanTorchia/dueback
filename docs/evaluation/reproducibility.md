@@ -440,6 +440,24 @@ fields path passed independently in 3.0 seconds with retries disabled. The four-
 matrix completed refund, cancellation, and replacement in the combined run; the document case hit a
 transient intake timeout and then passed independently in 26.3 seconds with retries disabled. This is
 reported as two executions rather than misrepresented as a single 4/4 green run.
+
+## Controlled real-email pilot
+
+On 2026-08-17, the verified Resend sender domain `mail.gmmhub.net` and Resend-managed receiving
+domain `ildaudnaua.resend.app` were connected to Cloud Run revision `dueback-web-00042-qmb`. The
+Resend API key and webhook signing secret are stored only in Google Secret Manager. Webhook
+`8e8c27c3-7225-4616-a4cd-b0f8732d704f` subscribes to sent, delivered, delayed, bounced, failed,
+complained, suppressed, and received events. The public capability endpoint then reported managed
+email as bidirectionally available.
+
+The explicitly gated Playwright test `deployed-managed-email.spec.ts` created an overdue USD 1.00
+controlled case, selected managed email, approved the exact contract, and exercised the durable
+Cloud Task path in 24.4 seconds with retries disabled. Resend receipt
+`56666793-40b6-4a25-9721-02bc55531ed5` reported `delivered` to the authorized pilot mailbox. Cloud
+Run recorded the run-case request as HTTP 200 and the signed `sent` and `delivered` webhook events
+as HTTP 202. This proves provider acceptance and delivery to the recipient mail server; it does not
+prove inbox placement, reading, merchant identity, or refund settlement. Inbound reply and
+false-DONE evidence remain separate gates.
 The sequential production matrix then completed Missing refund, Cancellation, Replacement and
 Missing document end to end with one worker and zero retries: 4/4 passed in 1.5 minutes. Each path
 approved the accelerated controlled mode, crossed Cloud Tasks and the controlled HTTP adapter,

@@ -54,12 +54,18 @@ describe("boundary contracts", () => {
     expect(resolutionPlanSchema.parse(base).channelType).toBeUndefined();
     expect(resolutionPlanSchema.parse({
       ...base,
+      executionMode: "ACCELERATED_DEMO",
+      timingPolicyVersion: "accelerated-demo/v1",
       channelType: "MANAGED_EMAIL",
       messageTemplateVersion: "follow-up/v1",
       messageSubject: "Follow-up for ORDER-79",
       messageBody: "Please confirm the promised outcome.",
       maxLogicalSends: 3
-    }).channelType).toBe("MANAGED_EMAIL");
+    })).toMatchObject({
+      channelType: "MANAGED_EMAIL",
+      executionMode: "ACCELERATED_DEMO",
+      timingPolicyVersion: "accelerated-demo/v1"
+    });
   });
 
   it("requires truthful channel capability fields", () => {

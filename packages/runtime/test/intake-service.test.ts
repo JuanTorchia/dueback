@@ -63,6 +63,11 @@ describe("IntakeService", () => {
     expect(duplicate.duplicate).toBe(true);
     expect(duplicate.draft.caseId).toBe(first.draft.caseId);
     expect(first.draft.plan.evidenceRequirements[0]?.minimumLevel).toBe("MERCHANT_CONFIRMED");
+    expect(first.draft.plan).toMatchObject({
+      executionMode: "ACCELERATED_DEMO",
+      timingPolicyVersion: "accelerated-demo/v1",
+      followUpAt: "2026-08-15T12:00:02.000Z"
+    });
     expect(first.draft.outcomeContract).toMatchObject({
       recipe: "COMMERCIAL_FOLLOW_UP",
       outcome: "USD 79 refund",

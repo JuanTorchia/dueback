@@ -13,7 +13,7 @@ test.describe("deployed visible example matrix", () => {
   test.skip(!deployedUrl, "Set DUEBACK_DEPLOYED_URL to run against the public Cloud Run service");
 
   for (const example of visibleExamples) {
-    test(`${example.label} reaches a reviewable plan`, async ({ page }) => {
+    test(`${example.label} completes the accelerated proof loop`, async ({ page }) => {
       await page.goto(`${deployedUrl}/intake`);
       await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
         timeout: 15_000
@@ -22,7 +22,16 @@ test.describe("deployed visible example matrix", () => {
       await page.getByRole("button", { name: "Build my plan" }).click();
       await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
       await expect(page.getByText(example.expected).first()).toBeVisible();
+      await expect(page.getByText("Accelerated after approval")).toBeVisible();
+      await expect(page.getByText(/real Cloud Tasks.*run in seconds/i)).toBeVisible();
       await expect(page.getByText(/could not complete/i)).toHaveCount(0);
+      await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
+      await page.getByRole("button", { name: "Approve and start follow-up" }).click();
+      await expect(page).toHaveURL(/\/cases\/case_[^/]+\/result/);
+      await expect(page.getByRole("heading", {
+        name: /Merchant confirmed the refund instruction|The company confirmed the promised outcome/
+      })).toBeVisible({ timeout: 45_000 });
+      await expect(page.getByText(/NOT VERIFIED/).first()).toBeVisible();
     });
   }
 });

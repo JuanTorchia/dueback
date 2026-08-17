@@ -127,6 +127,12 @@ function buildPlan(input: {
     version: 1,
     goal: draft.result.value,
     promiseType,
+    executionMode: input.channel.channelType === "CONTROLLED_SANDBOX"
+      ? "ACCELERATED_DEMO" as const
+      : "CONTROLLED_REAL_PILOT" as const,
+    timingPolicyVersion: input.channel.channelType === "CONTROLLED_SANDBOX"
+      ? "accelerated-demo/v1"
+      : "controlled-real-pilot/v1",
     allowedActions: ["SEND_FOLLOW_UP"] as const,
     allowedRecipient: input.recipient,
     channelType: input.channel.channelType,
@@ -151,7 +157,11 @@ function buildPlan(input: {
       ...(draft.currency ? ["currency"] : []),
       ...(promiseType === "REPLACEMENT" ? ["subject"] : [])
     ],
-    ...(draft.dueAt?.uncertainty === "NONE" ? { followUpAt: draft.dueAt.value } : {}),
+    ...(input.channel.channelType === "CONTROLLED_SANDBOX"
+      ? { followUpAt: new Date(Date.parse(input.now) + 2_000).toISOString() }
+      : draft.dueAt?.uncertainty === "NONE"
+        ? { followUpAt: draft.dueAt.value }
+        : {}),
     evidenceRequirements: [
       {
         minimumLevel: "MERCHANT_CONFIRMED" as const,

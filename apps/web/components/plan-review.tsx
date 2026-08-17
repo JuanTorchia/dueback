@@ -248,8 +248,10 @@ export function PlanReview({
           <div>
             <dt>Follow-up</dt>
             <dd>
-              {draft.plan.followUpAt
-                ? dateTime(draft.plan.followUpAt)
+              {draft.plan.executionMode === "ACCELERATED_DEMO"
+                ? "Accelerated after approval"
+                : draft.plan.followUpAt
+                  ? dateTime(draft.plan.followUpAt)
                 : "Choose when DueBack should follow up"}
             </dd>
           </div>
@@ -358,7 +360,7 @@ export function PlanReview({
           <div><span className="permission-icon">✓</span><div><strong>Proof required</strong><p>{monetaryPromise ? "Signed evidence matching this case, amount, currency, and reference." : "Signed evidence matching this case, reference, and promised outcome."} “Request received” is not completion.</p></div></div>
         </div>
         <details className="shared-data"><summary>Exactly what data will be shared</summary><p>{monetaryPromise ? "Order/case reference, amount, and currency." : "Case reference and the promised outcome."} No inbox access or extra fields.</p></details>
-        {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Controlled demo:</strong> the action goes to DueBack’s merchant simulator, not {draft.promiseDraft.promisor.value}. No real company will be contacted.</p> : null}
+        {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Accelerated controlled demo:</strong> after approval, real Cloud Tasks and the isolated merchant adapter run in seconds instead of waiting for the promised date. The action goes to DueBack’s simulator, not {draft.promiseDraft.promisor.value}; no real company will be contacted.</p> : null}
         <div className="return-promise">
           <strong>3 · How the result comes back to you</strong>
           <p>The case page always updates. Add an email if you also want DueBack to bring decisions and verified results back after you close this tab.</p>

@@ -190,6 +190,8 @@ export const resolutionPlanSchema = z
     planHash: sha256Schema,
     goal: z.string().min(1).max(500),
     promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
+    executionMode: z.enum(["ACCELERATED_DEMO", "CONTROLLED_REAL_PILOT"]).optional(),
+    timingPolicyVersion: z.string().min(1).max(80).optional(),
     allowedActions: z
       .array(z.enum(["SEND_FOLLOW_UP", "CHECK_STATUS"]))
       .min(1)

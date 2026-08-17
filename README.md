@@ -46,7 +46,8 @@ verifier, and lifecycle semantics. They are portability fixtures, not production
 - Firebase Authentication for frictionless owner identity.
 
 See [architecture and trust boundaries](docs/architecture/dueback.md) and the
-[decision log](docs/decisions/decision-log.md).
+[decision log](docs/decisions/decision-log.md). The current transitive vulnerability findings and
+reachability review are recorded in [the production dependency audit](docs/security/dependency-audit.md).
 
 ## Local setup
 

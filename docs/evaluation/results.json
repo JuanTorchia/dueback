@@ -5,7 +5,7 @@
     "modelCalls": 0,
     "modelMode": "NOT_RUN_DETERMINISTIC_ONLY",
     "location": "global",
-    "evaluatedAt": "2026-08-17T21:23:39.249Z",
+    "evaluatedAt": "2026-08-17T22:04:39.626Z",
     "costBasis": "No model calls; estimated model cost is not reported for this deterministic run."
   },
   "summary": {
@@ -14,7 +14,7 @@
     "failed": 0,
     "deterministicExecutions": 16,
     "fixtureContractChecks": 12,
-    "totalLatencyMs": 0.503
+    "totalLatencyMs": 0.515
   },
   "cases": [
     {
@@ -32,7 +32,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.091,
+      "latencyMs": 0.102,
       "error": null
     },
     {
@@ -72,7 +72,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.053,
+      "latencyMs": 0.055,
       "error": null
     },
     {
@@ -116,7 +116,7 @@
         "ACCEPTED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.005,
+      "latencyMs": 0.004,
       "error": null
     },
     {
@@ -258,7 +258,7 @@
         "WRONG_CURRENCY"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.032,
+      "latencyMs": 0.029,
       "error": null
     },
     {
@@ -276,7 +276,7 @@
         "CONTRACT_EXPECTATION_RECORDED"
       ],
       "evaluationType": "FIXTURE_CONTRACT",
-      "latencyMs": 0.008,
+      "latencyMs": 0.007,
       "error": null
     },
     {
@@ -384,7 +384,7 @@
         "IDEMPOTENCY_KEY_STABLE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.058,
+      "latencyMs": 0.06,
       "error": null
     },
     {
@@ -438,7 +438,7 @@
         "DELIVERED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.025,
+      "latencyMs": 0.018,
       "error": null
     },
     {
@@ -478,7 +478,7 @@
         "INSUFFICIENT_LEVEL"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.013,
+      "latencyMs": 0.011,
       "error": null
     },
     {
@@ -520,7 +520,7 @@
         "FIELD_NOT_ALLOWED"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.061,
+      "latencyMs": 0.062,
       "error": null
     },
     {
@@ -542,7 +542,7 @@
         "WRONG_CASE"
       ],
       "evaluationType": "DETERMINISTIC_EXECUTION",
-      "latencyMs": 0.011,
+      "latencyMs": 0.01,
       "error": null
     },
     {

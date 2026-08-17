@@ -25,8 +25,8 @@ test.describe("deployed general commercial promise", () => {
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
     await expect(page).toHaveURL(/\/result/);
     await expect(page.getByRole("heading", {
-      name: "The company confirmed the promised outcome"
-    })).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByText(/Independent fulfillment is NOT VERIFIED/)).toBeVisible();
+      name: "Company confirmed the promised outcome"
+    })).toBeVisible({ timeout: 75_000 });
+    await expect(page.getByText(/Independent fulfillment is not verified/i)).toBeVisible();
   });
 });

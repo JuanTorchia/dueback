@@ -8,14 +8,14 @@ labeled on screen. Never call the Merchant Sandbox a real merchant.
 | 0:00–0:20 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps a commercial promise open until there is proof.” | Mobile landing; no dashboard or empty chat                                          |
 | 0:20–0:48 | Paste the Spanish USD 79 refund fixture.                                                                                                    | Formats, privacy line, Spanish source                                               |
 | 0:48–1:12 | “Gemini 3.5 Flash extracts a typed candidate with citations. It cannot call tools or close a case.”                                         | Promise Contract, amount/reference/date, provenance, uncertainty                    |
-| 1:12–1:34 | Show channel health, exact sender/recipient/reply route/message, cadence, `may / never / data shared / done means`; choose the controlled sandbox and approve. | Sandbox selected for deterministic timing; managed email labeled as a controlled available pilot, not arbitrary-company support; plan hash/version |
+| 1:12–1:34 | Show the five-line approval summary, Demo API already selected, exact recipient/message/limits/proof, then approve. | Sandbox selected by default for safety and deterministic timing; managed email remains an explicit controlled-pilot choice; plan version is visible and hash stays under technical disclosure |
 | 1:34–1:52 | Close/reload the tab. Label the demo clock acceleration.                                                                                    | Cloud Task and persisted case; user is not keeping the session alive                |
-| 1:52–2:16 | Merchant Sandbox sends `REQUEST_ACKNOWLEDGED`.                                                                                              | Separate controlled-service page; timeline says `Not done` and `INSUFFICIENT_LEVEL` |
+| 1:52–2:16 | Merchant Sandbox sends `REQUEST_ACKNOWLEDGED`.                                                                                              | Consumer case says `Not done — request received only`; Promised vs. Observed keeps absent facts missing |
 | 2:16–2:38 | Show one injected retry/redelivery fixture.                                                                                                 | Stable idempotency key, one merchant ledger entry, bounded retry                    |
 | 2:38–3:02 | Signed `MERCHANT_CONFIRMED` callback arrives.                                                                                               | HMAC boundary, exact case/amount/currency/reference, state `DONE`                   |
-| 3:02–3:20 | Reopen the durable case and its completion notification.                                                                                    | Notification state, `Merchant-confirmed refund`, explicit “not bank settlement” limitation |
+| 3:02–3:20 | Reopen from `My follow-ups` and inspect the completion.                                                                                      | Human status/next action, notification truth, `Company confirmed`, explicit “bank settlement is not verified” limitation |
 | 3:20–3:37 | Show the hostile-source and wrong-case tests.                                                                                               | Zero unauthorized action, evidence rejection, intervention deep link                |
-| 3:37–3:50 | Show current architecture and Cloud Run revisions.                                                                                          | Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks; corpus result with denominator    |
+| 3:37–3:50 | Open `How DueBack ran`, then show current architecture and Cloud Run revision.                                                               | Redacted persisted stages; Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks; corpus denominator |
 
 ## Required capture checklist
 
@@ -28,6 +28,21 @@ labeled on screen. Never call the Merchant Sandbox a real merchant.
 - `/api/channels` truthfully showing sandbox availability and the actual managed-email/Gmail/partner
   status. Never show fixture provider IDs as live email evidence.
 - End card: `Taskmaster · Individual/Hobbyist · Built during All Things Agentic Hackathon 2026`.
+
+## Final rehearsal record
+
+Do not mark the release task complete from a desk review. Record one unedited rehearsal here after
+the final revision passes the deployed suite:
+
+| Field | Required value |
+|---|---|
+| Date/time UTC | Pending real rehearsal |
+| Public revision | Pending final frozen revision |
+| Actual duration | Must be `≤ 04:00` |
+| Retakes during recorded run | Must be `0` |
+| Spoken/subtitle language | English, or Spanish with complete English subtitles |
+| Visible live evidence | App, Cloud Task/runtime result, proof comparison, redacted trace, Cloud Run revision |
+| Recording URL | Pending public YouTube/Vimeo URL |
 
 ## Optional controlled-email insert
 

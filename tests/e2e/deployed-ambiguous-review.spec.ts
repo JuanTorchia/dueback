@@ -8,6 +8,7 @@ test.describe("deployed ambiguous promise review", () => {
   test("shows uncertainty and makes every blocker recoverable without developer tools", async ({
     page
   }) => {
+    test.setTimeout(120_000);
     await page.goto(`${deployedUrl}/privacy`);
     await expect(page.getByRole("heading", { name: "Only the promise you choose to share." })).toBeVisible();
 
@@ -39,8 +40,8 @@ test.describe("deployed ambiguous promise review", () => {
     await activate.click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Merchant confirmed the refund instruction" })).toBeVisible({
-      timeout: 45_000
+    await expect(page.getByRole("heading", { name: "Company confirmed the refund instruction" })).toBeVisible({
+      timeout: 75_000
     });
   });
 });

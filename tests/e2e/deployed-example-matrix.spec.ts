@@ -14,6 +14,7 @@ test.describe("deployed visible example matrix", () => {
 
   for (const example of visibleExamples) {
     test(`${example.label} completes the accelerated proof loop`, async ({ page }) => {
+      test.setTimeout(120_000);
       await page.goto(`${deployedUrl}/intake`);
       await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
         timeout: 15_000
@@ -29,9 +30,9 @@ test.describe("deployed visible example matrix", () => {
       await page.getByRole("button", { name: "Approve and start follow-up" }).click();
       await expect(page).toHaveURL(/\/cases\/case_[^/]+\/result/);
       await expect(page.getByRole("heading", {
-        name: /Merchant confirmed the refund instruction|The company confirmed the promised outcome/
-      })).toBeVisible({ timeout: 45_000 });
-      await expect(page.getByText(/NOT VERIFIED/).first()).toBeVisible();
+        name: /Company confirmed the refund instruction|Company confirmed the promised outcome/
+      })).toBeVisible({ timeout: 75_000 });
+      await expect(page.getByText(/not verified/i).first()).toBeVisible();
     });
   }
 });

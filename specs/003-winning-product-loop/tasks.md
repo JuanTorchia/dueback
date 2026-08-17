@@ -1,5 +1,10 @@
 # Tasks: Winning Product Loop
 
+> Historical design ledger superseded as the active release backlog by D-022/D-023 and
+> `specs/004-consumer-case-inbox/tasks.md`. Implemented slices were re-specified and verified in 004;
+> rejected slices (notably automatic owner merge) were replaced by recorded decisions. These boxes
+> are intentionally preserved as design provenance and must not be counted as 97 current tasks.
+
 **Input**: Design documents from `specs/003-winning-product-loop/`
 
 **Tests**: Required. Write the named tests first and observe the intended failure before implementation.

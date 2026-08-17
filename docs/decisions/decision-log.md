@@ -296,3 +296,18 @@
 - Motivo: demostrar control de ambas sesiones y migrar propiedad transaccionalmente amplía demasiado
   la superficie de seguridad. El recorrido competitivo sólo necesita crear un caso bajo una cuenta
   recuperable y reabrirlo con esa misma identidad desde otro navegador.
+
+## D-024 — Intake anónimo comienza siempre en la demo controlada
+
+- Fecha: 17 de agosto de 2026
+- Estado: aceptada; precisa D-019, D-020 y D-022
+- Decisión: la configuración disponible de Managed Email no lo convierte en canal predeterminado.
+  Todo intake nuevo comienza en `CONTROLLED_SANDBOX`; email requiere una selección explícita en la
+  revisión, identidad recuperable y nueva versión/aprobación.
+- Evidencia: una auditoría pública mostró que `COMPANY_CONTACT_MODE=email` hacía que los ejemplos y
+  casos anónimos nacieran con un destinatario real allowlisted, bloquearan la demo por Google y
+  conservaran fechas futuras en lugar del reloj acelerado. La política ahora tiene una prueba que
+  permanece en sandbox aun cuando email está configurado.
+- Motivo: subir una promesa no constituye permiso para contactar una dirección real. Este default
+  reduce riesgo de envío accidental, mantiene la ruta reproducible para jueces y conserva email como
+  piloto real opt-in, no como comportamiento implícito.

@@ -1,5 +1,10 @@
 # Tasks: Multichannel Follow-Through
 
+> Historical implementation ledger. Decisions D-021–D-024 and
+> `specs/004-consumer-case-inbox/tasks.md` are authoritative for release. Remaining external-email,
+> human-study and compliance gates are carried forward there; unchecked items here are not a second
+> active backlog.
+
 **Input**: Design documents from `specs/002-multichannel-follow-through/`
 
 **Tests**: Required by FR-046–FR-049 and written before or with each implementation slice.

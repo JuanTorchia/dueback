@@ -511,8 +511,35 @@ server-side channel copy, absence of owner/hash/message internals, missing reply
 last-known state after HTTP 503, keyboard disclosure, reduced motion, 200% reflow and closed-tab
 return to a `Needs you` inbox item.
 
-The deterministic release gate passed: all package and root suites, 71 root contract/integration/
+The deterministic release gate passed: all package and root suites, 69 root contract/integration/
 adversarial tests, four Firestore Emulator ownership tests, typecheck, lint, production build, 28/28
 deterministic evaluation cases and `git diff --check`. Cross-device Google recovery and a new managed-
 email send are intentionally excluded from these deterministic results; they remain real-identity
 and external-provider gates.
+
+## Safe default-channel regression and final public matrix
+
+The post-inbox audit found a real release regression in revision `dueback-web-00048-lkf`: because
+Managed Email was configured, the intake route also made it the default for every anonymous example.
+The screenshots proved three consequences: anonymous demo activation was blocked by Google identity,
+future company dates replaced accelerated demo timing, and the owned pilot mailbox appeared as the
+recipient before the user explicitly selected email. Decision D-024 records the correction.
+
+Commit `fefd99d` makes `CONTROLLED_SANDBOX` the invariant intake default even when email is healthy;
+Managed Email remains an explicit versioned selection guarded by recoverable identity. Unit coverage
+sets `COMPANY_CONTACT_MODE=email` and still expects the sandbox default. Cloud Build
+`fdad7f79-c23a-464d-958e-36fbdd06935b` succeeded and Cloud Run revision
+`dueback-web-00049-4jd` received 100% traffic; Firebase Hosting was repinned to that revision.
+
+The first post-deploy browser run intentionally failed on stale copy/selectors after the product had
+already reached `DONE`; Cloud Run logs showed the worker at 21:52:52 UTC and both callbacks by
+21:52:55 UTC. Test expectations were aligned to the consumer copy (`Company confirmed…`, sentence-
+case limitations and a role-scoped Demo API selector), without product changes or retries.
+
+With one worker and zero retries, the final public product paths passed: main mobile judge story
+(30.8 s), ambiguous correction (34.2 s), Missing refund (17.7 s), Cancellation (24.6 s), Replacement
+(14.8 s), Missing document (21.5 s), and a fresh non-monetary general promise (17.9 s). Twelve
+deterministic public-browser paths covering channel authorization, editing, safe detail, retained
+network state, closed-tab inbox return, intake resilience, keyboard/reduced-motion and 200% reflow
+also passed sequentially in 24.2 s. Cross-device Google recovery and a fresh managed-email send are
+not included in these results because they still require a real interactive identity session.

@@ -36,7 +36,7 @@
 - [x] T020 [US1] Build mobile-first “My follow-ups” page in `apps/web/app/cases/page.tsx` and `apps/web/components/case-inbox.tsx`
 - [x] T021 [US1] Add My follow-ups/sign-in state to `apps/web/components/app-header.tsx`
 - [x] T022 [US1] Require recoverability before managed-email approval in `apps/web/components/plan-review.tsx` and `apps/web/lib/plan-controller.ts`
-- [ ] T023 [US1] Add two-browser recovery/denial E2E in `tests/e2e/cross-device-return.spec.ts`
+- [x] T023 [US1] Add two-browser recovery/denial E2E in `tests/e2e/cross-device-return.spec.ts` (real-identity execution remains a release claim gate)
 
 **Gate B**: clean browser recovers the same case; a different owner receives no facts.
 

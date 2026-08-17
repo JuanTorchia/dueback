@@ -7,10 +7,10 @@
 
 | Gate | Status | Current evidence | Missing evidence |
 |---|---|---|---|
-| A — Product truth | PASS (local) | Server-side channel projection fixtures prove managed-email contains no sandbox labels and sandbox retains disclosure | Reconfirm after deployment |
+| A — Product truth | PASS | Server-side channel fixtures plus revision `dueback-web-00049-4jd`; anonymous intake remains sandbox even when email is configured | None |
 | B — Personal inbox | PARTIAL | Owner-scoped paginated `/api/cases`, Google sign-in, Firebase Hosting OAuth boundary, authenticated empty state | Same real case recovered in a clean browser; non-owner denial recorded |
-| C — Understandable case | PASS (local) | Owner-checked safe detail DTO, bounded conversation, Promised-vs-Observed, ACK rejection, responsive header and retained-state retry tests | Continuous deployed managed-email weak→sufficient journey remains optional evidence |
-| D — Durable return | PASS (deterministic) | Attention/completion/failure notification tests, concurrent replay dedupe, lifecycle truth, bounded retry and closed-tab browser fixture | Reconfirm browser fixture against the new revision |
+| C — Understandable case | PASS | Owner-checked safe detail DTO, bounded conversation, Promised-vs-Observed, ACK rejection, responsive header and deployed result paths | Continuous managed-email sufficient completion remains optional; weak ACK evidence already exists |
+| D — Durable return | PASS | Attention/completion/failure tests, concurrent replay dedupe, lifecycle truth, bounded retry and deployed closed-tab browser fixture | None for sandbox path |
 | E — Control/evidence/release | PARTIAL | Idempotent narrow controls, stale/late-event adversarial tests, gated judge trace, safe export and accessibility browser fixture implemented | Run accessibility fixture and record the final demo |
 
 ## Requirement traceability
@@ -51,7 +51,7 @@
 | FR-032 | PARTIAL | Core product/README/architecture aligned; demo-script audit pending |
 | FR-033 | PASS | Controlled-pilot and settlement limitations visible and documented |
 | FR-034 | PASS | Unsupported channels remain unavailable/out of scope |
-| FR-035 | PARTIAL | Keyboard/live status/reduced-motion/200%-reflow browser fixture exists; deployed execution pending |
+| FR-035 | PASS (current screens) | Keyboard/live status/reduced-motion/200%-reflow browser fixture passed against revision 00049 |
 
 ## Success criteria
 
@@ -62,11 +62,11 @@
 | SC-003 | UNVERIFIED HUMAN TARGET | Synthetic feedback cannot satisfy it |
 | SC-004 | PASS | Attention/completion/terminal failure transitions and concurrent attention replay are covered |
 | SC-005 | PASS | Published weak-ACK deployed evidence plus adversarial tests |
-| SC-006 | PASS (local) | Full consumer DTO fixtures assert email/sandbox copy separation |
+| SC-006 | PASS | Consumer DTO fixtures and deployed default-channel matrix assert email/sandbox separation |
 | SC-007 | PASS | Outcome comparison and explicit evidence projection |
 | SC-008 | TARGET | Continuous controlled-email return demo pending |
 | SC-009 | PASS (deterministic) | Judge trace redaction/eligibility contract and adversarial access tests pass |
-| SC-010 | TARGET | Accessibility browser fixture implemented but not yet executed on the new revision |
+| SC-010 | PASS (automated scope) | Keyboard/live status/reduced-motion/200%-reflow fixture passed on revision 00049; human assistive-tech study remains separate |
 | SC-011 | PASS (deterministic) | External action, attention notification and control-command concurrency matrices pass |
 | SC-012 | PARTIAL | Current docs mostly aligned; demo script and final submission audit pending |
 

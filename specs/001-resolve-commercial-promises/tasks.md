@@ -1,5 +1,10 @@
 # Tasks: Resolve Commercial Promises
 
+> Historical implementation ledger. Decisions D-021–D-024 and
+> `specs/004-consumer-case-inbox/tasks.md` are authoritative for release. Remaining human-study and
+> compliance gates are carried forward in `docs/hackathon/compliance-checklist.md`; unchecked items
+> here are not a second active backlog.
+
 **Input**: Design documents in `specs/001-resolve-commercial-promises/`
 **Tests**: Required by the project constitution for the happy path, false completion, authorization, duplicate delivery, retry, restart, invalid callbacks, and wrong-case evidence.
 

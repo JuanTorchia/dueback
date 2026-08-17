@@ -59,7 +59,7 @@
 ## Phase 5 — User Story 3: Durable Return (P1)
 
 - [x] T035 [P] [US3] Add attention/completion/failure notification transition tests in `packages/runtime/test/notifications.test.ts`
-- [ ] T036 [P] [US3] Add concurrent replay/bounce/suppression tests in `tests/integration/attention-notification.test.ts`
+- [x] T036 [P] [US3] Add concurrent replay/bounce/suppression tests in `tests/integration/attention-notification.test.ts`
 - [x] T037 [US3] Extend truthful notification lifecycle contracts in `packages/runtime/src/notifications.ts`
 - [x] T038 [US3] Connect intervention persistence to bounded delivery in `packages/runtime/src/interventions.ts` and all construction sites
 - [x] T039 [US3] Emit terminal-failure notifications from `packages/runtime/src/case-runner.ts`

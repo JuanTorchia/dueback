@@ -45,6 +45,36 @@ async function readBody(request: import("node:http").IncomingMessage): Promise<s
   return Buffer.concat(chunks).toString("utf8");
 }
 
+function retryableCallbackStatus(status: number): boolean {
+  return status === 409 || status === 429 || status >= 500;
+}
+
+export async function deliverCallbackWithRetry(
+  send: () => Promise<Response>,
+  wait: (delayMs: number) => Promise<void> = (delayMs) =>
+    new Promise((resolve) => setTimeout(resolve, delayMs)),
+  delaysMs: readonly number[] = [250, 500, 1_000, 2_000, 4_000]
+): Promise<void> {
+  let lastStatus = 0;
+  for (let attempt = 0; attempt <= delaysMs.length; attempt += 1) {
+    const response = await send();
+    if (response.ok) return;
+    lastStatus = response.status;
+    if (!retryableCallbackStatus(response.status) || attempt === delaysMs.length) {
+      throw new Error(`CALLBACK_${String(response.status)}`);
+    }
+    await wait(delaysMs[attempt] ?? 0);
+  }
+  throw new Error(`CALLBACK_${String(lastStatus)}`);
+}
+
+function reportCallbackFailure(error: unknown): void {
+  const reason = error instanceof Error && /^CALLBACK_[0-9]{3}$/.test(error.message)
+    ? error.message
+    : "CALLBACK_DELIVERY_FAILED";
+  console.error(JSON.stringify({ event: "sandbox_callback_delivery_exhausted", reason }));
+}
+
 export function createMerchantServer(input: {
   readonly callbackSecret: string;
   readonly actionSecret?: string;
@@ -130,33 +160,39 @@ export function createMerchantServer(input: {
               issuedAt: now(),
               issuer: "merchant-sandbox"
             });
-          const send = async (level: typeof step.outcome) => {
+          const send = (level: typeof step.outcome) => {
             const callback = callbackPayload(level);
-            const timestamp = now();
-            const callbackResponse = await outbound(callbackUrl, {
-              method: "POST",
-              headers: {
-                "content-type": "application/json",
-                "x-dueback-timestamp": timestamp,
-                "x-dueback-signature": signCallback(callback, timestamp, input.callbackSecret),
-                ...(typeof correlationId === "string"
-                  ? { "x-dueback-correlation-id": correlationId }
-                  : {})
-              },
-              body: callback
-            });
-            if (!callbackResponse.ok)
-              throw new Error(`CALLBACK_${String(callbackResponse.status)}`);
+            return async () => {
+              const timestamp = now();
+              return outbound(callbackUrl, {
+                method: "POST",
+                headers: {
+                  "content-type": "application/json",
+                  "x-dueback-timestamp": timestamp,
+                  "x-dueback-signature": signCallback(callback, timestamp, input.callbackSecret),
+                  ...(typeof correlationId === "string"
+                    ? { "x-dueback-correlation-id": correlationId }
+                    : {})
+                },
+                body: callback
+              });
+            };
           };
           const callbackDelay = step.delayMs ?? input.callbackDelayMs ?? 1_000;
-          setTimeout(() => void send(step.outcome).catch(() => undefined), callbackDelay);
+          setTimeout(
+            () => void deliverCallbackWithRetry(send(step.outcome)).catch(reportCallbackFailure),
+            callbackDelay
+          );
           if (step.replayCount === 2)
-            setTimeout(() => void send(step.outcome).catch(() => undefined), callbackDelay + 100);
+            setTimeout(
+              () => void deliverCallbackWithRetry(send(step.outcome)).catch(reportCallbackFailure),
+              callbackDelay + 100
+            );
           const followupOutcome = step.followupOutcome;
           if (followupOutcome)
             setTimeout(
-              () => void send(followupOutcome).catch(() => undefined),
-              callbackDelay + 1_500
+              () => void deliverCallbackWithRetry(send(followupOutcome)).catch(reportCallbackFailure),
+              callbackDelay + (step.followupDelayMs ?? 1_500)
             );
         }
       } catch (error) {

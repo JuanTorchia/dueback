@@ -45,6 +45,10 @@ export async function handleMerchantCallback(
   } catch (error) {
     await dependencies.callbacks.failCallback(key);
     const message = error instanceof Error ? error.message : "CALLBACK_FAILED";
-    return Response.json({ error: message }, { status: 422 });
+    const retryable = message === "VERSION_CONFLICT" || message === "EVIDENCE_NOT_ACCEPTED_IN_STATE";
+    return Response.json(
+      { error: retryable ? "CALLBACK_STATE_NOT_READY" : message },
+      { status: retryable ? 409 : 422 }
+    );
   }
 }

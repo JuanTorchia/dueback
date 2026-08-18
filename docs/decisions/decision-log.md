@@ -384,3 +384,18 @@
   sandbox y el secreto callback enumera únicamente runtime y sandbox como lectores.
 - Motivo: el simulador es público e intencionalmente hostil para pruebas. Compartir la identidad
   privilegiada del producto ampliaba su blast radius sin necesidad operacional.
+
+## D-030 — Un worker duplicado nunca publica estado del propietario de la acción
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada
+- Decisión: cuando el Action Broker devuelve `PENDING_DUPLICATE`, el segundo worker termina con
+  `ACTION_IN_FLIGHT` y HTTP 200 sin cambiar versión, estado ni wake. El callback distingue una
+  carrera transitoria (`409`) de evidencia permanentemente inválida (`422`). El Merchant Sandbox
+  reintenta de forma acotada únicamente `409`, `429` y `5xx`, preservando el mismo cuerpo de
+  evidencia; los agotamientos quedan en logs sin payload ni identificadores personales.
+- Evidencia de origen: el caso sintético `case_645260ed-3368-4ef8-9ea6-43f71c984ce9` mostró que un
+  segundo worker convirtió `ACTION_IN_FLIGHT` en `WAITING_RETRY`, hizo fallar al worker propietario
+  con `VERSION_CONFLICT`, recibió callbacks `422` y terminó en `ACTION_BUDGET_EXHAUSTED`.
+- Motivo: sólo el worker que reservó la acción puede publicar su recibo. Un duplicado es una
+  observación idempotente, no un nuevo fallo operacional ni autoridad para cambiar el caso.

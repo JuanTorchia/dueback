@@ -94,4 +94,19 @@ describe("merchant callback controller", () => {
     await expect(response.json()).resolves.toMatchObject({ duplicate: true });
     expect(reconcile).not.toHaveBeenCalled();
   });
+
+  it("returns a retryable conflict while the action owner is publishing state", async () => {
+    const callbacks = new Callbacks();
+    const response = await handleMerchantCallback(callback(), {
+      secret,
+      now: () => now,
+      callbacks,
+      evidence: {
+        reconcile: vi.fn().mockRejectedValue(new Error("VERSION_CONFLICT"))
+      } as never
+    });
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toEqual({ error: "CALLBACK_STATE_NOT_READY" });
+    expect(callbacks.status).toBeUndefined();
+  });
 });

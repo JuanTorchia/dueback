@@ -50,6 +50,7 @@ export interface RetryScheduler {
 export type RunResult =
   | { readonly status: "NOT_DUE"; readonly wakeAt: string }
   | { readonly status: "STALE_TASK" }
+  | { readonly status: "ACTION_IN_FLIGHT" }
   | { readonly status: "WAITING_EXTERNAL"; readonly broker: BrokerResult }
   | { readonly status: "WAITING_RETRY"; readonly wakeAt: string }
   | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
@@ -168,7 +169,11 @@ export class CaseRunner {
       });
       if (broker.status === "DENIED")
         throw new Error(`ACTION_DENIED:${broker.decision.reasonCodes.join(",")}`);
-      if (broker.status === "PENDING_DUPLICATE") throw new Error("ACTION_IN_FLIGHT");
+      // Another delivery already owns this exact logical action. It must be the
+      // only worker allowed to publish the resulting case transition. Moving
+      // the case to WAITING_RETRY here races that owner and can orphan its
+      // receipt and callback behind a VERSION_CONFLICT.
+      if (broker.status === "PENDING_DUPLICATE") return { status: "ACTION_IN_FLIGHT" };
       const followUpIntervalSeconds = item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60;
       const nextWakeAt = new Date(
         Date.parse(input.now) + followUpIntervalSeconds * 1000

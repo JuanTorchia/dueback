@@ -13,6 +13,7 @@ export interface ScenarioStep {
   readonly delayMs?: number;
   readonly replayCount?: number;
   readonly followupOutcome?: "MERCHANT_CONFIRMED";
+  readonly followupDelayMs?: number;
 }
 
 export const merchantScenarios: Readonly<Record<ScenarioName, readonly ScenarioStep[]>> = {
@@ -27,7 +28,8 @@ export const merchantScenarios: Readonly<Record<ScenarioName, readonly ScenarioS
     {
       status: 202,
       outcome: "REQUEST_ACKNOWLEDGED",
-      followupOutcome: "MERCHANT_CONFIRMED"
+      followupOutcome: "MERCHANT_CONFIRMED",
+      followupDelayMs: 8_000
     }
   ],
   replay: [{ status: 200, outcome: "MERCHANT_CONFIRMED", replayCount: 2 }],

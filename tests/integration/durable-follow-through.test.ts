@@ -228,6 +228,55 @@ describe("durable follow-through", () => {
     ).resolves.toEqual({ status: "STALE_TASK" });
   });
 
+  it("does not let a concurrent delivery overwrite the worker that owns the action", async () => {
+    const initial = readyCase();
+    const cases = new Cases(initial);
+    const records = new Records();
+    // Reserve the exact key without completing its external call, modeling a
+    // second Cloud Task that arrives while the first worker owns the send.
+    let releaseAction: ((receipt: ActionReceipt) => void) | undefined;
+    const blockingAdapter = {
+      execute: vi.fn(() => new Promise<ActionReceipt>((resolve) => { releaseAction = resolve; }))
+    };
+    const broker = new ActionBroker(records, blockingAdapter);
+    const first = broker.execute({
+      caseId: initial.caseId,
+      actionOrdinal: initial.actionOrdinal,
+      policy: {
+        ownerId: initial.ownerId,
+        planVersion: initial.plan.version,
+        planHash: initial.plan.planHash,
+        allowedActions: initial.plan.allowedActions,
+        allowedRecipient: initial.plan.allowedRecipient,
+        sharedFields: initial.plan.sharedFields,
+        approval: initial.approval
+      },
+      proposal: {
+        ownerId: initial.ownerId,
+        planVersion: initial.plan.version,
+        planHash: initial.plan.planHash,
+        actionType: "SEND_FOLLOW_UP",
+        recipient: initial.plan.allowedRecipient,
+        sharedFields: {}
+      },
+      now: "2026-08-15T12:00:00.000Z"
+    });
+    await vi.waitFor(() => expect(blockingAdapter.execute).toHaveBeenCalledOnce());
+    void first;
+    const scheduleCase = vi.fn();
+    const runner = new CaseRunner(cases, broker, { scheduleCase });
+
+    await expect(runner.run({
+      caseId: initial.caseId,
+      expectedVersion: initial.version,
+      now: "2026-08-15T12:00:00.100Z"
+    })).resolves.toEqual({ status: "ACTION_IN_FLIGHT" });
+    expect(cases.value).toEqual(initial);
+    expect(scheduleCase).not.toHaveBeenCalled();
+    releaseAction?.({ receiptId: "receipt_owner", acceptedAt: "2026-08-15T12:00:00.200Z" });
+    await first;
+  });
+
   it("recovers a wake enqueue failure after state persistence without repeating the action", async () => {
     const cases = new Cases(readyCase());
     const execute = vi.fn().mockResolvedValue({

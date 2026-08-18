@@ -7,6 +7,15 @@ export type AnalysisStartResult =
   | { status: "STARTED"; job: AnalysisJob }
   | { status: "BUSY" | "READY" | "FAILED"; job: AnalysisJob };
 
+export function parseAnalysisDocument(data: FirebaseFirestore.DocumentData | undefined): AnalysisJob {
+  if (!data) throw new Error("ANALYSIS_JOB_NOT_FOUND");
+  // `deleteAt` is Firestore-only TTL metadata and deliberately not part of the
+  // domain contract exposed to workers or owners.
+  const { deleteAt: _deleteAt, ...job } = data;
+  void _deleteAt;
+  return analysisJobSchema.parse(job);
+}
+
 export class FirestoreAnalysisStore {
   constructor(private readonly db: Firestore) {}
 
@@ -23,7 +32,7 @@ export class FirestoreAnalysisStore {
         const existingRef = this.db.collection("analysisJobs").doc(String(dedupe.get("jobId")));
         const existing = await transaction.get(existingRef);
         if (existing.exists) {
-          return { job: analysisJobSchema.parse(existing.data()), duplicate: true };
+          return { job: parseAnalysisDocument(existing.data()), duplicate: true };
         }
       }
       const deleteAt = firestoreDeleteAt(
@@ -43,7 +52,7 @@ export class FirestoreAnalysisStore {
 
   async get(jobId: string): Promise<AnalysisJob | undefined> {
     const snapshot = await this.db.collection("analysisJobs").doc(jobId).get();
-    return snapshot.exists ? analysisJobSchema.parse(snapshot.data()) : undefined;
+    return snapshot.exists ? parseAnalysisDocument(snapshot.data()) : undefined;
   }
 
   async getOwnedCase(caseId: string, ownerId: string): Promise<AnalysisJob | undefined> {
@@ -53,7 +62,7 @@ export class FirestoreAnalysisStore {
       .get();
     const document = snapshot.docs[0];
     if (!document) return undefined;
-    const job = analysisJobSchema.parse(document.data());
+    const job = parseAnalysisDocument(document.data());
     return job.ownerId === ownerId ? job : undefined;
   }
 
@@ -62,7 +71,7 @@ export class FirestoreAnalysisStore {
       .where("ownerId", "==", ownerId)
       .limit(Math.min(Math.max(limit, 1), 50))
       .get();
-    return snapshot.docs.map((document) => analysisJobSchema.parse(document.data()));
+    return snapshot.docs.map((document) => parseAnalysisDocument(document.data()));
   }
 
   async start(jobId: string, now: string): Promise<AnalysisStartResult> {
@@ -70,7 +79,7 @@ export class FirestoreAnalysisStore {
     return this.db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(reference);
       if (!snapshot.exists) throw new Error("ANALYSIS_JOB_NOT_FOUND");
-      const current = analysisJobSchema.parse(snapshot.data());
+      const current = parseAnalysisDocument(snapshot.data());
       if (current.status === "READY") return { status: "READY", job: current };
       if (current.status === "FAILED") return { status: "FAILED", job: current };
       if (
@@ -127,7 +136,7 @@ export class FirestoreAnalysisStore {
     return this.db.runTransaction(async (transaction) => {
       const snapshot = await transaction.get(reference);
       if (!snapshot.exists) throw new Error("ANALYSIS_JOB_NOT_FOUND");
-      const current = analysisJobSchema.parse(snapshot.data());
+      const current = parseAnalysisDocument(snapshot.data());
       const terminal = current.attemptCount >= 3;
       const next = analysisJobSchema.parse({
         ...current,

@@ -19,10 +19,16 @@ class Cases implements EvidenceCaseStore {
     caseId: string;
     expectedVersion: number;
     nextState: EvidenceCase["state"];
+    nextWakeAt?: string;
     evidence: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
     this.records.push(input.evidence);
-    this.item = { ...this.item, state: input.nextState, version: this.item.version + 1 };
+    this.item = {
+      ...this.item,
+      state: input.nextState,
+      version: this.item.version + 1,
+      ...(input.nextWakeAt ? { nextWakeAt: input.nextWakeAt } : {})
+    };
     return Promise.resolve({ duplicate: false });
   }
 }
@@ -64,12 +70,36 @@ describe("EvidenceService", () => {
       plan: draft.plan
     });
     const notifications = new Notifications();
-    const result = await new EvidenceService(cases, notifications).reconcile(
+    const scheduled: Array<{
+      caseId: string;
+      expectedVersion: number;
+      wakeAt: string;
+      correlationId?: string;
+    }> = [];
+    const scheduleCase = (input: typeof scheduled[number]): Promise<unknown> => {
+      scheduled.push(input);
+      return Promise.resolve({});
+    };
+    const result = await new EvidenceService(
+      cases,
+      notifications,
+      undefined,
+      undefined,
+      { scheduleCase }
+    ).reconcile(
       candidate("REQUEST_ACKNOWLEDGED"),
       "2026-08-15T12:00:05.000Z"
     );
     expect(result.status).toBe("INSUFFICIENT");
     expect(cases.item.state).toBe("WAITING_EXTERNAL");
+    expect(cases.item.nextWakeAt).toBe("2026-08-17T12:00:05.000Z");
+    expect(scheduled).toEqual([{
+      caseId: draft.caseId,
+      expectedVersion: 3,
+      wakeAt: "2026-08-17T12:00:05.000Z",
+      correlationId: scheduled[0]?.correlationId
+    }]);
+    expect(scheduled[0]?.correlationId).toMatch(/^corr_/);
     expect(notifications.records.size).toBe(0);
   });
 

@@ -47,7 +47,7 @@ export type RunResult =
   | { readonly status: "WAITING_EXTERNAL"; readonly broker: BrokerResult }
   | { readonly status: "WAITING_RETRY"; readonly wakeAt: string }
   | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
-  | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" };
+  | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" | "ACTION_BUDGET_EXHAUSTED" };
 
 function actionProposal(item: FollowThroughCase): ProposedAction {
   const requirement = item.plan.evidenceRequirements[0];
@@ -58,6 +58,9 @@ function actionProposal(item: FollowThroughCase): ProposedAction {
   if (requirement.currency !== undefined) sharedFields.currency = requirement.currency;
   if (requirement.subject !== undefined) sharedFields.subject = requirement.subject;
   if (requirement.billPeriod !== undefined) sharedFields.billPeriod = requirement.billPeriod;
+  const laterFollowUp = item.actionOrdinal > 1
+    ? `\n\nThis is follow-up ${String(item.actionOrdinal)}. A prior response did not include the explicit proof required to close this case. Please include the approved reference and outcome facts.`
+    : "";
   return {
     ownerId: item.ownerId,
     planVersion: item.plan.version,
@@ -66,7 +69,7 @@ function actionProposal(item: FollowThroughCase): ProposedAction {
     recipient: item.plan.allowedRecipient,
     ...(item.plan.channelType ? { channelType: item.plan.channelType } : {}),
     ...(item.plan.messageSubject ? { subject: item.plan.messageSubject } : {}),
-    ...(item.plan.messageBody ? { body: item.plan.messageBody } : {}),
+    ...(item.plan.messageBody ? { body: `${item.plan.messageBody}${laterFollowUp}` } : {}),
     sharedFields
   };
 }
@@ -92,23 +95,38 @@ export class CaseRunner {
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (
       item.version !== input.expectedVersion ||
-      !["READY", "WAITING_RETRY"].includes(item.state)
+      !["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state)
     ) {
       return { status: "STALE_TASK" };
     }
     const wakeAt = item.nextWakeAt ?? item.dueAt;
     if (Date.parse(wakeAt) > Date.parse(input.now)) return { status: "NOT_DUE", wakeAt };
 
-    if (item.actionOrdinal > 3) {
+    const maxLogicalSends = item.plan.maxLogicalSends ?? 3;
+    if (item.actionOrdinal > maxLogicalSends) {
+      const caseWithoutWake = { ...item };
+      delete caseWithoutWake.nextWakeAt;
       const exhausted: FollowThroughCase = {
-        ...item,
+        ...caseWithoutWake,
         state: "NEEDS_ATTENTION",
         version: item.version + 1,
-        lastError: "LOGICAL_ACTION_BUDGET_EXHAUSTED",
+        lastError: "ACTION_BUDGET_EXHAUSTED",
         updatedAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, exhausted);
-      return { status: "NEEDS_ATTENTION", reason: "RECOVERY_EXHAUSTED" };
+      const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+      await this.interventions?.raise({
+        caseId: item.caseId,
+        ownerId: item.ownerId,
+        correlationId,
+        kind: "ACTION_BUDGET_EXHAUSTED",
+        reasonCodes: ["ACTION_BUDGET_EXHAUSTED"],
+        ...(item.plan.notificationRecipient
+          ? { notificationRecipient: item.plan.notificationRecipient }
+          : {}),
+        createdAt: input.now
+      });
+      return { status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" };
     }
 
     try {
@@ -134,6 +152,10 @@ export class CaseRunner {
       if (broker.status === "DENIED")
         throw new Error(`ACTION_DENIED:${broker.decision.reasonCodes.join(",")}`);
       if (broker.status === "PENDING_DUPLICATE") throw new Error("ACTION_IN_FLIGHT");
+      const followUpIntervalSeconds = item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60;
+      const nextWakeAt = new Date(
+        Date.parse(input.now) + followUpIntervalSeconds * 1000
+      ).toISOString();
       const waitingExternal: FollowThroughCase = {
         caseId: item.caseId,
         ownerId: item.ownerId,
@@ -141,8 +163,9 @@ export class CaseRunner {
         version: item.version + 1,
         plan: item.plan,
         approval: item.approval,
-        actionOrdinal: item.actionOrdinal,
+        actionOrdinal: item.actionOrdinal + 1,
         dueAt: item.dueAt,
+        nextWakeAt,
         ...(item.correlationId || input.correlationId
           ? { correlationId: item.correlationId ?? input.correlationId }
           : {}),
@@ -152,6 +175,14 @@ export class CaseRunner {
         lastActionDuplicate: broker.duplicate,
         updatedAt: input.now
       };
+      await this.scheduler.scheduleCase({
+        caseId: item.caseId,
+        expectedVersion: waitingExternal.version,
+        wakeAt: nextWakeAt,
+        ...(input.correlationId || item.correlationId
+          ? { correlationId: input.correlationId ?? item.correlationId }
+          : {})
+      });
       await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
       return { status: "WAITING_EXTERNAL", broker };
     } catch (error) {

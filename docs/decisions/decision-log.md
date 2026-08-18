@@ -311,3 +311,17 @@
 - Motivo: subir una promesa no constituye permiso para contactar una dirección real. Este default
   reduce riesgo de envío accidental, mantiene la ruta reproducible para jueces y conserva email como
   piloto real opt-in, no como comportamiento implícito.
+
+## D-025 — Reabrir el producto hasta cerrar el ciclo autónomo real
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada; pospone el freeze de video y submission
+- Decisión: implementar `specs/005-winning-follow-through` antes de grabar el video final. Un ACK
+  insuficiente no puede dejar el caso esperando indefinidamente: debe existir un próximo seguimiento
+  durable, acotado por la aprobación, o una intervención explícita al agotar presupuesto.
+- Evidencia: el caso real de Managed Email rechazó correctamente `Request received`, pero la
+  inspección de `EvidenceService` y `CaseRunner` demostró que no se crea otra Cloud Task después del
+  envío exitoso ni del ACK débil. La auditoría pública también mostró `Gmail`/`Controlled` como
+  empresa, `5900` como importe, enums internos y un `Next check` pasado.
+- Motivo: esos defectos contradicen el valor central y reducen utilidad, credibilidad y claridad de
+  demo. El producto no vuelve a considerarse cerrado hasta probar el ciclo reparado en producción.

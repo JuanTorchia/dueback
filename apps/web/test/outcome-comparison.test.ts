@@ -9,7 +9,8 @@ describe("promised versus observed", () => {
   it("keeps facts absent when the company did not state them", () => {
     const evidence = [{ candidate: { level: "REQUEST_ACKNOWLEDGED", transactionRef: "R-59" }, verification: { accepted: false } }] as EvidenceRecord[];
     expect(outcomeComparison(item, evidence)).toEqual(expect.arrayContaining([
-      expect.objectContaining({ label: "Amount", observed: "Not stated in the reply", status: "MISSING" }),
+      expect.objectContaining({ label: "Amount", promised: "USD 59.00", observed: "Not stated in the reply", status: "MISSING" }),
+      expect.objectContaining({ label: "Proof level", promised: "Company confirmed the outcome", observed: "Company acknowledged the request" }),
       expect.objectContaining({ label: "Currency", observed: "Not stated in the reply", status: "MISSING" })
     ]));
   });

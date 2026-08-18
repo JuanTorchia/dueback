@@ -24,6 +24,7 @@ export interface EvidenceCase {
   readonly version: number;
   readonly plan: ResolutionPlan;
   readonly correlationId?: string;
+  readonly nextWakeAt?: string | undefined;
 }
 
 export interface EvidenceRecord {
@@ -39,8 +40,18 @@ export interface EvidenceCaseStore {
     caseId: string;
     expectedVersion: number;
     nextState: CaseState;
+    nextWakeAt?: string;
     evidence: EvidenceRecord;
   }): Promise<{ duplicate: boolean }>;
+}
+
+export interface EvidenceScheduler {
+  scheduleCase(input: {
+    caseId: string;
+    expectedVersion: number;
+    wakeAt: string;
+    correlationId?: string;
+  }): Promise<unknown>;
 }
 
 export class EvidenceService {
@@ -48,7 +59,8 @@ export class EvidenceService {
     private readonly cases: EvidenceCaseStore,
     private readonly notifications: NotificationStore,
     private readonly interventions?: InterventionStore,
-    private readonly delivery?: NotificationDeliveryService
+    private readonly delivery?: NotificationDeliveryService,
+    private readonly scheduler?: EvidenceScheduler
   ) {}
 
   async reconcile(
@@ -75,14 +87,28 @@ export class EvidenceService {
       `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: item.caseId }).slice(7, 31)}`;
     const accepted = verification.accepted;
     const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_LEVEL");
+    const nextWakeAt = !accepted && !conflict
+      ? new Date(Date.parse(now) + (item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60) * 1000).toISOString()
+      : undefined;
+    if (!accepted && !conflict && nextWakeAt) {
+      await this.scheduler?.scheduleCase({
+        caseId: item.caseId,
+        expectedVersion: item.version + 1,
+        wakeAt: nextWakeAt,
+        correlationId
+      });
+    }
     await this.cases.record({
       caseId: item.caseId,
       expectedVersion: item.version,
       nextState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL",
+      ...(nextWakeAt ? { nextWakeAt } : {}),
       evidence: { candidate, verification, recordedAt: now, correlationId }
     });
     if (!accepted) {
-      if (!conflict) return { status: "INSUFFICIENT", verification };
+      if (!conflict) {
+        return { status: "INSUFFICIENT", verification };
+      }
       const notification = notificationRecord({
         caseId: item.caseId,
         ownerId: item.ownerId,

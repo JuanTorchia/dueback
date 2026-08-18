@@ -8,6 +8,18 @@ export interface OutcomeComparisonRow {
   status: "MATCH" | "MISSING" | "CONFLICT";
 }
 
+function evidenceLabel(level: string | undefined): string | undefined {
+  if (level === "MERCHANT_CONFIRMED") return "Company confirmed the outcome";
+  if (level === "REQUEST_ACKNOWLEDGED") return "Company acknowledged the request";
+  if (level === "DELIVERY_CONFIRMED") return "Delivery confirmed";
+  return level;
+}
+
+function money(amountMinor: number | undefined, currency: string | undefined): string | undefined {
+  if (amountMinor === undefined) return undefined;
+  return currency ? `${currency} ${(amountMinor / 100).toFixed(2)}` : (amountMinor / 100).toFixed(2);
+}
+
 export function outcomeComparison(
   item: FollowThroughCase,
   evidence: readonly EvidenceRecord[]
@@ -28,9 +40,9 @@ export function outcomeComparison(
     };
   };
   return [
-    row("Proof level", requirement.minimumLevel, candidate?.level),
+    row("Proof level", evidenceLabel(requirement.minimumLevel), evidenceLabel(candidate?.level)),
     row("Reference", requirement.transactionRef, candidate?.transactionRef),
-    row("Amount", requirement.amountMinor === undefined ? undefined : String(requirement.amountMinor), candidate?.amountMinor === undefined ? undefined : String(candidate.amountMinor)),
+    row("Amount", money(requirement.amountMinor, requirement.currency), money(candidate?.amountMinor, candidate?.currency)),
     row("Currency", requirement.currency, candidate?.currency),
     row("Subject", requirement.subject, candidate?.subject),
     row("Bill period", requirement.billPeriod, candidate?.billPeriod),

@@ -74,6 +74,56 @@ function readyCase(): FollowThroughCase {
 }
 
 describe("durable follow-through", () => {
+  it("schedules a distinct bounded logical follow-up after silence", async () => {
+    const base = readyCase();
+    const cases = new Cases({
+      ...base,
+      plan: {
+        ...base.plan,
+        messageBody: "Please confirm the approved refund.",
+        followUpIntervalSeconds: 60,
+        maxLogicalSends: 2
+      }
+    });
+    const execute = vi.fn(() =>
+      Promise.resolve({ receiptId: `receipt_${execute.mock.calls.length}`, acceptedAt: "2026-08-15T12:00:00.000Z" })
+    );
+    const scheduleCase = vi.fn(() => Promise.resolve({}));
+    const runner = new CaseRunner(
+      cases,
+      new ActionBroker(new Records(), { execute }),
+      { scheduleCase }
+    );
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 1,
+      now: "2026-08-15T12:00:00.000Z"
+    })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
+    expect(cases.value).toMatchObject({
+      state: "WAITING_EXTERNAL",
+      version: 2,
+      actionOrdinal: 2,
+      nextWakeAt: "2026-08-15T12:01:00.000Z"
+    });
+    expect(scheduleCase).toHaveBeenLastCalledWith({
+      caseId: cases.value.caseId,
+      expectedVersion: 2,
+      wakeAt: "2026-08-15T12:01:00.000Z"
+    });
+    const firstIdempotencyKey = cases.value.lastActionIdempotencyKey;
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 2,
+      now: "2026-08-15T12:01:00.000Z"
+    })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
+    expect(execute).toHaveBeenCalledTimes(2);
+    expect(execute.mock.calls[1]?.[0]).toMatchObject({ body: expect.stringContaining("follow-up 2") });
+    expect(cases.value.actionOrdinal).toBe(3);
+    expect(cases.value.lastActionIdempotencyKey).not.toBe(firstIdempotencyKey);
+  });
+
   it("recovers an adapter failure through a bounded scheduled retry", async () => {
     const cases = new Cases(readyCase());
     const execute = vi
@@ -168,6 +218,73 @@ describe("durable follow-through", () => {
         now: "2026-08-15T12:00:00.000Z"
       })
     ).resolves.toEqual({ status: "STALE_TASK" });
+  });
+
+  it("stops after the approved logical-send budget and returns one owner decision", async () => {
+    const base = readyCase();
+    const cases = new Cases({
+      ...base,
+      state: "WAITING_EXTERNAL",
+      version: 2,
+      actionOrdinal: 3,
+      nextWakeAt: "2026-08-15T12:00:00.000Z",
+      plan: { ...base.plan, maxLogicalSends: 2 }
+    });
+    const interventionRecords = new Map<string, InterventionRecord>();
+    const notificationRecords = new Map<string, NotificationRecord>();
+    const interventions = new InterventionService(
+      {
+        createInterventionIfAbsent: async (record) => {
+          const prior = interventionRecords.get(record.dedupeKey);
+          if (prior) return { record: prior, duplicate: true };
+          interventionRecords.set(record.dedupeKey, record);
+          return { record, duplicate: false };
+        },
+        listInterventions: () => Promise.resolve([...interventionRecords.values()])
+      },
+      {
+        createIfAbsent: async (record) => {
+          const prior = notificationRecords.get(record.dedupeKey);
+          if (prior) return { record: prior, duplicate: true };
+          notificationRecords.set(record.dedupeKey, record);
+          return { record, duplicate: false };
+        }
+      }
+    );
+    const execute = vi.fn();
+    const runner = new CaseRunner(
+      cases,
+      new ActionBroker(new Records(), { execute }),
+      { scheduleCase: vi.fn() },
+      30,
+      5,
+      interventions
+    );
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 2,
+      now: "2026-08-15T12:00:00.000Z"
+    })).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" });
+    expect(cases.value).toMatchObject({
+      state: "NEEDS_ATTENTION",
+      version: 3,
+      lastError: "ACTION_BUDGET_EXHAUSTED"
+    });
+    expect(cases.value.nextWakeAt).toBeUndefined();
+    expect(execute).not.toHaveBeenCalled();
+    expect([...interventionRecords.values()]).toEqual([
+      expect.objectContaining({ kind: "ACTION_BUDGET_EXHAUSTED", allowedDecisions: ["REVISE", "STOP"] })
+    ]);
+    expect(notificationRecords.size).toBe(1);
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 2,
+      now: "2026-08-15T12:00:01.000Z"
+    })).resolves.toEqual({ status: "STALE_TASK" });
+    expect(interventionRecords.size).toBe(1);
+    expect(notificationRecords.size).toBe(1);
   });
 
   it("stops bounded recovery and creates one inspectable intervention", async () => {

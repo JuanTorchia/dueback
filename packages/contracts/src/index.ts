@@ -181,6 +181,11 @@ export const outcomeContractSchema = z.discriminatedUnion("recipe", [
   })
 ]);
 
+const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
+  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
+  "Full email addresses are not allowed in consumer projections"
+);
+
 export const resolutionPlanSchema = z
   .object({
     planId: opaqueIdSchema,
@@ -189,6 +194,7 @@ export const resolutionPlanSchema = z
     version: z.int().positive(),
     planHash: sha256Schema,
     goal: z.string().min(1).max(500),
+    counterpartyName: safeDisplayTextSchema(200).optional(),
     promiseType: z.enum(["REFUND", "BILL_CREDIT", "REPLACEMENT", "GENERAL"]).optional(),
     executionMode: z.enum(["ACCELERATED_DEMO", "CONTROLLED_REAL_PILOT"]).optional(),
     timingPolicyVersion: z.string().min(1).max(80).optional(),
@@ -305,11 +311,6 @@ export const caseEventSchema = z.object({
   payloadHash: sha256Schema,
   schemaVersion: z.literal(1)
 });
-
-const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
-  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
-  "Full email addresses are not allowed in consumer projections"
-);
 
 export const notificationSchema = z.object({
   notificationId: opaqueIdSchema,

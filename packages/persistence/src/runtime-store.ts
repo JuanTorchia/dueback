@@ -368,6 +368,7 @@ export class FirestoreRuntimeStore
     caseId: string;
     expectedVersion: number;
     nextState: FollowThroughCase["state"];
+    nextWakeAt?: string;
     evidence: EvidenceRecord;
   }): Promise<{ duplicate: boolean }> {
     const caseRef = this.db.collection("caseRuns").doc(input.caseId);
@@ -388,6 +389,7 @@ export class FirestoreRuntimeStore
         state: input.nextState,
         version: input.expectedVersion + 1,
         updatedAt: input.evidence.recordedAt,
+        nextWakeAt: input.nextWakeAt ?? FieldValue.delete(),
         ...(input.nextState === "DONE"
           ? {
               completedLevel: input.evidence.candidate.level,

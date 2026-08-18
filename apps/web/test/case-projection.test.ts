@@ -26,7 +26,16 @@ describe("consumer case projection", () => {
   });
 
   it("never fills missing reply facts from the promise", () => {
-    const detail = projectConsumerCase({ item: managed, evidence: [acknowledgement] });
+    const detail = projectConsumerCase({
+      item: {
+        ...managed,
+        nextWakeAt: "2026-08-19T10:00:00.000Z",
+        plan: { ...managed.plan, counterpartyName: "Northstar Store" }
+      },
+      evidence: [acknowledgement]
+    });
+    expect(detail.counterpartyName).toBe("Northstar Store");
+    expect(detail.nextAction).toMatch(/Another approved follow-up is scheduled/i);
     expect(detail.conversation.at(-1)?.safeBody).toBe("Reference R-59");
     expect(detail.comparison.find((row) => row.label === "Amount")).toMatchObject({ observed: "Not stated in the reply", status: "MISSING" });
   });

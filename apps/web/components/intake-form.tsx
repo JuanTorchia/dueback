@@ -4,25 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
-
-const examples = [
-  {
-    label: "Missing refund",
-    text: "Northstar Store promised to refund USD 59 for order ORDER-1842 by August 20, 2026, but the refund has not arrived."
-  },
-  {
-    label: "Cancellation",
-    text: "Northstar Travel promised to cancel booking BOOKING-731 and confirm a full USD 120 refund by August 22, 2026."
-  },
-  {
-    label: "Replacement",
-    text: "Northstar Electronics promised to replace the damaged headphones from order ORDER-992 by August 25, 2026."
-  },
-  {
-    label: "Missing document",
-    text: "Northstar Insurance promised to email the coverage certificate for case CASE-441 by August 21, 2026."
-  }
-] as const;
+import { examplePromises } from "../lib/example-promises";
 
 export function IntakeForm() {
   const router = useRouter();
@@ -32,6 +14,7 @@ export function IntakeForm() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState<string>();
   const [hydrated, setHydrated] = useState(false);
+  const examples = examplePromises();
 
   useEffect(() => {
     setHydrated(true);

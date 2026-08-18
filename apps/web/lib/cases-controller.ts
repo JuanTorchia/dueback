@@ -79,9 +79,7 @@ function nextStep(item: FollowThroughCase): string {
 }
 
 function companyName(item: FollowThroughCase): string {
-  return item.plan.allowedRecipient.includes("@")
-    ? item.plan.allowedRecipient.split("@").at(-1)?.split(".")[0] ?? "Company"
-    : item.plan.allowedRecipient || "Company";
+  return item.plan.counterpartyName?.trim() || "Company";
 }
 
 export function caseSummary(item: FollowThroughCase): CaseSummary {
@@ -92,7 +90,7 @@ export function caseSummary(item: FollowThroughCase): CaseSummary {
     outcomeLabel: requirement?.subject ?? item.plan.messageSubject ?? "Company promise",
     bucket: bucket(item.state),
     statusLabel: status[item.state],
-    lastActivityAt: item.lastAttemptAt ?? item.controlledAt ?? item.dueAt,
+    lastActivityAt: item.updatedAt ?? item.lastAttemptAt ?? item.controlledAt ?? item.dueAt,
     nextStepLabel: nextStep(item),
     attentionRequired: bucket(item.state) === "NEEDS_YOU",
     channelLabel: item.plan.channelType === "MANAGED_EMAIL" ? "Email" : "Controlled demo"

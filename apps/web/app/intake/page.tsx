@@ -26,7 +26,7 @@ export default function IntakePage() {
               <li><span>2</span><p><b>It keeps the case open</b> when a reply only says “request received.”</p></li>
               <li><span>3</span><p><b>You return only for a decision or result.</b> This demo updates the case page automatically.</p></li>
             </ol>
-            <p className="channel-disclosure"><b>Live demo:</b> controlled merchant HTTP adapter + in-app updates. Production email delivery is implemented but not enabled on this public demo.</p>
+            <p className="channel-disclosure"><b>Live demo:</b> the controlled HTTP adapter is the safe default. Signed-in owners may explicitly choose the allowlisted Managed Email pilot during review.</p>
           </div>
         </section>
         <IntakeForm />

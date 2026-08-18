@@ -19,7 +19,7 @@ export default function Home() {
           <p className="landing-trust">No inbox access · Nothing sent before approval · Stop anytime</p>
         </div>
         <div className="product-preview" aria-label="Example DueBack case">
-          <div className="preview-top"><span>Live case</span><strong>Refund · $59</strong></div>
+          <div className="preview-top"><span>Example case</span><strong>Refund · $59</strong></div>
           <div className="preview-company"><span>N</span><div><strong>Northstar Store</strong><p>Order 1842</p></div></div>
           <div className="preview-promise"><small>OUTCOME</small><strong>Receive the promised refund</strong></div>
           <ol className="preview-timeline">

@@ -5,7 +5,7 @@ import { caseSummary, handleCases, type CaseSummary } from "../lib/cases-control
 function item(state: FollowThroughCase["state"], ownerId = "owner_12345678") {
   return {
     caseId: `case_${state.toLowerCase()}_12345678`, ownerId, state, dueAt: "2026-08-17T12:00:00.000Z",
-    plan: { allowedRecipient: "support@example.com", channelType: "MANAGED_EMAIL",
+    plan: { counterpartyName: "Northstar Store", allowedRecipient: "support@example.com", channelType: "MANAGED_EMAIL",
       evidenceRequirements: [{ subject: "USD 59 refund", transactionRef: "R-59" }] }
   } as unknown as FollowThroughCase;
 }
@@ -23,6 +23,20 @@ describe("owner case inbox", () => {
     expect(caseSummary(item("NEEDS_ATTENTION"))).toMatchObject({ bucket: "NEEDS_YOU", attentionRequired: true });
     expect(caseSummary(item("WAITING_EXTERNAL"))).toMatchObject({ bucket: "WORKING", statusLabel: "Waiting for the company" });
     expect(caseSummary(item("DONE"))).toMatchObject({ bucket: "DONE", nextStepLabel: "Review the proof and limitation" });
+    expect(caseSummary(item("WAITING_EXTERNAL"))).toMatchObject({ companyName: "Northstar Store" });
+  });
+
+  it("uses persisted counterparty and newest activity instead of recipient provider or due date", () => {
+    const value = {
+      ...item("WAITING_EXTERNAL"),
+      dueAt: "2026-08-20T00:00:00.000Z",
+      lastAttemptAt: "2026-08-18T10:00:00.000Z",
+      updatedAt: "2026-08-18T10:05:00.000Z"
+    };
+    expect(caseSummary(value)).toMatchObject({
+      companyName: "Northstar Store",
+      lastActivityAt: "2026-08-18T10:05:00.000Z"
+    });
   });
 
   it("queries only the authenticated owner and bounds the response", async () => {

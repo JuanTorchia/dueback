@@ -33,7 +33,12 @@ export function CaseResult({ caseId }: { readonly caseId: string }) {
   }, [caseId, refreshKey]);
 
   if (error && !detail) return <section className="card error case-access-error" role="alert"><h2>Sign in to open this private case</h2><p>The link does not grant access. Use the Google account that owns this follow-up.</p><GoogleSignIn onSignedIn={() => { setRefreshKey((value) => value + 1); }} /><button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try current session</button></section>;
-  if (!detail) return <section className="card" aria-live="polite">Loading your follow-up…</section>;
+  if (!detail) return <section className="card case-loading" role="status" aria-live="polite" aria-busy="true">
+    <div className="eyebrow">Your follow-up</div>
+    <h2>Opening the latest saved state…</h2>
+    <p>Checking the case, company response and proof decision.</p>
+    <div className="case-loading-steps" aria-hidden="true"><span /><span /><span /></div>
+  </section>;
   const notification = detail.notifications.at(-1);
   return <div className="result-grid consumer-case-detail">
     {error ? <section className="card error refresh-warning" role="alert"><p>DueBack could not refresh. Your last saved state remains below.</p><button type="button" onClick={() => { setRefreshKey((value) => value + 1); }}>Try again</button></section> : null}

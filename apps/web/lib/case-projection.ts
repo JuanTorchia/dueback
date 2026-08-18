@@ -14,6 +14,7 @@ export interface ConsumerCaseDetail {
   statusLabel: string;
   nextAction: string;
   goal: string;
+  counterpartyName: string;
   updatedAt: string;
   nextCheckAt?: string;
   attemptCount: number;
@@ -61,8 +62,13 @@ export function projectConsumerCase(input: {
     version: item.version,
     state: item.state,
     statusLabel: states[item.state][0],
-    nextAction: acknowledgementOnly && item.state === "WAITING_EXTERNAL" ? "Not done — the company only acknowledged the request" : states[item.state][1],
+    nextAction: acknowledgementOnly && item.state === "WAITING_EXTERNAL"
+      ? item.nextWakeAt
+        ? "Another approved follow-up is scheduled because the reply only acknowledged the request"
+        : "Not done — the company only acknowledged the request"
+      : states[item.state][1],
     goal: item.plan.goal,
+    counterpartyName: item.plan.counterpartyName?.trim() || "Company",
     updatedAt: item.updatedAt ?? item.lastAttemptAt ?? item.dueAt,
     ...(item.nextWakeAt ?? item.dueAt ? { nextCheckAt: item.nextWakeAt ?? item.dueAt } : {}),
     attemptCount: item.attemptCount ?? 0,
@@ -71,8 +77,8 @@ export function projectConsumerCase(input: {
     outcome: {
       accepted,
       acknowledgementOnly,
-      title: accepted ? (money ? "Company confirmed the refund instruction" : "Company confirmed the promised outcome") : acknowledgementOnly ? "Not done — request received only" : "Waiting for sufficient proof",
-      explanation: accepted ? "Explicit company evidence matched the approved proof contract." : "DueBack keeps this open until explicit evidence meets the approved contract.",
+      title: accepted ? (money ? "Company confirmed the refund instruction" : "Company confirmed the promised outcome") : acknowledgementOnly ? "The reply did not prove the promised outcome" : "Waiting for sufficient proof",
+      explanation: accepted ? "Explicit company evidence matched the approved proof contract." : acknowledgementOnly ? "DueBack kept the case open and scheduled the next approved step." : "DueBack keeps this open until explicit evidence meets the approved contract.",
       limitation: money ? "Bank settlement is not verified. Check your payment account before treating the money as received." : "Independent fulfillment is not verified. Check that the promised outcome actually arrived."
     },
     conversation: caseConversation(item, evidence, input.channelEvents ?? []),

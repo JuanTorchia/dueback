@@ -7,6 +7,7 @@ import { InboundService } from "@dueback/runtime/inbound-service";
 import { InterventionService } from "@dueback/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
+import { caseScheduler } from "../../../../../lib/case-scheduler";
 
 export const runtime = "nodejs";
 
@@ -54,7 +55,13 @@ export async function POST(request: Request) {
     const service = new InboundService(
       store,
       { interpret: (input) => extractInboundFlow(input) },
-      new EvidenceService(store, store, store, notificationDelivery(store)),
+      new EvidenceService(
+        store,
+        store,
+        store,
+        notificationDelivery(store),
+        caseScheduler()
+      ),
       interventions
     );
     const email = await new ResendInboundEmailAdapter(apiKey).retrieve(body.providerEmailId);

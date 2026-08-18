@@ -114,6 +114,9 @@ function revisedPlan(
     ownerId: current.ownerId,
     version: current.version + 1,
     goal: revision.goal ?? draft.result.value,
+    counterpartyName: /^[^@\s]+@[^@\s]+$/.test(draft.promisor.value)
+      ? "Company"
+      : draft.promisor.value,
     ...(current.promiseType ? { promiseType: current.promiseType } : {}),
     ...(current.executionMode ? { executionMode: current.executionMode } : {}),
     ...(current.timingPolicyVersion ? { timingPolicyVersion: current.timingPolicyVersion } : {}),

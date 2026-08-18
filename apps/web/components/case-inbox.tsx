@@ -29,9 +29,20 @@ export function CaseInbox() {
   }, []);
   useEffect(() => { void load(); }, [load]);
 
-  if (!items && !error) return <section className="card" role="status">Loading your follow-ups…</section>;
+  if (!items && !error) return <section className="card inbox-loading" role="status" aria-live="polite" aria-busy="true">
+    <div><span className="case-bucket">Working</span><small>Checking saved cases</small></div>
+    <h2>Opening your follow-ups…</h2>
+    <p>Loading the latest company activity and decisions.</p>
+    <div className="case-loading-steps" aria-hidden="true"><span /><span /><span /></div>
+  </section>;
   const empty = identity ? emptyInboxPresentation(identity) : undefined;
   return <div className="case-inbox">
+    {items && items.length > 0 ? <section className="inbox-summary" aria-label="Follow-up summary">
+      <p><strong>{items.filter((item) => item.bucket === "WORKING").length}</strong><span>Working</span></p>
+      <p><strong>{items.filter((item) => item.bucket === "NEEDS_YOU").length}</strong><span>Need you</span></p>
+      <p><strong>{items.filter((item) => item.bucket === "DONE").length}</strong><span>Done</span></p>
+      {identity?.email ? <small>Signed in as {identity.email}</small> : null}
+    </section> : null}
     {error ? <section className="card error" role="alert"><p>{error}</p>{identity?.isAnonymous !== false ? <GoogleSignIn compact onSignedIn={() => { void load(); }} /> : null}<button type="button" onClick={() => void load()}>Try again</button></section> : null}
     {items?.length === 0 && empty ? <section className="card empty-state"><h2>{empty.heading}</h2><p>{empty.message}</p>{empty.showSignIn ? <GoogleSignIn onSignedIn={() => { void load(); }} /> : <p className="identity-confirmation"><span aria-hidden="true">✓</span> Google access is active on this device.</p>}<a className="button-link" href="/intake">Add a promise</a></section> : null}
     {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={`/cases/${item.caseId}/result`} key={item.caseId}>

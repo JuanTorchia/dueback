@@ -143,6 +143,9 @@ function buildPlan(input: {
     ownerId: input.ownerId,
     version: 1,
     goal: draft.result.value,
+    counterpartyName: /^[^@\s]+@[^@\s]+$/.test(draft.promisor.value)
+      ? "Company"
+      : draft.promisor.value,
     promiseType,
     executionMode: input.channel.channelType === "CONTROLLED_SANDBOX"
       ? "ACCELERATED_DEMO" as const

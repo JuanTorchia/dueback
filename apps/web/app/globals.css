@@ -874,8 +874,11 @@ textarea {
   .app-header {
     min-height: 48px;
   }
-  .header-link {
+  .header-link[href="/privacy"] {
     display: none;
+  }
+  .header-actions {
+    gap: 10px;
   }
   .landing-hero {
     gap: 34px;

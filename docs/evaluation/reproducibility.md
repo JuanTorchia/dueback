@@ -633,3 +633,43 @@ invariant.
 
 This proves deployed recovery from a real enqueue configuration failure without claiming a new
 case transition or a real merchant interaction during the chaos exercise.
+
+## Winning-loop reliability gate — 2026-08-18
+
+Public auditing exposed a real race on synthetic case
+`case_645260ed-3368-4ef8-9ea6-43f71c984ce9`: a duplicate worker observed the owner's action
+reservation, wrote `WAITING_RETRY`, caused the owner transition to fail with `VERSION_CONFLICT`, and
+left its callbacks rejected with HTTP 422. The case exhausted its action budget. This failed run is
+retained as negative evidence; it is not counted as a passing release result.
+
+The correction in commit `e3fc393` makes an in-flight duplicate a state-preserving HTTP 200 result,
+maps transient callback publication races to HTTP 409, and adds bounded sandbox redelivery for only
+409, 429 and 5xx while preserving the evidence body. Permanent 422 evidence errors remain terminal.
+The public controlled scenario is `signed-completion`, whose ACK and later confirmation are derived
+from one request and do not depend on an in-memory attempt counter.
+
+Frozen deployed pair:
+
+- DueBack web: `dueback-web-00064-tvf` (race fix image built by Cloud Build
+  `d9f8df9b-2937-41f5-88f2-6a8be14f4e78`; scenario set to `signed-completion`).
+- Merchant Sandbox: `dueback-merchant-sandbox-00017-rjg` (image `e3fc393`).
+- Firebase Hosting was repinned to web revision `00064`; the public URL returned HTTP 200.
+
+Gate command:
+
+```bash
+DUEBACK_DEPLOYED_URL=https://bulbasour-503317.web.app \
+  pnpm exec playwright test tests/e2e/deployed-demo.spec.ts \
+  --workers=1 --retries=0 --repeat-each=10
+```
+
+Observed from `2026-08-18T16:18:33Z` through `2026-08-18T16:24:01Z`:
+
+- 10/10 sequential browser journeys passed in 5.2 minutes.
+- Per-case duration ranged from 26.7 to 41.5 seconds; all were below the predeclared 90-second gate.
+- Every journey visibly observed insufficient ACK before limited `Company confirmed` completion.
+- Cloud Logging returned zero `>=400` merchant callbacks, zero `>=400` `run-case` workers and zero
+  `sandbox_callback_delivery_exhausted` records in the gate window.
+
+These are controlled sandbox outcomes and do not prove bank settlement or arbitrary-company
+connectivity.

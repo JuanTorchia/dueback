@@ -115,6 +115,10 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - `pnpm test`: package tests plus contract, integration, adversarial, and E2E runtime tests.
 - `pnpm evaluate`: versioned 28-case corpus with per-case output in
   [`docs/evaluation/results.json`](docs/evaluation/results.json).
+- `pnpm evaluate:live-model`: opt-in four-case Gemini extraction run with observed latency, token
+  usage, provenance, uncertainty and complete per-case failures in
+  [`docs/evaluation/live-model-results.json`](docs/evaluation/live-model-results.json). It is small
+  synthetic model evidence, not a human study or a general accuracy claim.
 - `pnpm research:report`: validates exactly eight consented P01–P08 rows before generating study
   denominators and threshold results; it refuses the empty template.
 - [Evaluation interpretation](docs/evaluation/results.md) distinguishes deterministic executions

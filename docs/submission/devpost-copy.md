@@ -11,6 +11,10 @@ DueBack — Proof, not promises
 Share what a company promised. DueBack follows through and closes the case only when the evidence
 matches.
 
+Positioning: company agents close tickets; DueBack protects the promise for the consumer. The
+hackathon entry proves that reusable protocol with one accelerated controlled counterparty and one
+restricted real-email pilot; it does not claim universal company connectivity.
+
 ## Category
 
 Taskmaster. Entrant: individual/hobbyist, Argentina.

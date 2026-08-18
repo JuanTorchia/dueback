@@ -574,3 +574,17 @@ showed `Not done — the company only acknowledged the request`, explained that 
 proof, and kept the case in `Waiting for proof`. This proves outbound action, real inbound transport,
 durable processing and false-DONE rejection; it does not prove refund settlement or arbitrary-company
 support.
+## Four pre-video gates — 2026-08-18
+
+Revision `dueback-web-00058-vts` deployed image tag `oidc-20260818` from Cloud Build
+`c418e44e-072a-4594-b372-df0062efcb35`. Firebase Hosting was repinned to that revision.
+
+- A direct POST containing a forged `x-cloudtasks-taskname` but no signed bearer token returned
+  HTTP 401 with `CLOUD_TASK_IDENTITY_REQUIRED` before parsing or executing the requested case.
+- The public, retries-disabled `deployed-demo.spec.ts` then passed 1/1 in 1.1 minutes. This proves a
+  legitimate Cloud Task still crossed the enforced OIDC boundary and completed durable analysis,
+  approval, background execution, retry, weak-ACK rejection and sufficient-evidence completion.
+- The live Gemini corpus in `live-model-results.json` ran four real `gemini-3.5-flash` calls: English,
+  Spanish, contradictory amount and hostile instruction. It observed 4/4 contract checks passing;
+  per-case latency, usage, uncertainty and failures are retained. This small synthetic corpus is
+  model evidence, not a human study or a general accuracy claim.

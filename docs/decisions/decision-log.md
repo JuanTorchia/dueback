@@ -340,3 +340,20 @@
 - Motivo: la petición síncrona anterior dejaba al usuario inmóvil durante 10–25 segundos y podía
   perder la experiencia ante timeout o cierre de pestaña. El trabajo durable mejora UX y vuelve
   visible la arquitectura Taskmaster sin fingir que Gemini responde instantáneamente.
+
+## D-027 — Cuatro gates antes del video
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada; regida por `specs/006-four-winning-gates`
+- Decisión: no ampliar recetas ni canales antes del video. DueBack se presenta como producto
+  consumer de seguimiento respaldado por un runtime reusable de Proof of Done. La entrega demuestra
+  profundamente una receta, separando el `Accelerated proof demo` reproducible del `Controlled email
+  pilot` real pero restringido; no afirma conectividad universal ni liquidación bancaria.
+- Seguridad: todos los workers públicos de Cloud Tasks validan firma OIDC, audience y service account
+  exacto. El header de nombre de tarea queda reducido a metadata y nunca concede autoridad.
+- Gemini: conserva interpretación multimodal, provenance, incertidumbre y contenido inbound sin
+  herramientas. Su latencia, tokens, costo estimado y estado se proyectan cuando fueron observados;
+  una evaluación live separada evita presentar el corpus determinista como precisión del modelo.
+- Motivo: la auditoría previa al video encontró una frontera OIDC incompleta y tres riesgos de
+  percepción capaces de convertir una arquitectura competitiva en “email + sandbox”. Estos gates
+  cierran el defecto real y fijan claims que un juez puede verificar sin expandir el MVP.

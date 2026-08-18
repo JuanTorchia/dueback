@@ -1,21 +1,25 @@
 import type { FirestoreAnalysisStore } from "@dueback/persistence/analysis-store";
 import type { IntakeService } from "@dueback/runtime/intake-service";
 import type { PrivateArtifactStorage } from "./artifact-storage";
+import {
+  requireCloudTaskIdentity,
+  type CloudTaskIdentityVerifier
+} from "./cloud-task-identity";
 
 export interface AnalysisWorkerDependencies {
   store: Pick<FirestoreAnalysisStore, "start" | "markReady" | "markAttemptFailed">;
   storage: Pick<PrivateArtifactStorage, "read" | "delete">;
   service(jobId: string): IntakeService;
   now(): string;
+  identityVerifier?: CloudTaskIdentityVerifier;
 }
 
 export async function handleAnalysisWorker(
   request: Request,
   dependencies: AnalysisWorkerDependencies
 ): Promise<Response> {
-  if (!request.headers.get("x-cloudtasks-taskname")) {
-    return Response.json({ error: "CLOUD_TASK_IDENTITY_REQUIRED" }, { status: 401 });
-  }
+  const unauthorized = await requireCloudTaskIdentity(request, dependencies.identityVerifier);
+  if (unauthorized) return unauthorized;
   let jobId: string | undefined;
   try {
     const body = await request.json() as { jobId?: string };

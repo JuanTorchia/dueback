@@ -469,12 +469,25 @@ export class FirestoreRuntimeStore
       const budgetKey = `${run.ownerId}:${typedDraft.artifactId}`;
       const usage = await this.db.collection("modelUsage").doc(stableHash(budgetKey).slice(7, 39)).get();
       if (usage.exists) {
-        const usageData = usage.data() as { lastStatus?: unknown; lastObservedAt?: unknown };
+        const usageData = usage.data() as {
+          lastStatus?: unknown;
+          lastObservedAt?: unknown;
+          totalLatencyMs?: unknown;
+          totalTokens?: unknown;
+          estimatedCostUsd?: unknown;
+        };
         const lastStatus = usageData.lastStatus;
         const lastObservedAt = usageData.lastObservedAt;
         modelUsage = {
           ...(lastStatus === "SUCCEEDED" || lastStatus === "FAILED" ? { lastStatus } : {}),
-          ...(typeof lastObservedAt === "string" ? { lastObservedAt } : {})
+          ...(typeof lastObservedAt === "string" ? { lastObservedAt } : {}),
+          ...(typeof usageData.totalLatencyMs === "number"
+            ? { totalLatencyMs: usageData.totalLatencyMs }
+            : {}),
+          ...(typeof usageData.totalTokens === "number" ? { totalTokens: usageData.totalTokens } : {}),
+          ...(typeof usageData.estimatedCostUsd === "number"
+            ? { estimatedCostUsd: usageData.estimatedCostUsd }
+            : {})
         };
       }
     }

@@ -101,7 +101,7 @@ gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --serv
 web_url="$(gcloud run services describe dueback-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
 public_base_url="${DUEBACK_PUBLIC_BASE_URL:-${web_url}}"
 
-gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},DUEBACK_PUBLIC_BASE_URL=${public_base_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case,DUEBACK_ANALYSIS_WORKER_URL=${web_url}/api/internal/tasks/analyze-case" --project="${project_id}" >/dev/null
+gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},DUEBACK_PUBLIC_BASE_URL=${public_base_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case,DUEBACK_ANALYSIS_WORKER_URL=${web_url}/api/internal/tasks/analyze-case,DUEBACK_TASKS_OIDC_AUDIENCE=${web_url}" --project="${project_id}" >/dev/null
 
 # Managed email is opt-in and fail-closed. The sandbox deploy remains reproducible without these
 # external credentials. To enable it, provision both named secrets and set every bounded channel

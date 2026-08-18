@@ -8,13 +8,13 @@ import { InterventionService } from "@dueback/runtime/interventions";
 import { firestore } from "../../../../../lib/firebase-admin";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
 import { caseScheduler } from "../../../../../lib/case-scheduler";
+import { requireCloudTaskIdentity } from "../../../../../lib/cloud-task-identity";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  if (!request.headers.get("x-cloudtasks-taskname")) {
-    return Response.json({ error: "CLOUD_TASK_IDENTITY_REQUIRED" }, { status: 401 });
-  }
+  const unauthorized = await requireCloudTaskIdentity(request);
+  if (unauthorized) return unauthorized;
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return Response.json({ error: "INBOUND_EMAIL_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);

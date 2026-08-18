@@ -20,7 +20,10 @@ export async function POST(request: Request) {
     queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
     workerUrl: `${baseUrl}/api/internal/tasks/run-case`,
     inboundWorkerUrl: `${baseUrl}/api/internal/tasks/process-inbound`,
-    serviceAccountEmail
+    serviceAccountEmail,
+    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+      : {})
   });
   return handleEmailWebhook(request, {
     secret,

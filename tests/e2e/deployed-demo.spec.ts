@@ -35,8 +35,8 @@ test.describe("deployed mobile judge path", () => {
     await expect(page.getByText("How DueBack contacts them")).toBeVisible();
     await expect(page.getByText("The first follow-up")).toBeVisible();
     await expect(page.getByText(`Follow-up for ${reference}`)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Demo API Selected" })).toBeVisible();
-    await expect(page.getByText(/Web forms and WhatsApp are not implied/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Accelerated proof demo Selected" })).toBeVisible();
+    await expect(page.getByText(/proof demo is reproducible but contacts no company/)).toBeVisible();
     await expect(page.getByText(/Accelerated controlled demo/)).toBeVisible();
     await expect(page.getByText("3 · How the result comes back to you")).toBeVisible();
     await expect(

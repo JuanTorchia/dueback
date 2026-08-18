@@ -4,7 +4,13 @@ import type { NotificationRecord } from "./notifications";
 import type { RuntimeTimelineEvent } from "./timeline";
 
 export interface TechnicalRunSource {
-  modelUsage?: { lastStatus?: "SUCCEEDED" | "FAILED"; lastObservedAt?: string };
+  modelUsage?: {
+    lastStatus?: "SUCCEEDED" | "FAILED";
+    lastObservedAt?: string;
+    totalLatencyMs?: number;
+    totalTokens?: number;
+    estimatedCostUsd?: number;
+  };
   hasTypedDraft: boolean;
   events: readonly RuntimeTimelineEvent[];
   evidence: readonly EvidenceRecord[];
@@ -24,7 +30,16 @@ export function technicalRunProjection(source: TechnicalRunSource): TechnicalSte
     stepId: "step_gemini_extraction",
     stage: "GEMINI",
     status: source.modelUsage?.lastStatus ?? "MISSING",
-    systemLabel: source.modelUsage ? "Gemini typed extraction call" : "Gemini telemetry unavailable",
+    systemLabel: source.modelUsage
+      ? [
+          "Gemini typed extraction call",
+          source.modelUsage.totalLatencyMs === undefined ? undefined : `${String(source.modelUsage.totalLatencyMs)} ms`,
+          source.modelUsage.totalTokens === undefined ? undefined : `${String(source.modelUsage.totalTokens)} tokens`,
+          source.modelUsage.estimatedCostUsd === undefined
+            ? undefined
+            : `$${source.modelUsage.estimatedCostUsd.toFixed(6)} estimated`
+        ].filter(Boolean).join(" · ")
+      : "Gemini telemetry unavailable",
     ...(source.modelUsage?.lastObservedAt ? { occurredAt: source.modelUsage.lastObservedAt } : {}),
     reasonCodes: source.modelUsage ? [] : ["MODEL_TELEMETRY_MISSING"]
   }));

@@ -356,12 +356,12 @@ export function PlanReview({
                 onClick={() => { chooseChannel(channelType); }}
               >
                 <span aria-hidden="true">{channelType === "MANAGED_EMAIL" ? "✉" : "↗"}</span>
-                <strong>{channelType === "MANAGED_EMAIL" ? "Managed email" : "Demo API"}</strong>
+                <strong>{channelType === "MANAGED_EMAIL" ? "Controlled email pilot" : "Accelerated proof demo"}</strong>
                 <small>{selected ? "Selected" : available ? "Available" : "Unavailable — setup required"}</small>
               </button>;
             })}
           </div>
-          <p className="button-help">Only channels that can actually run are shown. Web forms and WhatsApp are not implied as working integrations.</p>
+          <p className="button-help">The proof demo is reproducible but contacts no company. The email pilot crosses a real mail boundary, only with approved test addresses.</p>
         </div>
         <div className="message-preview">
           <div className="message-preview-heading"><span>2</span><div><strong>The first follow-up</strong><p>This exact scope is bound to your approval.</p></div></div>

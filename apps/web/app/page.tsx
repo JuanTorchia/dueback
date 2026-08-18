@@ -6,7 +6,7 @@ export default function Home() {
       <AppHeader />
       <section className="landing-hero">
         <div>
-          <div className="eyebrow landing-eyebrow">Your follow-through agent</div>
+          <div className="eyebrow landing-eyebrow">The consumer-side follow-through agent</div>
           <h1>Stop chasing companies for what they already promised.</h1>
           <p className="lede">
             DueBack reads the promise, follows up within limits you approve, and keeps the case
@@ -33,8 +33,8 @@ export default function Home() {
       </section>
 
       <section className="value-contrast">
-        <p>A reminder gives the work back to you.</p>
-        <h2>DueBack does the following up—and knows when the job is actually done.</h2>
+        <p>Company systems close tickets. Reminders give the work back to you.</p>
+        <h2>DueBack keeps your promise open until the company’s evidence matches it.</h2>
       </section>
 
       <section className="benefit-grid" aria-label="Why use DueBack">

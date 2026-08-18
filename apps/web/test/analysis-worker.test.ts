@@ -18,6 +18,11 @@ const job: AnalysisJob = {
   updatedAt: "2026-08-18T12:00:01.000Z"
 };
 
+const verified = vi.fn().mockResolvedValue({
+  taskName: "analysis-task",
+  serviceAccountEmail: "dueback-tasks@example.test"
+});
+
 function taskRequest() {
   return new Request("https://dueback.test/internal", {
     method: "POST",
@@ -28,7 +33,9 @@ function taskRequest() {
 
 describe("analysis worker", () => {
   it("requires Cloud Tasks identity", async () => {
-    const response = await handleAnalysisWorker(new Request("https://dueback.test/internal"), {} as never);
+    const response = await handleAnalysisWorker(new Request("https://dueback.test/internal"), {
+      identityVerifier: vi.fn().mockRejectedValue(new Error("missing identity"))
+    } as never);
     expect(response.status).toBe(401);
   });
 
@@ -42,7 +49,8 @@ describe("analysis worker", () => {
       },
       storage: { read: vi.fn(), delete: vi.fn() },
       service: vi.fn(),
-      now: () => "2026-08-18T12:00:02.000Z"
+      now: () => "2026-08-18T12:00:02.000Z",
+      identityVerifier: verified
     });
     expect(response.status).toBe(503);
   });
@@ -63,7 +71,8 @@ describe("analysis worker", () => {
         delete: remove
       },
       service: () => ({ intake } as never),
-      now: () => "2026-08-18T12:00:02.000Z"
+      now: () => "2026-08-18T12:00:02.000Z",
+      identityVerifier: verified
     });
     expect(response.status).toBe(200);
     expect(markAttemptFailed).not.toHaveBeenCalled();

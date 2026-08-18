@@ -16,6 +16,7 @@
     "format:check": "prettier --check .",
     "format": "prettier --write .",
     "evaluate": "tsx scripts/evaluation/run.ts",
+    "evaluate:live-model": "tsx scripts/evaluation/live-model.ts",
     "research:report": "tsx scripts/research/report.ts",
     "test:deployed": "playwright test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project dueback-rules-test 'pnpm exec vitest run tests/security/firestore-rules.test.ts --config vitest.security.config.ts'",

@@ -45,7 +45,10 @@ export async function POST(request: Request) {
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
     queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
     workerUrl,
-    serviceAccountEmail
+    serviceAccountEmail,
+    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+      : {})
   });
   const capabilities = publicChannelCapabilities({
     now: new Date().toISOString(),

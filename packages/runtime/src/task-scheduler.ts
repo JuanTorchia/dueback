@@ -9,6 +9,7 @@ export interface TaskSchedulerConfig {
   readonly analysisWorkerUrl?: string;
   readonly inboundWorkerUrl?: string;
   readonly serviceAccountEmail: string;
+  readonly oidcAudience?: string;
 }
 
 export class TaskScheduler {
@@ -48,7 +49,10 @@ export class TaskScheduler {
         url: this.config.workerUrl,
         headers: { "Content-Type": "application/json" },
         body,
-        oidcToken: { serviceAccountEmail: this.config.serviceAccountEmail }
+        oidcToken: {
+          serviceAccountEmail: this.config.serviceAccountEmail,
+          ...(this.config.oidcAudience ? { audience: this.config.oidcAudience } : {})
+        }
       }
     };
 
@@ -84,7 +88,10 @@ export class TaskScheduler {
         url: this.config.inboundWorkerUrl,
         headers: { "Content-Type": "application/json" },
         body: Buffer.from(JSON.stringify(input)).toString("base64"),
-        oidcToken: { serviceAccountEmail: this.config.serviceAccountEmail }
+        oidcToken: {
+          serviceAccountEmail: this.config.serviceAccountEmail,
+          ...(this.config.oidcAudience ? { audience: this.config.oidcAudience } : {})
+        }
       }
     };
     try {
@@ -116,7 +123,10 @@ export class TaskScheduler {
         url: this.config.analysisWorkerUrl,
         headers: { "Content-Type": "application/json" },
         body: Buffer.from(JSON.stringify({ jobId: input.jobId })).toString("base64"),
-        oidcToken: { serviceAccountEmail: this.config.serviceAccountEmail }
+        oidcToken: {
+          serviceAccountEmail: this.config.serviceAccountEmail,
+          ...(this.config.oidcAudience ? { audience: this.config.oidcAudience } : {})
+        }
       }
     };
     try {

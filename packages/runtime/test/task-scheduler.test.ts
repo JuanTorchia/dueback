@@ -70,4 +70,40 @@ describe("TaskScheduler", () => {
     });
     expect(scheduledSeconds).toBe(1_786_795_201);
   });
+
+  it("pins the OIDC audience independently from the worker path", async () => {
+    let observedAudience: string | null | undefined;
+    let observedServiceAccount: string | null | undefined;
+    const createTask = vi.fn((input: {
+      task: {
+        httpRequest?: {
+          oidcToken?: { audience?: string | null; serviceAccountEmail?: string | null } | null;
+        } | null;
+      };
+    }) => {
+      observedAudience = input.task.httpRequest?.oidcToken?.audience;
+      observedServiceAccount = input.task.httpRequest?.oidcToken?.serviceAccountEmail;
+      return Promise.resolve([{ name: "task" }]);
+    });
+    const client = {
+      queuePath: () => "projects/demo/locations/us-central1/queues/cases",
+      createTask
+    } as unknown as CloudTasksClient;
+    const scheduler = new TaskScheduler(client, {
+      projectId: "demo",
+      location: "us-central1",
+      queue: "cases",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com",
+      oidcAudience: "https://dueback.test"
+    });
+    await scheduler.scheduleCase({
+      caseId: "case_oidc",
+      expectedVersion: 1,
+      wakeAt: "2026-08-15T12:00:00.000Z"
+    });
+    expect(createTask).toHaveBeenCalledOnce();
+    expect(observedAudience).toBe("https://dueback.test");
+    expect(observedServiceAccount).toBe("tasks@demo.iam.gserviceaccount.com");
+  });
 });

@@ -1,12 +1,17 @@
 import type { CaseRunner } from "@dueback/runtime/case-runner";
+import {
+  requireCloudTaskIdentity,
+  type CloudTaskIdentityVerifier
+} from "./cloud-task-identity";
 
 export async function handleRunCaseTask(
   request: Request,
   runner: CaseRunner,
-  now: () => string
+  now: () => string,
+  identityVerifier?: CloudTaskIdentityVerifier
 ): Promise<Response> {
-  if (!request.headers.get("x-cloudtasks-taskname"))
-    return Response.json({ error: "CLOUD_TASK_IDENTITY_REQUIRED" }, { status: 401 });
+  const unauthorized = await requireCloudTaskIdentity(request, identityVerifier);
+  if (unauthorized) return unauthorized;
   try {
     const body = (await request.json()) as {
       caseId?: string;

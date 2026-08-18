@@ -13,6 +13,9 @@ export function analysisScheduler(): TaskScheduler | undefined {
     queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
     workerUrl,
     analysisWorkerUrl,
-    serviceAccountEmail
+    serviceAccountEmail,
+    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+      : {})
   });
 }

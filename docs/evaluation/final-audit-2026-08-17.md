@@ -1,6 +1,6 @@
 # Final General Audit — 2026-08-17
 
-Verdict: **release candidate, submission blocked by participant-owned evidence**.
+Verdict: **release candidate; identity and controlled-email gates passed, final video/submission pending**.
 
 ## Proven complete
 
@@ -27,21 +27,17 @@ Verdict: **release candidate, submission blocked by participant-owned evidence**
 
 ## Not yet proven — do not claim
 
-1. **Cross-device Google recovery:** implementation and opt-in test exist, but no saved real Google
-   owner state plus owned case has completed the two-context execution.
-2. **Fresh managed-email journey on revision 00049:** an earlier revision has real Resend delivery
-   and signed weak-reply rejection evidence. The current identity-gated UI still needs one authorized
-   participant run; do not imply arbitrary-company support or sufficient email completion.
-3. **Final video:** no public unedited `≤4:00` YouTube/Vimeo artifact exists. Consequently language,
+1. **Final video:** no public unedited `≤4:00` YouTube/Vimeo artifact exists. Consequently language,
    visible Cloud evidence and exact duration are unverified.
-4. **Legal self-attestation:** only the participant can confirm sanctions/conflict-of-interest status.
-5. **Human study:** no eight-person unassisted study has been run. Synthetic agent notes are not
+2. **Human study:** no eight-person unassisted study has been run. Synthetic agent notes are not
    human evidence and remain untracked from release claims.
-6. **Devpost submission:** final submission and deadline receipt are external and not yet recorded.
+3. **Devpost submission:** final submission and deadline receipt are external and not yet recorded.
 
 ## Release decision
 
-The sandbox-centered Taskmaster demo is technically ready to record. Do not freeze or submit until
-items 1, 3, 4 and 6 above are closed. Managed Email may be omitted from the four-minute story if item
-2 cannot be reproduced; the sandbox is the deterministic primary path. The human study and bonuses
-are optional for eligibility but must never be presented as completed.
+The Taskmaster product is technically ready to record. Real Google recovery and the current-revision
+controlled Managed Email false-DONE path were completed on 2026-08-18 and are documented in
+`docs/evaluation/reproducibility.md`. Do not freeze or submit until the final video and Devpost receipt
+exist. Keep the sandbox as the deterministic recording fallback and describe Managed Email only as a
+controlled pilot. The human study and bonuses are optional for eligibility but must never be presented
+as completed.

@@ -13,9 +13,10 @@ const context = await browser.newContext();
 const page = await context.newPage();
 try {
   await page.goto(`${baseUrl}/cases`);
-  process.stdout.write("Complete Google sign-in in the opened browser. This command never reads your password.\n");
-  const signIn = page.getByRole("button", { name: "Sign in with Google" });
-  if (await signIn.isVisible()) await signIn.click();
+  process.stdout.write(
+    "In the opened DueBack window, select Sign in with Google and complete Google sign-in. " +
+      "Leave the window open afterward. This command never reads your password.\n"
+  );
   await page.getByText(/Signed in as /).waitFor({ state: "visible", timeout: 5 * 60_000 });
   await context.storageState({ path: outputPath, indexedDB: true });
   await chmod(outputPath, 0o600);

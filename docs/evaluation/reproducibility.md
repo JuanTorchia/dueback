@@ -543,3 +543,34 @@ deterministic public-browser paths covering channel authorization, editing, safe
 network state, closed-tab inbox return, intake resilience, keyboard/reduced-motion and 200% reflow
 also passed sequentially in 24.2 s. Cross-device Google recovery and a fresh managed-email send are
 not included in these results because they still require a real interactive identity session.
+
+## Real Google cross-device recovery gate
+
+On 2026-08-18 the participant used the public Firebase Hosting origin in a normal Chrome session and
+the UI reported `Signed in as j.s.torchia@gmail.com` plus active Google access. From that authenticated
+session, case `case_499e8c54-74cd-4ee1-b520-a056041fba87` was created, switched explicitly to the
+controlled Demo API, authorized and activated. The result route loaded as the owner.
+
+The participant then opened the exact private result URL in an incognito window, authenticated again
+with the same Google account and confirmed that the refund case was visible. This is participant-
+executed evidence because Google rejects the Playwright-controlled Chromium login as an unsupported
+browser. No password, Firebase token or browser state was captured. The existing automated test still
+covers the complementary denial path for a clean non-owner context. The case was scheduled for its
+fixture date, so this run proves identity recovery and ownership continuity, not immediate action.
+
+## Current-revision controlled email and false-DONE gate
+
+Also on 2026-08-18, the authenticated participant created overdue refund case
+`case_f04be0b6-b84a-4a4b-89d7-f1c16f7e5a23` on public revision `dueback-web-00049-4jd`, explicitly
+changed its channel from Demo API to Managed Email, confirmed authorized contact and activated it.
+The controlled recipient was the participant-owned pilot mailbox. The public result moved to
+`Waiting for proof` and identified the transport as Email.
+
+The participant replied through the real mailbox with the intentionally insufficient acknowledgement
+`Request received, we are reviewing it.` Cloud Logging recorded the signed email webhook as HTTP 202
+at `2026-08-18T02:11:21.135253Z` and the OIDC-protected inbound Cloud Task as HTTP 200 at
+`2026-08-18T02:11:21.451339Z`, both on revision `dueback-web-00049-4jd`. The consumer projection then
+showed `Not done — the company only acknowledged the request`, explained that acknowledgement is not
+proof, and kept the case in `Waiting for proof`. This proves outbound action, real inbound transport,
+durable processing and false-DONE rejection; it does not prove refund settlement or arbitrary-company
+support.

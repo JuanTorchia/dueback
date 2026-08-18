@@ -99,7 +99,7 @@
 
 - [x] T060 Add keyboard/live-region/reduced-motion/200%-reflow tests in `tests/e2e/accessibility.spec.ts`
 - [x] T061 Run full deterministic gates from `specs/004-consumer-case-inbox/quickstart.md`
-- [ ] T062 Deploy and run controlled-email continuous journey with workers 1/retries 0
+- [x] T062 Deploy and run controlled-email continuous journey with workers 1/retries 0
 - [x] T063 Record deployed revisions, redacted provider evidence and failures in `docs/evaluation/reproducibility.md`
 - [ ] T064 Rehearse and record the four-minute inbox-return story in `docs/submission/demo-script.md`
 - [x] T065 Validate every FR/SC and readiness claim in `specs/004-consumer-case-inbox/checklists/completion-audit.md`

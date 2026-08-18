@@ -7,7 +7,8 @@ Marcar únicamente con evidencia verificable.
 - [x] Residencia declarada: Argentina, no excluida por las reglas publicadas.
 - [x] Edad declarada: 36 años; cumple el requisito de mayoría de edad.
 - [x] Se confirmó que no se participa mediante una empresa constituida; Startup Excellence queda descartado.
-- [ ] El participante confirma no estar alcanzado por sanciones ni conflictos de interés de las reglas.
+- [x] El participante confirmó el 18 de agosto de 2026 que no está alcanzado por sanciones ni
+  conflictos de interés indicados en las reglas.
 - [x] El participante está registrado en Devpost y unido al hackathon; Devpost mostró confirmación el 15 de agosto de 2026.
 - [x] Se decidió participación individual; no se requiere representante de equipo.
 - [x] Se solicitó crédito de Google Cloud el 15 de agosto de 2026; Google Forms confirmó la recepción. Pendiente de aprobación, con hasta 72 horas hábiles de procesamiento.
@@ -34,9 +35,10 @@ Marcar únicamente con evidencia verificable.
 
 - [x] Aplicación alojada e instrucciones de acceso para jueces. Evidencia: [README](../../README.md#judge-access).
 - [x] Acceso gratuito sin credenciales pagas ni datos personales; se mantendrá disponible durante la evaluación. Evidencia: URL pública y Firebase anonymous en [README](../../README.md#judge-access).
-- [ ] Recuperación Google desplegada: proveedor Google habilitado y Firebase Hosting autorizado ya
-  están activos; falta completar y registrar el recorrido real cross-device con un caso vinculado.
-  No afirmar recuperación entre dispositivos hasta cerrar ese gate.
+- [x] Recuperación Google desplegada y verificada manualmente el 18 de agosto de 2026: el
+  propietario `j.s.torchia@gmail.com` creó y activó un caso en su navegador habitual y recuperó el
+  mismo caso desde una ventana de incógnito tras autenticarse nuevamente. Evidencia redactada en
+  `docs/evaluation/reproducibility.md`.
 - [x] Repositorio público accesible para los jueces: <https://github.com/JuanTorchia/dueback>.
 - [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).

@@ -610,5 +610,26 @@ web revision `dueback-web-00060-4pm`. Firebase Hosting was repinned to that revi
   its required secrets now grant access individually.
 
 The deterministic chaos suites inject queue failure after state persistence and prove stale-task
-and idempotent-`RESUME` recovery without repeating the prior external action. A production-injected
-enqueue outage remains a separate unchecked gate in `specs/007-durable-wake-outbox/tasks.md`.
+and idempotent-`RESUME` recovery without repeating the prior external action.
+
+### Deployed enqueue-outage recovery
+
+The deployed gate used the already-terminal synthetic case
+`case_150f53cf-bc83-460b-96a9-64c332ab2feb`; it contained two external action records before the
+test. This avoids contacting a person or company while still measuring the duplicate-action
+invariant.
+
+1. Revision `dueback-web-00061-tr6` temporarily used the nonexistent queue
+   `dueback-chaos-missing`. Wake intent `6b5f6a7d776731088a834927748bf05b` remained `PENDING`, recorded
+   `WAKE_DISPATCH_FAILED`, had no task name, and the case retained two action records.
+2. Revision `dueback-web-00062-c2l` restored `dueback-cases`. The first reconcile still observed a
+   transient dispatch failure; the next scheduled cycle recovered the same durable intent.
+3. Final evidence: intent `DISPATCHED`, `attemptCount: 3`, error cleared, one stable Cloud Task name,
+   case still `DONE` at version 6, and action-record count still exactly two.
+4. `dueback-cases` was verified `RUNNING`, the runtime's `cloudtasks.enqueuer` binding was restored,
+   and revision `00062` serves 100% of the untagged Cloud Run traffic. Firebase Hosting remains
+   pinned to the tested application image from revision `00060`; revisions `00061` and `00062`
+   changed only the queue environment value for this controlled chaos exercise.
+
+This proves deployed recovery from a real enqueue configuration failure without claiming a new
+case transition or a real merchant interaction during the chaos exercise.

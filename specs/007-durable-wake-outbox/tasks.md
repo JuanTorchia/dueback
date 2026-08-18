@@ -8,5 +8,5 @@
 - [x] T006 Provision a once-per-minute Cloud Scheduler reconciliation job.
 - [x] T007 Add chaos tests for enqueue failure, stale-task recovery and idempotent `RESUME`.
 - [x] T008 Deploy with wake-intent TTL and dedicated scheduler job.
-- [ ] T009 Run deployed chaos evidence and prove zero duplicate external actions.
+- [x] T009 Run deployed chaos evidence and prove zero duplicate external actions.
 - [x] T010 Rerun the complete public judge path.

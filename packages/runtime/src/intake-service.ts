@@ -4,6 +4,7 @@ import type { ChannelType, OutcomeContract, PromiseDraft, ResolutionPlan } from 
 import { caseDedupeKey, stableHash } from "@dueback/domain";
 
 export interface IntakeArtifact {
+  readonly caseId?: string;
   readonly artifactId: string;
   readonly ownerId: string;
   readonly sourceChannel: "upload" | "paste" | "fixture";
@@ -232,7 +233,7 @@ export class IntakeService {
     await this.budget?.consume(artifact.ownerId, now);
 
     const promiseDraft = promiseDraftSchema.parse(await this.extractor.extract(artifact));
-    const caseId = `case_${randomUUID()}`;
+    const caseId = artifact.caseId ?? `case_${randomUUID()}`;
     const plan = buildPlan({
       caseId,
       ownerId: artifact.ownerId,

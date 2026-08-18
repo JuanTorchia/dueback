@@ -325,3 +325,18 @@
   empresa, `5900` como importe, enums internos y un `Next check` pasado.
 - Motivo: esos defectos contradicen el valor central y reducen utilidad, credibilidad y claridad de
   demo. El producto no vuelve a considerarse cerrado hasta probar el ciclo reparado en producción.
+
+## D-026 — El análisis de Gemini es un trabajo durable, no una petición bloqueante
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada; implementa T013–T015 de `specs/005-winning-follow-through`
+- Decisión: el intake valida y guarda el artefacto en un bucket privado, crea un job owner-scoped y
+  encola una Cloud Task antes de invocar Gemini. La interfaz abre inmediatamente una ruta
+  `ANALYZING`, muestra etapas persistidas y permite cerrar, volver o reintentar sin duplicar el caso.
+- Límites: tres intentos de modelo como máximo; lease recuperable; artefacto crudo eliminado al
+  completar y lifecycle defensivo de un día; ningún objeto público; un job incompleto aparece en
+  `My follow-ups`. Una respuesta `BUSY` del worker no confirma la tarea para que una ejecución caída
+  pueda recuperarse al vencer el lease.
+- Motivo: la petición síncrona anterior dejaba al usuario inmóvil durante 10–25 segundos y podía
+  perder la experiencia ante timeout o cierre de pestaña. El trabajo durable mejora UX y vuelve
+  visible la arquitectura Taskmaster sin fingir que Gemini responde instantáneamente.

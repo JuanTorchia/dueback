@@ -49,6 +49,33 @@ describe("owner case inbox", () => {
     await expect(response.json()).resolves.toMatchObject({ items: [{ caseId: "case_done_12345678" }] });
   });
 
+  it("keeps an unfinished Gemini analysis visible after the tab is closed", async () => {
+    const response = await handleCases(new Request("https://dueback.test/api/cases"), {
+      authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
+      store: { listByOwner: () => Promise.resolve([]) },
+      analysisStore: { listByOwner: () => Promise.resolve([{
+        jobId: "analysis_visible123",
+        caseId: "case_visible123",
+        ownerId: "owner_12345678",
+        artifactId: "artifact_visible123",
+        artifactPath: "analysis/owner/source",
+        sourceChannel: "upload",
+        mediaType: "image/png",
+        sha256: "sha256:" + "c".repeat(64),
+        status: "ANALYZING",
+        stage: "GEMINI_EXTRACTION",
+        attemptCount: 1,
+        createdAt: "2026-08-18T12:00:00.000Z",
+        updatedAt: "2026-08-18T12:00:01.000Z"
+      }]) }
+    });
+    await expect(response.json()).resolves.toMatchObject({ items: [{
+      caseId: "case_visible123",
+      statusLabel: "Gemini is building the plan",
+      detailPath: "/cases/case_visible123/analyzing"
+    }] });
+  });
+
   it("returns a stable opaque cursor and continues without duplicates", async () => {
     const records = [
       datedItem("DONE", "2026-08-19T12:00:00.000Z", "newest"),

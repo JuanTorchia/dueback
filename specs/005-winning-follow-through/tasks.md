@@ -20,9 +20,9 @@
 
 ## Phase 3 — Responsive current UX (P1)
 
-- [ ] T013 Add private artifact storage, lifecycle cleanup and transactional analysis-job persistence
-- [ ] T014 Make intake return an owned analyzing route and enqueue an OIDC Cloud Task before Gemini
-- [ ] T015 Add bounded analysis worker retries, status/retry API and re-openable analyzing page
+- [x] T013 Add private artifact storage, lifecycle cleanup and transactional analysis-job persistence
+- [x] T014 Make intake return an owned analyzing route and enqueue an OIDC Cloud Task before Gemini
+- [x] T015 Add bounded analysis worker retries, status/retry API and re-openable analyzing page
 - [x] T016 Replace empty case/inbox loaders with accessible orientation-preserving skeletons
 - [x] T017 Generate example dates from an injected clock and keep accelerated demos immediately due
 - [x] T018 Remove stale email capability copy and label the landing card as an example
@@ -31,7 +31,7 @@
 
 ## Phase 4 — Prize verification
 
-- [ ] T021 Run package/root tests, typecheck, lint, build, evaluation, emulator and diff checks
+- [x] T021 Run package/root tests, typecheck, lint, build, evaluation, emulator and diff checks
 - [ ] T022 Deploy and pin Firebase Hosting to the new Cloud Run revision
 - [ ] T023 Run sequential public silence/ACK/follow-up/proof, inbox and accessibility paths with
   one worker and zero retries

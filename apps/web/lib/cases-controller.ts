@@ -1,4 +1,5 @@
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
+import type { AnalysisJob } from "@dueback/contracts";
 
 export type CaseBucket = "NEEDS_YOU" | "WORKING" | "DONE";
 
@@ -12,10 +13,28 @@ export interface CaseSummary {
   nextStepLabel: string;
   attentionRequired: boolean;
   channelLabel: string;
+  detailPath?: string;
 }
 
 export interface OwnerCaseStore {
   listByOwner(ownerId: string, limit: number): Promise<readonly FollowThroughCase[]>;
+}
+
+function analysisSummary(job: AnalysisJob): CaseSummary {
+  return {
+    caseId: job.caseId,
+    companyName: "New promise",
+    outcomeLabel: job.mediaType === "text/plain" ? "Reading pasted promise" : "Reading uploaded promise",
+    bucket: job.status === "FAILED" ? "NEEDS_YOU" : "WORKING",
+    statusLabel: job.status === "FAILED" ? "Analysis needs a retry" : "Gemini is building the plan",
+    lastActivityAt: job.updatedAt,
+    nextStepLabel: job.status === "FAILED"
+      ? "Open this promise and retry safely"
+      : "You can leave — DueBack will keep working",
+    attentionRequired: job.status === "FAILED",
+    channelLabel: "Private analysis",
+    detailPath: `/cases/${job.caseId}/analyzing`
+  };
 }
 
 interface CaseCursor {
@@ -102,6 +121,7 @@ export async function handleCases(
   dependencies: {
     authenticate: (request: Request) => Promise<{ uid: string }>;
     store: OwnerCaseStore;
+    analysisStore?: { listByOwner(ownerId: string, limit: number): Promise<readonly AnalysisJob[]> };
   }
 ): Promise<Response> {
   const privateHeaders = { "Cache-Control": "private, no-store" };
@@ -115,8 +135,17 @@ export async function handleCases(
       ? bucketParam as CaseBucket
       : null;
     if (bucketParam && !requestedBucket) throw new Error("BUCKET_INVALID");
-    const ordered = (await dependencies.store.listByOwner(owner.uid, 50))
-      .map(caseSummary)
+    const [runtimeCases, analysisJobs] = await Promise.all([
+      dependencies.store.listByOwner(owner.uid, 50),
+      dependencies.analysisStore?.listByOwner(owner.uid, 50) ?? Promise.resolve([])
+    ]);
+    const runtimeIds = new Set(runtimeCases.map((item) => item.caseId));
+    const ordered = [
+      ...runtimeCases.map(caseSummary),
+      ...analysisJobs
+        .filter((job) => job.status !== "READY" && !runtimeIds.has(job.caseId))
+        .map(analysisSummary)
+    ]
       .filter((item) => !requestedBucket || item.bucket === requestedBucket)
       .sort((left, right) => right.lastActivityAt.localeCompare(left.lastActivityAt) || left.caseId.localeCompare(right.caseId));
     const cursorParam = url.searchParams.get("cursor");

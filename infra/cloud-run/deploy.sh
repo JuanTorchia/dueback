@@ -11,10 +11,12 @@ firebase_api_key="${FIREBASE_WEB_API_KEY:?Set FIREBASE_WEB_API_KEY}"
 firebase_auth_domain="${FIREBASE_AUTH_DOMAIN:?Set FIREBASE_AUTH_DOMAIN}"
 firebase_app_id="${FIREBASE_APP_ID:?Set FIREBASE_APP_ID}"
 image_tag="$(git rev-parse --short HEAD)"
+artifact_bucket="${DUEBACK_ARTIFACT_BUCKET:-${project_id}-dueback-artifacts}"
 
 gcloud services enable \
   aiplatform.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com \
   firestore.googleapis.com run.googleapis.com cloudtasks.googleapis.com \
+  storage.googleapis.com \
   secretmanager.googleapis.com identitytoolkit.googleapis.com firebaserules.googleapis.com \
   --project="${project_id}"
 
@@ -32,6 +34,15 @@ gcloud iam service-accounts add-iam-policy-binding "${tasks_sa}" \
 for role in roles/datastore.user roles/aiplatform.user roles/cloudtasks.enqueuer roles/secretmanager.secretAccessor roles/firebaseauth.viewer; do
   gcloud projects add-iam-policy-binding "${project_id}" --member="serviceAccount:${runtime_sa}" --role="${role}" --condition=None --quiet >/dev/null
 done
+
+gcloud storage buckets describe "gs://${artifact_bucket}" --project="${project_id}" >/dev/null 2>&1 || \
+  gcloud storage buckets create "gs://${artifact_bucket}" \
+    --project="${project_id}" --location="${region}" --uniform-bucket-level-access
+gcloud storage buckets update "gs://${artifact_bucket}" \
+  --lifecycle-file=infra/cloud-storage/artifact-lifecycle.json --project="${project_id}" >/dev/null
+gcloud storage buckets add-iam-policy-binding "gs://${artifact_bucket}" \
+  --member="serviceAccount:${runtime_sa}" --role=roles/storage.objectAdmin \
+  --project="${project_id}" >/dev/null
 
 gcloud firestore databases describe --database='(default)' --project="${project_id}" >/dev/null 2>&1 || \
   gcloud firestore databases create --database='(default)' --location="${region}" --type=firestore-native --project="${project_id}"
@@ -56,7 +67,7 @@ if [[ -z "$(gcloud firestore indexes composite list --project="${project_id}" --
     --field-config=field-path=createdAt,order=ascending >/dev/null
 fi
 
-for collection_group in caseDrafts intakeDedupe caseRuns evidence events notifications interventions caseControlCommands deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads providerEvents inboundEnvelopes externalSendBudgets externalSendReservations; do
+for collection_group in caseDrafts intakeDedupe analysisJobs analysisDedupe caseRuns evidence events notifications interventions caseControlCommands deletionTombstones securityBudgets modelUsage actionRecords actionFailures callbackDedupe emailDeliveries messageThreads providerEvents inboundEnvelopes externalSendBudgets externalSendReservations; do
   ttl_state="$(gcloud firestore fields ttls list --project="${project_id}" --collection-group="${collection_group}" --format='value(ttlConfig.state)' 2>/dev/null || true)"
   if [[ "${ttl_state}" != "ACTIVE" ]]; then
     gcloud firestore fields ttls update deleteAt \
@@ -86,11 +97,11 @@ web_image="${region}-docker.pkg.dev/${project_id}/${repository}/web:${image_tag}
 gcloud run deploy dueback-merchant-sandbox --image="${sandbox_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --no-cpu-throttling --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 sandbox_url="$(gcloud run services describe dueback-merchant-sandbox --region="${region}" --project="${project_id}" --format='value(status.url)')"
 
-gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
+gcloud run deploy dueback-web --image="${web_image}" --region="${region}" --service-account="${runtime_sa}" --allow-unauthenticated --set-env-vars="GOOGLE_CLOUD_PROJECT=${project_id},GOOGLE_CLOUD_LOCATION=global,CLOUD_TASKS_LOCATION=${region},CLOUD_TASKS_QUEUE=dueback-cases,CLOUD_TASKS_SERVICE_ACCOUNT=${tasks_sa},DUEBACK_ARTIFACT_BUCKET=${artifact_bucket},MERCHANT_SANDBOX_URL=${sandbox_url},MERCHANT_SCENARIO=signed-completion,FIREBASE_WEB_API_KEY=${firebase_api_key},FIREBASE_AUTH_DOMAIN=${firebase_auth_domain},FIREBASE_APP_ID=${firebase_app_id}" --set-secrets="MERCHANT_CALLBACK_SECRET=dueback-merchant-callback:latest" --project="${project_id}"
 web_url="$(gcloud run services describe dueback-web --region="${region}" --project="${project_id}" --format='value(status.url)')"
 public_base_url="${DUEBACK_PUBLIC_BASE_URL:-${web_url}}"
 
-gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},DUEBACK_PUBLIC_BASE_URL=${public_base_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case" --project="${project_id}" >/dev/null
+gcloud run services update dueback-web --region="${region}" --update-env-vars="APP_BASE_URL=${public_base_url},DUEBACK_PUBLIC_BASE_URL=${public_base_url},DUEBACK_WORKER_URL=${web_url}/api/internal/tasks/run-case,DUEBACK_ANALYSIS_WORKER_URL=${web_url}/api/internal/tasks/analyze-case" --project="${project_id}" >/dev/null
 
 # Managed email is opt-in and fail-closed. The sandbox deploy remains reproducible without these
 # external credentials. To enable it, provision both named secrets and set every bounded channel

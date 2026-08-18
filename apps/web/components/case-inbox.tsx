@@ -45,7 +45,7 @@ export function CaseInbox() {
     </section> : null}
     {error ? <section className="card error" role="alert"><p>{error}</p>{identity?.isAnonymous !== false ? <GoogleSignIn compact onSignedIn={() => { void load(); }} /> : null}<button type="button" onClick={() => void load()}>Try again</button></section> : null}
     {items?.length === 0 && empty ? <section className="card empty-state"><h2>{empty.heading}</h2><p>{empty.message}</p>{empty.showSignIn ? <GoogleSignIn onSignedIn={() => { void load(); }} /> : <p className="identity-confirmation"><span aria-hidden="true">✓</span> Google access is active on this device.</p>}<a className="button-link" href="/intake">Add a promise</a></section> : null}
-    {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={`/cases/${item.caseId}/result`} key={item.caseId}>
+    {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={item.detailPath ?? `/cases/${item.caseId}/result`} key={item.caseId}>
       <div><span className="case-bucket">{item.bucket === "NEEDS_YOU" ? "Needs you" : item.bucket === "DONE" ? "Done" : "Working"}</span><small>{item.channelLabel}</small></div>
       <h2>{item.companyName}</h2><p className="case-outcome">{item.outcomeLabel}</p>
       <strong>{item.statusLabel}</strong><p>{item.nextStepLabel}</p>

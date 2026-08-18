@@ -6,6 +6,7 @@
   "exports": {
     ".": "./src/firestore.ts",
     "./intake-store": "./src/intake-store.ts",
+    "./analysis-store": "./src/analysis-store.ts",
     "./runtime-store": "./src/runtime-store.ts",
     "./retention": "./src/retention.ts",
     "./expiry": "./src/expiry.ts"
@@ -17,6 +18,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dueback/contracts": "workspace:*",
     "@dueback/runtime": "workspace:*",
     "@dueback/domain": "workspace:*",
     "@dueback/channel-adapters": "workspace:*",

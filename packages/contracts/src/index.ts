@@ -271,6 +271,25 @@ export const resolutionPlanSchema = z
 // ConversationPlan is the channel-complete name for the backwards-compatible ResolutionPlan.
 export const conversationPlanSchema = resolutionPlanSchema;
 
+export const analysisJobSchema = z.object({
+  jobId: opaqueIdSchema,
+  caseId: opaqueIdSchema,
+  ownerId: opaqueIdSchema,
+  artifactId: opaqueIdSchema,
+  artifactPath: z.string().min(1).max(500),
+  sourceChannel: z.enum(["upload", "paste"]),
+  mediaType: z.enum(["text/plain", "image/jpeg", "image/png", "application/pdf"]),
+  sha256: sha256Schema,
+  contextText: z.string().max(50_000).optional(),
+  status: z.enum(["QUEUED", "ANALYZING", "READY", "FAILED"]),
+  stage: z.enum(["EVIDENCE_SECURED", "GEMINI_EXTRACTION", "VALIDATING", "REVIEW_READY", "FAILED"]),
+  attemptCount: z.int().nonnegative().max(3),
+  createdAt: isoDateSchema,
+  updatedAt: isoDateSchema,
+  leaseUntil: isoDateSchema.optional(),
+  lastError: z.string().min(1).max(120).optional()
+}).strict();
+
 export const actionEnvelopeSchema = z.object({
   actionId: opaqueIdSchema,
   idempotencyKey: sha256Schema,
@@ -407,6 +426,7 @@ export type ProviderEvent = z.infer<typeof providerEventSchema>;
 export type InboundEnvelope = z.infer<typeof inboundEnvelopeSchema>;
 export type OutcomeContract = z.infer<typeof outcomeContractSchema>;
 export type ResolutionPlan = z.infer<typeof resolutionPlanSchema>;
+export type AnalysisJob = z.infer<typeof analysisJobSchema>;
 export type ConversationPlan = z.infer<typeof conversationPlanSchema>;
 export type ActionEnvelope = z.infer<typeof actionEnvelopeSchema>;
 export type EvidenceCandidateContract = z.infer<typeof evidenceCandidateSchema>;

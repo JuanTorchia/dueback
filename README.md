@@ -15,18 +15,20 @@ individual participant in Argentina. The project also targets the Individual/Hob
 - Public source: <https://github.com/JuanTorchia/dueback>
 
 The sandbox is intentionally public for inspection and visibly labeled. Its action endpoint still
-requires a secret. No paid account or real personal/merchant data is required. Firebase anonymous
-authentication creates an isolated owner identity when a case is activated.
+requires a secret. No paid account or real personal/merchant data is required. Firebase starts with
+an isolated anonymous owner; optional Google linking preserves that owner and makes cases recoverable.
 
 ## What the implemented demo proves
 
-1. Paste or upload PDF/JPEG/PNG/text under content-detected limits.
+1. Paste or upload PDF/JPEG/PNG/text under content-detected limits. Intake creates an owned job and
+   returns immediately; a separate Cloud Task runs Gemini and the saved progress can be reopened.
 2. Genkit invokes `gemini-3.5-flash` on Vertex AI to return typed fields with provenance and
    uncertainty. The model has no tools or lifecycle authority.
 3. The person reviews what DueBack may do, will never do, will share, and what counts as done.
 4. Approval binds owner, case, plan version, canonical hash, and expiry.
 5. Cloud Tasks resumes the case after the tab closes. Firestore provides versioned durable state.
-6. A deterministic Action Broker allows one closed HTTP follow-up with an idempotency ledger.
+6. A deterministic Action Broker sends bounded follow-ups with a distinct idempotency key per
+   approved logical action; silence or weak evidence schedules the next attempt until budget ends.
 7. A separately deployed Merchant Sandbox emits signed callbacks. `REQUEST_ACKNOWLEDGED` is rejected
    as insufficient; matching `MERCHANT_CONFIRMED` evidence closes the case.
 8. The timeline, correlation ID, notification ledger, exact claim, and claim limitation remain
@@ -42,7 +44,8 @@ verifier, and lifecycle semantics. They are portability fixtures, not production
 - Cloud Run for the web/runtime and controlled merchant service.
 - Firestore for plans, runs, action/evidence ledgers, notifications, interventions, replay defense,
   security budgets, and deletion tombstones.
-- Cloud Tasks for scheduled/retried OIDC worker delivery.
+- Cloud Tasks for scheduled/retried OIDC case and Gemini-analysis worker delivery.
+- Cloud Storage for private, short-lived intake artifacts with lifecycle cleanup.
 - Firebase Authentication for frictionless owner identity.
 
 See [architecture and trust boundaries](docs/architecture/dueback.md) and the
@@ -82,8 +85,8 @@ workspace.
 ## Reproducible Google Cloud deployment
 
 The deployer creates/checks required APIs, Artifact Registry, service accounts and least-privilege
-roles, Firestore, Cloud Tasks, Secret Manager, builds both images, deploys Cloud Run, and wires
-callback/worker URLs.
+roles, Firestore, a private lifecycle-bound Cloud Storage bucket, Cloud Tasks, Secret Manager,
+builds both images, deploys Cloud Run, and wires callback/worker URLs.
 
 ```bash
 export GOOGLE_CLOUD_PROJECT='your-project-id'
@@ -124,11 +127,12 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - 10 MB/file, 20 PDF pages, 20 megapixels/image, 50,000 text characters, three artifacts/case.
 - 10 new cases/identity/day, four model calls/normal case, five task attempts, three logical external
   actions, and three notifications.
-- Raw uploaded bytes are processed in memory in the current P0 and are not stored as public files.
-  Artifact grants are owner/case/artifact-bound and expire within ten minutes.
+- Raw uploaded bytes are stored only in a private Cloud Storage bucket while durable analysis runs,
+  deleted after a successful review, and covered by a defensive one-day lifecycle rule. They are
+  never public; application access remains owner-scoped.
 - Requested deletion makes the readable case unavailable and retains only a privacy-safe tombstone
   for bounded audit. No forensic-erasure or backup-deletion claim is made.
-- Firestore `deleteAt` TTL policies cover drafts, dedupe records, case runs, evidence, events,
+- Firestore `deleteAt` TTL policies cover analysis jobs/dedupe, drafts, case runs, evidence, events,
   notifications, interventions, security budgets, model usage, and deletion tombstones. TTL is
   eventual deletion by Firestore, not an immediate or forensic-erasure guarantee.
 - Each model call is reserved before execution. Firestore records call count, observed provider

@@ -16,14 +16,16 @@ export async function handleRunCaseTask(
     const expectedVersion = body.expectedVersion;
     if (!body.caseId || typeof expectedVersion !== "number" || !Number.isInteger(expectedVersion))
       return Response.json({ error: "INVALID_TASK" }, { status: 400 });
-    return Response.json(
-      await runner.run({
+    const result = await runner.run({
         caseId: body.caseId,
         expectedVersion,
         now: now(),
         ...(body.correlationId ? { correlationId: body.correlationId } : {})
-      })
-    );
+      });
+    // A sub-second Cloud Tasks clock boundary or clock skew must never consume
+    // the only durable wake. A retryable response preserves the same task until
+    // the approved wake time has actually arrived.
+    return Response.json(result, { status: result.status === "NOT_DUE" ? 503 : 200 });
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "TASK_FAILED" },

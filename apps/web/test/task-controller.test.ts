@@ -42,4 +42,17 @@ describe("Cloud Tasks worker controller", () => {
       now: "2026-08-15T12:00:00.000Z"
     });
   });
+
+  it("asks Cloud Tasks to retry instead of consuming an early delivery", async () => {
+    const response = await handleRunCaseTask(
+      new Request("https://dueback.test/api/internal/tasks/run-case", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-cloudtasks-taskname": "task" },
+        body: JSON.stringify({ caseId: "case_12345678", expectedVersion: 2 })
+      }),
+      { run: () => Promise.resolve({ status: "NOT_DUE", wakeAt: "2026-08-15T12:00:00.823Z" }) } as never,
+      () => "2026-08-15T12:00:00.000Z"
+    );
+    expect(response.status).toBe(503);
+  });
 });

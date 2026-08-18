@@ -42,7 +42,7 @@ export class TaskScheduler {
     ).toString("base64");
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,
-      scheduleTime: { seconds: Math.floor(Date.parse(input.wakeAt) / 1000) },
+      scheduleTime: { seconds: Math.ceil(Date.parse(input.wakeAt) / 1000) },
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.workerUrl,
@@ -78,7 +78,7 @@ export class TaskScheduler {
     const taskName = `${parent}/tasks/inbound-${stableName}`;
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,
-      scheduleTime: { seconds: Math.floor(Date.parse(input.wakeAt) / 1000) },
+      scheduleTime: { seconds: Math.ceil(Date.parse(input.wakeAt) / 1000) },
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.inboundWorkerUrl,
@@ -110,7 +110,7 @@ export class TaskScheduler {
     const taskName = `${parent}/tasks/analysis-${stableName}`;
     const task: protos.google.cloud.tasks.v2.ITask = {
       name: taskName,
-      scheduleTime: { seconds: Math.floor(Date.parse(input.wakeAt) / 1000) },
+      scheduleTime: { seconds: Math.ceil(Date.parse(input.wakeAt) / 1000) },
       httpRequest: {
         httpMethod: protos.google.cloud.tasks.v2.HttpMethod.POST,
         url: this.config.analysisWorkerUrl,

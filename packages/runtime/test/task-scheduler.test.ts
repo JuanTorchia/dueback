@@ -45,4 +45,29 @@ describe("TaskScheduler", () => {
       wakeAt: "2026-08-16T00:00:00.000Z"
     })).resolves.toMatchObject({ duplicate: true });
   });
+
+  it("never schedules a fractional wake before its approved instant", async () => {
+    let scheduledSeconds: number | undefined;
+    const createTask = vi.fn((input: { task: { scheduleTime?: { seconds?: number | string | null } } }) => {
+      scheduledSeconds = Number(input.task.scheduleTime?.seconds);
+      return Promise.resolve([{ name: "task" }]);
+    });
+    const client = {
+      queuePath: () => "projects/demo/locations/us-central1/queues/cases",
+      createTask
+    } as unknown as CloudTasksClient;
+    const scheduler = new TaskScheduler(client, {
+      projectId: "demo",
+      location: "us-central1",
+      queue: "cases",
+      workerUrl: "https://dueback.test/api/internal/tasks/run-case",
+      serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
+    });
+    await scheduler.scheduleCase({
+      caseId: "case_fractional",
+      expectedVersion: 2,
+      wakeAt: "2026-08-15T12:00:00.823Z"
+    });
+    expect(scheduledSeconds).toBe(1_786_795_201);
+  });
 });

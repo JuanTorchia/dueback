@@ -9,8 +9,8 @@ that a successful first send meant the agent would keep following through.
 ## Release under test
 
 - Public URL: `https://bulbasour-503317.web.app`
-- Git commit: `8a05828`
-- Cloud Run revision: `dueback-web-00054-khf` at 100% traffic
+- Git commit: `e4a2859`
+- Cloud Run revision: `dueback-web-00057-cj6` at 100% traffic
 - Firebase Hosting: pinned after that revision was deployed
 - Analysis storage: private uniform-access bucket with a one-day defensive lifecycle rule
 - Channels observed from the public capability endpoint: Controlled Sandbox `AVAILABLE`, Managed
@@ -31,6 +31,9 @@ that a successful first send meant the agent would keep following through.
 5. Inbox and result copy projected recipient providers, raw minor currency units, enums, stale dates,
    and duplicate ACK language. New projections use the reviewed counterparty, formatted money,
    human evidence labels, newest activity, and valid future wakes only.
+6. Fractional Cloud Task times were rounded down, so a task could arrive milliseconds early, return
+   `NOT_DUE` with HTTP 200 and disappear. Scheduling now rounds up; an early worker response is also
+   HTTP 503 so Cloud Tasks preserves the wake.
 
 ## Evidence observed
 
@@ -48,11 +51,18 @@ that a successful first send meant the agent would keep following through.
 - Cloud Run error query for revision `00053` after the fix returned no severity `ERROR` records.
 - A 390×844 visual capture confirmed readable hierarchy, phase progress, background-work copy, and
   visible `My follow-ups` navigation on the final UI.
+- Final production judge path on revision `00057`: 1/1 passed with one worker and zero Playwright
+  retries in 1.3 minutes. Redacted Cloud request sequence: worker `200` → sandbox injected `503` →
+  worker `200` → sandbox `202` → signed callback `202` → stale task no-op `200` → current worker
+  `200` → sandbox `200` → signed callback `200`.
+- Redacted Firestore projection for case suffix `66df814d`: terminal state `DONE`, version 6,
+  action ordinal 3; two successful action records with different key suffixes; evidence
+  `REQUEST_ACKNOWLEDGED` rejected and `MERCHANT_CONFIRMED` accepted. No raw message, owner ID,
+  recipient or full identifier is included here.
 
 ## Remaining honest gates
 
-- Capture one bounded production sequence where silence or weak evidence causes the next logical
-  follow-up, then sufficient evidence closes it, with task/action/evidence identifiers redacted.
-- Update the final submission evidence and four-minute video only after that capture.
+- Update the four-minute video and submission evidence from this pinned release; do not substitute a
+  different unverified revision after recording.
 - Do not claim arbitrary-company email, bank settlement, a completed human study, or automated
   cross-device credentials.

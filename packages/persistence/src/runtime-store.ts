@@ -14,6 +14,8 @@ import type { RuntimeTimelineEvent } from "@dueback/runtime/timeline";
 import { stableHash } from "@dueback/domain";
 import type { TechnicalRunSource } from "@dueback/runtime/technical-run";
 import type { DraftCase } from "@dueback/runtime/intake-service";
+import type { WakeIntent } from "@dueback/runtime/wake-outbox";
+import { persistWakeIntent } from "./wake-outbox-store";
 
 export class FirestoreRuntimeStore
   implements
@@ -136,7 +138,8 @@ export class FirestoreRuntimeStore
   async compareAndSet(
     caseId: string,
     expectedVersion: number,
-    next: FollowThroughCase
+    next: FollowThroughCase,
+    wake?: WakeIntent
   ): Promise<void> {
     const reference = this.db.collection("caseRuns").doc(caseId);
     await this.db.runTransaction(async (transaction) => {
@@ -145,6 +148,7 @@ export class FirestoreRuntimeStore
       if (current.get("version") !== expectedVersion) throw new Error("VERSION_CONFLICT");
       const occurredAt = next.updatedAt ?? next.lastAttemptAt ?? new Date().toISOString();
       transaction.set(reference, { ...next, updatedAt: occurredAt });
+      persistWakeIntent(transaction, this.db, wake);
       const eventId = `${String(next.version).padStart(6, "0")}-action-result`;
       transaction.create(reference.collection("events").doc(eventId), {
         eventId,
@@ -370,6 +374,7 @@ export class FirestoreRuntimeStore
     nextState: FollowThroughCase["state"];
     nextWakeAt?: string;
     evidence: EvidenceRecord;
+    wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }> {
     const caseRef = this.db.collection("caseRuns").doc(input.caseId);
     const evidenceRef = caseRef.collection("evidence").doc(input.evidence.candidate.evidenceId);
@@ -397,6 +402,7 @@ export class FirestoreRuntimeStore
             }
           : {})
       });
+      persistWakeIntent(transaction, this.db, input.wake);
       const sequence = input.expectedVersion + 1;
       const eventId = `${String(sequence).padStart(6, "0")}-evidence-result-${input.evidence.candidate.evidenceId.slice(-8)}`;
       transaction.create(caseRef.collection("events").doc(eventId), {

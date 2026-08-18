@@ -1,5 +1,6 @@
 import type { FollowThroughCase } from "./case-runner";
 import { stableHash } from "@dueback/domain";
+import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export type CaseControlAction = "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
 
@@ -35,6 +36,7 @@ export interface CaseControlStore {
     reason: string;
     now: string;
     idempotencyKey: string;
+    wake?: WakeIntent;
   }): Promise<FollowThroughCase>;
   requestDeletion(input: {
     caseId: string;
@@ -79,7 +81,18 @@ export class CaseControlService {
     const prior = await this.store.getCommandResult?.({
       idempotencyKey, caseId: input.caseId, ownerId: input.ownerId, action: input.action
     });
-    if (prior) return prior;
+    if (prior) {
+      if (input.action === "RESUME" && "state" in prior) {
+        if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");
+        await this.scheduler.scheduleCase({
+          caseId: prior.caseId,
+          expectedVersion: prior.version,
+          wakeAt: prior.nextWakeAt ?? prior.controlledAt ?? input.now,
+          ...(prior.correlationId ? { correlationId: prior.correlationId } : {})
+        });
+      }
+      return prior;
+    }
     const item = await this.store.get(input.caseId);
     if (!item) throw new Error("CASE_NOT_FOUND");
     if (item.ownerId !== input.ownerId) throw new Error("CASE_OWNERSHIP_REQUIRED");
@@ -114,6 +127,13 @@ export class CaseControlService {
     }
     if (input.action === "REOPEN" && !input.reason?.trim())
       throw new Error("REOPEN_REASON_REQUIRED");
+    const wake = input.action === "RESUME" ? wakeIntent({
+      caseId: input.caseId,
+      expectedVersion: input.expectedVersion + 1,
+      wakeAt: input.now,
+      createdAt: input.now,
+      ...(item.correlationId ? { correlationId: item.correlationId } : {})
+    }) : undefined;
     const next = await this.store.transition({
       caseId: input.caseId,
       ownerId: input.ownerId,
@@ -121,7 +141,8 @@ export class CaseControlService {
       action: input.action,
       reason: input.reason?.trim() || input.action,
       now: input.now,
-      idempotencyKey
+      idempotencyKey,
+      ...(wake ? { wake } : {})
     });
     if (input.action === "RESUME") {
       if (!this.scheduler) throw new Error("CONTROL_SCHEDULER_REQUIRED");

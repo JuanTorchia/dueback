@@ -8,6 +8,7 @@ import type { FollowThroughCase } from "../../packages/runtime/src/case-runner";
 import { EvidenceService, type EvidenceRecord } from "../../packages/runtime/src/evidence-service";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
 import { makeDraftCase } from "../helpers/draft-case";
+import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
 function activeCase(state: FollowThroughCase["state"] = "WAITING_EXTERNAL"): FollowThroughCase {
   const draft = makeDraftCase();
@@ -33,6 +34,7 @@ class ControlMemory implements CaseControlStore {
   evidence: EvidenceRecord[] = [];
   deleted = false;
   commands = new Map<string, { caseId: string; ownerId: string; action: string; result: FollowThroughCase | DeletionReceipt }>();
+  wakes: WakeIntent[] = [];
   constructor(public item: FollowThroughCase) {}
   get(caseId: string): Promise<FollowThroughCase | undefined> {
     return Promise.resolve(!this.deleted && caseId === this.item.caseId ? this.item : undefined);
@@ -51,6 +53,7 @@ class ControlMemory implements CaseControlStore {
     reason: string;
     now: string;
     idempotencyKey: string;
+    wake?: WakeIntent;
   }): Promise<FollowThroughCase> {
     const prior = this.commands.get(input.idempotencyKey);
     if (prior) return Promise.resolve(prior.result as FollowThroughCase);
@@ -68,8 +71,10 @@ class ControlMemory implements CaseControlStore {
       state,
       version: input.expectedVersion + 1,
       controlReason: input.reason,
-      controlledAt: input.now
+      controlledAt: input.now,
+      ...(input.action === "RESUME" ? { nextWakeAt: input.now } : {})
     };
+    if (input.wake) this.wakes.push(input.wake);
     this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: input.action, result: this.item });
     return Promise.resolve(this.item);
   }
@@ -178,6 +183,35 @@ describe("case controls", () => {
     expect(scheduleCase).toHaveBeenCalledWith(
       expect.objectContaining({ caseId: store.item.caseId, expectedVersion: 4 })
     );
+    expect(store.wakes).toEqual([expect.objectContaining({
+      caseId: store.item.caseId,
+      expectedVersion: 4,
+      status: "PENDING"
+    })]);
+  });
+
+  it("re-dispatches an idempotent RESUME after the first enqueue fails", async () => {
+    const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
+    const scheduleCase = vi.fn()
+      .mockRejectedValueOnce(new Error("QUEUE_UNAVAILABLE"))
+      .mockResolvedValueOnce({ taskName: "resume-recovered", duplicate: false });
+    const service = new CaseControlService(store, { scheduleCase });
+    const command = {
+      caseId: store.item.caseId,
+      ownerId: store.item.ownerId,
+      expectedVersion: 3,
+      action: "RESUME" as const,
+      reason: "Reference confirmed",
+      now: "2026-08-15T12:00:00.000Z",
+      idempotencyKey: "resume-command-1"
+    };
+
+    await expect(service.command(command)).rejects.toThrow("QUEUE_UNAVAILABLE");
+    expect(store.item).toMatchObject({ state: "READY", version: 4 });
+    expect(store.wakes).toHaveLength(1);
+
+    await expect(service.command(command)).resolves.toMatchObject({ state: "READY", version: 4 });
+    expect(scheduleCase).toHaveBeenCalledTimes(2);
   });
 
   it("moves conflicting evidence to attention and asks only for the mismatched field", async () => {

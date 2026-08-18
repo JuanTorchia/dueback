@@ -9,7 +9,8 @@
     "./analysis-store": "./src/analysis-store.ts",
     "./runtime-store": "./src/runtime-store.ts",
     "./retention": "./src/retention.ts",
-    "./expiry": "./src/expiry.ts"
+    "./expiry": "./src/expiry.ts",
+    "./wake-outbox-store": "./src/wake-outbox-store.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

@@ -1,6 +1,6 @@
 # DueBack Architecture and Trust Boundaries
 
-Last verified: 2026-08-16. This diagram describes the implemented system, not a roadmap.
+Last verified locally: 2026-08-18. This diagram describes the implemented system, not a roadmap.
 
 ```mermaid
 flowchart LR
@@ -10,6 +10,8 @@ flowchart LR
   G[Genkit + Gemini 3.5 Flash\nVertex AI global]
   F[(Firestore)]
   Q[Cloud Tasks\ndueback-cases]
+  O[(Wake outbox\nFirestore)]
+  S[Cloud Scheduler\nreconciler]
   B[Deterministic policy\nAction Broker]
   M[Merchant Sandbox\nCloud Run - controlled]
   E[Managed email provider\noptional external gate]
@@ -23,7 +25,9 @@ flowchart LR
   W -->|untrusted source; no tools| G
   G -->|typed candidate + provenance| W
   W -->|draft, approval hash, state| F
-  W -->|versioned task + correlation ID| Q
+  W -->|atomic state + wake intent| O
+  O -->|idempotent dispatch| Q
+  S -->|OIDC bounded reconciliation| W
   Q -->|OIDC delivery| W
   W --> B
   B -->|closed fields + idempotency key| M
@@ -53,7 +57,8 @@ acknowledgement stays open. `DONE` requires sufficient evidence.
 | ----------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | Browser → product       | token, text, file, command                | Firebase verification, owner check, same-origin mutation, MIME/content and size limits          |
 | Product → model         | uploaded source and embedded instructions | extractor has no tools; typed schema; provenance normalization; uncertainty blocks activation   |
-| Task → worker           | duplicate or stale delivery               | Cloud Tasks OIDC, case version, bounded attempts, stable task name                              |
+| Task → worker           | duplicate or stale delivery               | signed OIDC bound to audience and service account, case version, bounded attempts, stable task name |
+| State → next wake       | Firestore succeeds while enqueue fails    | transactional wake intent, idempotent dispatch, stale-task repair and scheduled reconciliation  |
 | Worker → counterparty   | proposed recipient, fields, action        | deterministic policy, approval expiry, closed adapter, idempotency ledger                       |
 | Counterparty → callback | body, timestamp, replay, case claim       | separate HMAC secret, five-minute freshness, replay reservation, schema validation              |
 | Email provider → inbound | signature, provider ID, body, attachments | original-body HMAC, event reservation, exact endpoint, 100 KB text bound, metadata-only attachments |
@@ -63,11 +68,13 @@ acknowledgement stays open. `DONE` requires sufficient evidence.
 
 ## Durable state
 
-Firestore stores plan drafts, case runs, action reservations/receipts, opaque message-thread
+Firestore stores plan drafts, case runs, transactional wake intents, action reservations/receipts, opaque message-thread
 routes, evidence, interventions, notification records and their delivery projection, callback
 replay reservations, daily security budgets, and deletion
 tombstones. Cloud Tasks carries case ID, expected version, wake time, and correlation ID. Every
-retry is bounded; a stale delivery is a no-op.
+retry is bounded. A stale delivery performs no external action and can repair the current pending
+wake. Cloud Scheduler also reconciles a bounded batch of pending wake intents once per minute, so a
+successful state write followed by an enqueue outage cannot leave the case asleep indefinitely.
 
 The deploy script enables Firestore TTL on a server-written `deleteAt` timestamp for user-visible
 case data, evidence, events, budgets, model-usage records, and tombstones. Completion and explicit
@@ -87,6 +94,8 @@ deletion.
 ## Implemented limitations
 
 - Merchant Sandbox is a separate, real HTTP service but not a real merchant.
+- Merchant Sandbox uses a dedicated service account with no Firestore, Vertex AI, Cloud Tasks or
+  Firebase Auth role; it can read only its callback secret.
 - `MERCHANT_CONFIRMED` does not prove bank settlement, bill posting, shipment delivery, or receipt.
 - Bidirectional managed email is enabled only as a controlled pilot when a provider key, verified
   sender, inbound domain, webhook secret and owned recipient-domain allowlist are configured. The

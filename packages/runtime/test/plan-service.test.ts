@@ -269,11 +269,11 @@ describe("PlanService", () => {
       planVersion: 1,
       planHash: hash
     });
-    expect(scheduleCase).toHaveBeenCalledWith({
+    expect(scheduleCase).toHaveBeenCalledWith(expect.objectContaining({
       caseId: "case_12345678",
       expectedVersion: 1,
       wakeAt: "2026-08-20T00:00:00.000Z"
-    });
+    }));
   });
 
   it("rejects approval of a stale plan hash", async () => {

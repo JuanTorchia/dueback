@@ -3,6 +3,8 @@ import { stableHash } from "@dueback/domain";
 import type { CaseControlStore, DeletionReceipt } from "@dueback/runtime/case-control";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
 import { firestoreDeleteAt } from "./expiry";
+import type { WakeIntent } from "@dueback/runtime/wake-outbox";
+import { persistWakeIntent } from "./wake-outbox-store";
 
 export class FirestoreCaseControlStore implements CaseControlStore {
   constructor(private readonly db: Firestore) {}
@@ -37,6 +39,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     reason: string;
     now: string;
     idempotencyKey: string;
+    wake?: WakeIntent;
   }): Promise<FollowThroughCase> {
     const reference = this.db.collection("caseRuns").doc(input.caseId);
     const commandRef = this.commandReference(input.idempotencyKey);
@@ -66,6 +69,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         controlReason: input.reason,
         controlledAt: input.now,
         updatedAt: input.now,
+        ...(input.action === "RESUME" ? { nextWakeAt: input.now } : {}),
         ...(["REOPEN", "RESUME"].includes(input.action)
           ? {}
           : { approval: { ...current.approval, revokedAt: input.now } })
@@ -74,6 +78,7 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         ...next,
         ...(input.action === "EXPIRE" ? { deleteAt: firestoreDeleteAt(input.now) } : {})
       });
+      persistWakeIntent(transaction, this.db, input.wake);
       transaction.create(commandRef, {
         idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
         ownerId: input.ownerId, action: input.action, result: next,

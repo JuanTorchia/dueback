@@ -7,6 +7,7 @@ import { firestore } from "../../../../../lib/firebase-admin";
 import { handlePlanRequest } from "../../../../../lib/plan-controller";
 import { publicChannelCapabilities } from "@dueback/runtime/channel-registry";
 import { stableHash } from "@dueback/domain";
+import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
 
 export const runtime = "nodejs";
 function planService() {
@@ -15,7 +16,7 @@ function planService() {
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const scheduler =
     projectId && workerUrl && serviceAccountEmail
-      ? new TaskScheduler(new CloudTasksClient(), {
+      ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
           projectId,
           location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
           queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
@@ -24,7 +25,7 @@ function planService() {
           ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
             ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
             : {})
-        })
+        }))
       : undefined;
   return new PlanService(new FirestoreIntakeStore(firestore), scheduler);
 }

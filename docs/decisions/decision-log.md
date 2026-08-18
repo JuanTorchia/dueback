@@ -357,3 +357,17 @@
 - Motivo: la auditoría previa al video encontró una frontera OIDC incompleta y tres riesgos de
   percepción capaces de convertir una arquitectura competitiva en “email + sandbox”. Estos gates
   cierran el defecto real y fijan claims que un juez puede verificar sin expandir el MVP.
+
+## D-028 — Outbox transaccional para cada próximo despertar
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada; regida por `specs/007-durable-wake-outbox`
+- Decisión: la transición de caso y su intención de próximo wake se escriben en la misma transacción
+  Firestore. La creación inmediata de Cloud Tasks continúa siendo idempotente y un reconciliador
+  OIDC de Cloud Scheduler recupera intenciones pendientes en lotes acotados.
+- Cobertura: activación, acción exitosa, retry de adapter, evidencia insuficiente y `RESUME` usan la
+  misma identidad estable. Una tarea vieja nunca repite la acción; puede reparar el wake de la
+  versión actual antes de terminar como `STALE_TASK`.
+- Motivo: persistir estado antes de enqueue podía dejar un caso huérfano; encolar antes de persistir
+  podía consumir una tarea prematura. El outbox convierte esa ventana en recuperación observable y
+  protege la promesa central de continuar después de cerrar la pestaña.

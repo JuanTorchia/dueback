@@ -16,7 +16,8 @@
     "./timeline": "./src/timeline.ts",
     "./channel-registry": "./src/channel-registry.ts",
     "./inbound-service": "./src/inbound-service.ts",
-    "./technical-run": "./src/technical-run.ts"
+    "./technical-run": "./src/technical-run.ts",
+    "./wake-outbox": "./src/wake-outbox.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

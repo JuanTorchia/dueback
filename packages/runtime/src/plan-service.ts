@@ -4,10 +4,16 @@ import type { PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { stableHash } from "@dueback/domain";
 import { blockingCriticalFields, commercialOutcomeContract, followUpMessage } from "./intake-service";
 import type { DraftCase, PlanApproval } from "./intake-service";
+import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface PlanStore {
   get(caseId: string): Promise<DraftCase | undefined>;
-  replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void>;
+  replace(
+    caseId: string,
+    expectedPlanVersion: number,
+    next: DraftCase,
+    wake?: WakeIntent
+  ): Promise<void>;
   deleteDraft?(caseId: string, ownerId: string): Promise<void>;
 }
 
@@ -171,11 +177,15 @@ export class PlanService {
     private readonly scheduler?: ActivationScheduler
   ) {}
 
-  private async schedule(draft: DraftCase, now: string): Promise<void> {
-    if (!this.scheduler) return;
+  private activationWake(draft: DraftCase, now: string): WakeIntent {
     const requestedAt = draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value;
     const wakeAt = requestedAt && Date.parse(requestedAt) > Date.parse(now) ? requestedAt : now;
-    await this.scheduler.scheduleCase({ caseId: draft.caseId, expectedVersion: 1, wakeAt });
+    return wakeIntent({ caseId: draft.caseId, expectedVersion: 1, wakeAt, createdAt: now });
+  }
+
+  private async schedule(draft: DraftCase, now: string): Promise<void> {
+    if (!this.scheduler) return;
+    await this.scheduler.scheduleCase(this.activationWake(draft, now));
   }
 
   async inspect(caseId: string, ownerId: string): Promise<DraftCase> {
@@ -293,7 +303,8 @@ export class PlanService {
       expiresAt: current.plan.expiresAt
     };
     const next: DraftCase = { ...current, state: "READY", approval };
-    await this.store.replace(input.caseId, input.expectedPlanVersion, next);
+    const wake = this.activationWake(next, input.now);
+    await this.store.replace(input.caseId, input.expectedPlanVersion, next, wake);
     await this.schedule(next, input.now);
     return next;
   }

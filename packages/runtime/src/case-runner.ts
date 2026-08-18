@@ -3,6 +3,7 @@ import type { ApprovalBoundary, CaseState, EvidenceLevel, ProposedAction } from 
 import { ActionOutcomeUnknownError, type ActionBroker, type BrokerResult } from "./action-broker";
 import type { InterventionService } from "./interventions";
 import type { CaseNotificationService } from "./notifications";
+import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface FollowThroughCase {
   readonly caseId: string;
@@ -29,7 +30,12 @@ export interface FollowThroughCase {
 
 export interface FollowThroughStore {
   get(caseId: string): Promise<FollowThroughCase | undefined>;
-  compareAndSet(caseId: string, expectedVersion: number, next: FollowThroughCase): Promise<void>;
+  compareAndSet(
+    caseId: string,
+    expectedVersion: number,
+    next: FollowThroughCase,
+    wake?: WakeIntent
+  ): Promise<void>;
 }
 
 export interface RetryScheduler {
@@ -97,6 +103,17 @@ export class CaseRunner {
       item.version !== input.expectedVersion ||
       !["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state)
     ) {
+      if (
+        ["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) &&
+        item.nextWakeAt
+      ) {
+        await this.scheduler.scheduleCase({
+          caseId: item.caseId,
+          expectedVersion: item.version,
+          wakeAt: item.nextWakeAt,
+          ...(item.correlationId ? { correlationId: item.correlationId } : {})
+        });
+      }
       return { status: "STALE_TASK" };
     }
     const wakeAt = item.nextWakeAt ?? item.dueAt;
@@ -175,17 +192,24 @@ export class CaseRunner {
         lastActionDuplicate: broker.duplicate,
         updatedAt: input.now
       };
-      await this.scheduler.scheduleCase({
+      const wake = wakeIntent({
         caseId: item.caseId,
         expectedVersion: waitingExternal.version,
         wakeAt: nextWakeAt,
+        createdAt: input.now,
         ...(input.correlationId || item.correlationId
           ? { correlationId: input.correlationId ?? item.correlationId }
           : {})
       });
-      await this.store.compareAndSet(item.caseId, item.version, waitingExternal);
+      await this.store.compareAndSet(item.caseId, item.version, waitingExternal, wake);
+      try {
+        await this.scheduler.scheduleCase(wake);
+      } catch (error) {
+        throw new Error("WAKE_DISPATCH_FAILED", { cause: error });
+      }
       return { status: "WAITING_EXTERNAL", broker };
     } catch (error) {
+      if (error instanceof Error && error.message === "WAKE_DISPATCH_FAILED") throw error;
       if (error instanceof Error && error.message.startsWith("ACTION_DENIED:")) {
         const failed: FollowThroughCase = {
           ...item,
@@ -248,15 +272,17 @@ export class CaseRunner {
         lastAttemptAt: input.now,
         updatedAt: input.now
       };
-      await this.store.compareAndSet(item.caseId, item.version, next);
-      await this.scheduler.scheduleCase({
+      const wake = wakeIntent({
         caseId: item.caseId,
         expectedVersion: next.version,
         wakeAt: retryAt,
+        createdAt: input.now,
         ...(input.correlationId || item.correlationId
           ? { correlationId: input.correlationId ?? item.correlationId }
           : {})
       });
+      await this.store.compareAndSet(item.caseId, item.version, next, wake);
+      await this.scheduler.scheduleCase(wake);
       return { status: "WAITING_RETRY", wakeAt: retryAt };
     }
   }

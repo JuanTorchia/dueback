@@ -21,7 +21,10 @@ export function assertExpectedCloudTaskClaims(
 }
 
 export async function verifyCloudTaskIdentity(request: Request): Promise<CloudTaskIdentity> {
-  const taskName = request.headers.get("x-cloudtasks-taskname")?.trim();
+  const taskName = (
+    request.headers.get("x-cloudtasks-taskname") ??
+    request.headers.get("x-cloudscheduler-jobname")
+  )?.trim();
   const authorization = request.headers.get("authorization") ?? "";
   const token = authorization.match(/^Bearer ([A-Za-z0-9._~-]+)$/)?.[1];
   const audience = process.env.DUEBACK_TASKS_OIDC_AUDIENCE?.trim();

@@ -17,6 +17,7 @@ import {
 } from "../../packages/runtime/src/interventions";
 import type { NotificationRecord } from "../../packages/runtime/src/notifications";
 import { CaseNotificationService } from "../../packages/runtime/src/notifications";
+import type { WakeIntent } from "../../packages/runtime/src/wake-outbox";
 
 class Records implements ActionRecordStore {
   readonly records = new Map<string, Reservation>();
@@ -39,17 +40,24 @@ class Records implements ActionRecordStore {
 
 class Cases implements FollowThroughStore {
   failNextWrite = false;
+  readonly wakes: WakeIntent[] = [];
   constructor(public value: FollowThroughCase) {}
   get(): Promise<FollowThroughCase> {
     return Promise.resolve(this.value);
   }
-  compareAndSet(_caseId: string, expectedVersion: number, next: FollowThroughCase): Promise<void> {
+  compareAndSet(
+    _caseId: string,
+    expectedVersion: number,
+    next: FollowThroughCase,
+    wake?: WakeIntent
+  ): Promise<void> {
     if (this.value.version !== expectedVersion) throw new Error("VERSION_CONFLICT");
     if (this.failNextWrite) {
       this.failNextWrite = false;
       throw new Error("INJECTED_PERSISTENCE_CRASH");
     }
     this.value = next;
+    if (wake) this.wakes.push(wake);
     return Promise.resolve();
   }
 }
@@ -106,11 +114,11 @@ describe("durable follow-through", () => {
       actionOrdinal: 2,
       nextWakeAt: "2026-08-15T12:01:00.000Z"
     });
-    expect(scheduleCase).toHaveBeenLastCalledWith({
+    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
       caseId: cases.value.caseId,
       expectedVersion: 2,
       wakeAt: "2026-08-15T12:01:00.000Z"
-    });
+    }));
     const firstIdempotencyKey = cases.value.lastActionIdempotencyKey;
 
     await expect(runner.run({
@@ -218,6 +226,49 @@ describe("durable follow-through", () => {
         now: "2026-08-15T12:00:00.000Z"
       })
     ).resolves.toEqual({ status: "STALE_TASK" });
+  });
+
+  it("recovers a wake enqueue failure after state persistence without repeating the action", async () => {
+    const cases = new Cases(readyCase());
+    const execute = vi.fn().mockResolvedValue({
+      receiptId: "receipt_wake_1",
+      acceptedAt: "2026-08-15T12:00:00.000Z"
+    });
+    const scheduleCase = vi.fn()
+      .mockRejectedValueOnce(new Error("INJECTED_QUEUE_UNAVAILABLE"))
+      .mockResolvedValue({ taskName: "recovered-task", duplicate: false });
+    const runner = new CaseRunner(
+      cases,
+      new ActionBroker(new Records(), { execute }),
+      { scheduleCase }
+    );
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 1,
+      now: "2026-08-15T12:00:00.000Z"
+    })).rejects.toThrow("WAKE_DISPATCH_FAILED");
+
+    expect(cases.value).toMatchObject({ state: "WAITING_EXTERNAL", version: 2 });
+    expect(cases.wakes).toEqual([expect.objectContaining({
+      caseId: cases.value.caseId,
+      expectedVersion: 2,
+      status: "PENDING"
+    })]);
+    expect(execute).toHaveBeenCalledOnce();
+
+    await expect(runner.run({
+      caseId: cases.value.caseId,
+      expectedVersion: 1,
+      now: "2026-08-15T12:00:01.000Z"
+    })).resolves.toEqual({ status: "STALE_TASK" });
+
+    expect(scheduleCase).toHaveBeenCalledTimes(2);
+    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
+      caseId: cases.value.caseId,
+      expectedVersion: 2
+    }));
+    expect(execute).toHaveBeenCalledOnce();
   });
 
   it("stops after the approved logical-send budget and returns one owner decision", async () => {

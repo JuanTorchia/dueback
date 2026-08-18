@@ -3,6 +3,8 @@ import type { DraftCase, IntakeStore } from "@dueback/runtime/intake-service";
 import type { PlanStore } from "@dueback/runtime/plan-service";
 import { stableHash } from "@dueback/domain";
 import { firestoreDeleteAt } from "./expiry";
+import type { WakeIntent } from "@dueback/runtime/wake-outbox";
+import { persistWakeIntent } from "./wake-outbox-store";
 
 export function firstRunDueAt(draft: DraftCase): string {
   return draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value ??
@@ -54,7 +56,12 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
     });
   }
 
-  async replace(caseId: string, expectedPlanVersion: number, next: DraftCase): Promise<void> {
+  async replace(
+    caseId: string,
+    expectedPlanVersion: number,
+    next: DraftCase,
+    wake?: WakeIntent
+  ): Promise<void> {
     const reference = this.db.collection("caseDrafts").doc(caseId);
     const runReference = this.db.collection("caseRuns").doc(caseId);
     await this.db.runTransaction(async (transaction) => {
@@ -63,6 +70,7 @@ export class FirestoreIntakeStore implements IntakeStore, PlanStore {
       const currentDraft = current.data() as DraftCase;
       if (currentDraft.plan.version !== expectedPlanVersion) throw new Error("STALE_PLAN_VERSION");
       transaction.set(reference, next);
+      persistWakeIntent(transaction, this.db, wake);
       if (next.state === "READY" && next.approval) {
         const correlationId = `corr_${stableHash({
           namespace: "dueback/correlation/v1",

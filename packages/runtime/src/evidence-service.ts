@@ -16,6 +16,7 @@ import {
   type InterventionRecord,
   type InterventionStore
 } from "./interventions";
+import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
 export interface EvidenceCase {
   readonly caseId: string;
@@ -42,6 +43,7 @@ export interface EvidenceCaseStore {
     nextState: CaseState;
     nextWakeAt?: string;
     evidence: EvidenceRecord;
+    wake?: WakeIntent;
   }): Promise<{ duplicate: boolean }>;
 }
 
@@ -90,21 +92,22 @@ export class EvidenceService {
     const nextWakeAt = !accepted && !conflict
       ? new Date(Date.parse(now) + (item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60) * 1000).toISOString()
       : undefined;
-    if (!accepted && !conflict && nextWakeAt) {
-      await this.scheduler?.scheduleCase({
+    const wake = nextWakeAt ? wakeIntent({
         caseId: item.caseId,
         expectedVersion: item.version + 1,
         wakeAt: nextWakeAt,
-        correlationId
-      });
-    }
-    await this.cases.record({
+        correlationId,
+        createdAt: now
+      }) : undefined;
+    const recorded = await this.cases.record({
       caseId: item.caseId,
       expectedVersion: item.version,
       nextState: accepted ? "DONE" : conflict ? "NEEDS_ATTENTION" : "WAITING_EXTERNAL",
       ...(nextWakeAt ? { nextWakeAt } : {}),
+      ...(wake ? { wake } : {}),
       evidence: { candidate, verification, recordedAt: now, correlationId }
     });
+    if (wake && !recorded.duplicate) await this.scheduler?.scheduleCase(wake);
     if (!accepted) {
       if (!conflict) {
         return { status: "INSUFFICIENT", verification };

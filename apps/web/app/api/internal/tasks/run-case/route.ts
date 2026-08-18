@@ -20,6 +20,7 @@ import {
   parseAllowedRecipientDomains
 } from "../../../../../lib/security-limits";
 import { notificationDelivery } from "../../../../../lib/notification-delivery";
+import { durableCaseScheduler } from "../../../../../lib/durable-case-scheduler";
 
 export const runtime = "nodejs";
 
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
   if (!projectId || !workerUrl || !serviceAccountEmail)
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
-  const scheduler = new TaskScheduler(new CloudTasksClient(), {
+  const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
     projectId,
     location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
     queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
     ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
       ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
       : {})
-  });
+  }));
   const capabilities = publicChannelCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(merchantUrl && actionSecret),

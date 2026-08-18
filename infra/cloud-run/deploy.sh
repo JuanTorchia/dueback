@@ -34,6 +34,10 @@ gcloud iam service-accounts describe "${sandbox_sa}" --project="${project_id}" >
 gcloud iam service-accounts add-iam-policy-binding "${tasks_sa}" \
   --member="serviceAccount:${runtime_sa}" --role=roles/iam.serviceAccountUser \
   --project="${project_id}" --quiet >/dev/null
+project_number="$(gcloud projects describe "${project_id}" --format='value(projectNumber)')"
+gcloud iam service-accounts add-iam-policy-binding "${tasks_sa}" \
+  --member="serviceAccount:service-${project_number}@gcp-sa-cloudscheduler.iam.gserviceaccount.com" \
+  --role=roles/iam.serviceAccountTokenCreator --project="${project_id}" --quiet >/dev/null
 
 for role in roles/datastore.user roles/aiplatform.user roles/cloudtasks.enqueuer roles/firebaseauth.viewer; do
   gcloud projects add-iam-policy-binding "${project_id}" --member="serviceAccount:${runtime_sa}" --role="${role}" --condition=None --quiet >/dev/null
@@ -144,12 +148,14 @@ gcloud run services add-iam-policy-binding dueback-web --region="${region}" --me
 reconcile_url="${web_url}/api/internal/tasks/reconcile-wakes"
 if gcloud scheduler jobs describe dueback-wake-reconciler --location="${region}" --project="${project_id}" >/dev/null 2>&1; then
   gcloud scheduler jobs update http dueback-wake-reconciler \
-    --location="${region}" --project="${project_id}" --schedule='* * * * *' \
+    --location="${region}" --project="${project_id}" --schedule='*/1 * * * *' \
+    --time-zone=Etc/UTC --attempt-deadline=30s \
     --uri="${reconcile_url}" --http-method=POST \
     --oidc-service-account-email="${tasks_sa}" --oidc-token-audience="${web_url}" >/dev/null
 else
   gcloud scheduler jobs create http dueback-wake-reconciler \
-    --location="${region}" --project="${project_id}" --schedule='* * * * *' \
+    --location="${region}" --project="${project_id}" --schedule='*/1 * * * *' \
+    --time-zone=Etc/UTC --attempt-deadline=30s \
     --uri="${reconcile_url}" --http-method=POST \
     --oidc-service-account-email="${tasks_sa}" --oidc-token-audience="${web_url}" >/dev/null
 fi

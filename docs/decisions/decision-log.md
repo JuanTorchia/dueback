@@ -371,3 +371,16 @@
 - Motivo: persistir estado antes de enqueue podía dejar un caso huérfano; encolar antes de persistir
   podía consumir una tarea prematura. El outbox convierte esa ventana en recuperación observable y
   protege la promesa central de continuar después de cerrar la pestaña.
+
+## D-029 — Sandbox con identidad mínima separada
+
+- Fecha: 18 de agosto de 2026
+- Estado: aceptada y desplegada
+- Decisión: `dueback-merchant-sandbox` usa `dueback-sandbox` en lugar del service account del runtime.
+  No recibe roles de Firestore, Vertex AI, Cloud Tasks ni Firebase Auth. Runtime y sandbox obtienen
+  `secretAccessor` únicamente sobre los secretos que consume cada servicio; se eliminó el acceso de
+  secretos a nivel proyecto del runtime.
+- Evidencia: revisión `dueback-merchant-sandbox-00014-xpr`; la política de proyecto no contiene al
+  sandbox y el secreto callback enumera únicamente runtime y sandbox como lectores.
+- Motivo: el simulador es público e intencionalmente hostil para pruebas. Compartir la identidad
+  privilegiada del producto ampliaba su blast radius sin necesidad operacional.

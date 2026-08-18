@@ -588,3 +588,27 @@ Revision `dueback-web-00058-vts` deployed image tag `oidc-20260818` from Cloud B
   Spanish, contradictory amount and hostile instruction. It observed 4/4 contract checks passing;
   per-case latency, usage, uncertainty and failures are retained. This small synthetic corpus is
   model evidence, not a human study or a general accuracy claim.
+
+## Transactional wake outbox and IAM isolation — 2026-08-18
+
+Commit `95144bf` was built by Cloud Build `9a9f9f9f-d722-4862-98f1-7eba9fe366fb` and deployed as
+web revision `dueback-web-00060-4pm`. Firebase Hosting was repinned to that revision.
+
+- Firestore now commits each required next wake in `wakeIntents` with the corresponding case
+  transition. The public judge path produced five redacted intents for versions 1–5; all reached
+  `DISPATCHED` with a task name. One intent observed two dispatch attempts and still one stable task,
+  demonstrating the duplicate-safe dispatcher/reconciler boundary without claiming an injected
+  production outage.
+- `dueback-wake-reconciler` ran from Cloud Scheduler with signed OIDC and returned HTTP 200 on the
+  deployed revision. A forged scheduler header without bearer authentication returned HTTP 401.
+- The retries-disabled public `deployed-demo.spec.ts` passed 1/1 in 1.1 minutes after deployment,
+  including durable analysis, closed tab, external failure/retry, weak ACK rejection, later
+  follow-up and sufficient proof.
+- Merchant Sandbox revision `dueback-merchant-sandbox-00014-xpr` runs as dedicated
+  `dueback-sandbox@bulbasour-503317.iam.gserviceaccount.com`. It has no project role and can read
+  only the callback secret. The runtime's legacy project-wide Secret Manager accessor was removed;
+  its required secrets now grant access individually.
+
+The deterministic chaos suites inject queue failure after state persistence and prove stale-task
+and idempotent-`RESUME` recovery without repeating the prior external action. A production-injected
+enqueue outage remains a separate unchecked gate in `specs/007-durable-wake-outbox/tasks.md`.

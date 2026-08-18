@@ -26,7 +26,8 @@ an isolated anonymous owner; optional Google linking preserves that owner and ma
    uncertainty. The model has no tools or lifecycle authority.
 3. The person reviews what DueBack may do, will never do, will share, and what counts as done.
 4. Approval binds owner, case, plan version, canonical hash, and expiry.
-5. Cloud Tasks resumes the case after the tab closes. Firestore provides versioned durable state.
+5. Cloud Tasks resumes the case after the tab closes. Firestore commits versioned state and its
+   next wake intent atomically; an OIDC Cloud Scheduler reconciler repairs failed enqueues.
 6. A deterministic Action Broker sends bounded follow-ups with a distinct idempotency key per
    approved logical action; silence or weak evidence schedules the next attempt until budget ends.
 7. A separately deployed Merchant Sandbox emits signed callbacks. `REQUEST_ACKNOWLEDGED` is rejected

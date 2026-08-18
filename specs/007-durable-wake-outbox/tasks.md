@@ -7,6 +7,6 @@
 - [x] T005 Add OIDC-protected bounded wake reconciliation route.
 - [x] T006 Provision a once-per-minute Cloud Scheduler reconciliation job.
 - [x] T007 Add chaos tests for enqueue failure, stale-task recovery and idempotent `RESUME`.
-- [ ] T008 Deploy with wake-intent TTL and dedicated scheduler job.
+- [x] T008 Deploy with wake-intent TTL and dedicated scheduler job.
 - [ ] T009 Run deployed chaos evidence and prove zero duplicate external actions.
-- [ ] T010 Rerun the complete public judge path.
+- [x] T010 Rerun the complete public judge path.

@@ -48,6 +48,10 @@ test.describe("deployed mobile judge path", () => {
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
+    await expect(page.getByRole("heading", { name: "The reply did not prove the promised outcome" })).toBeVisible({
+      timeout: 70_000
+    });
+    await expect(page.getByText("Another approved follow-up is scheduled because the reply only acknowledged the request")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Company confirmed the refund instruction" })).toBeVisible({
       timeout: 75_000
     });

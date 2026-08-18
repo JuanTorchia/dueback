@@ -27,13 +27,13 @@
 - [x] T017 Generate example dates from an injected clock and keep accelerated demos immediately due
 - [x] T018 Remove stale email capability copy and label the landing card as an example
 - [x] T019 Reduce duplicate case-detail messaging while preserving the exact limitation
-- [ ] T020 Add mobile, keyboard, slow-load and reduced-motion browser coverage
+- [x] T020 Add mobile, keyboard, slow-load and reduced-motion browser coverage
 
 ## Phase 4 — Prize verification
 
 - [x] T021 Run package/root tests, typecheck, lint, build, evaluation, emulator and diff checks
-- [ ] T022 Deploy and pin Firebase Hosting to the new Cloud Run revision
+- [x] T022 Deploy and pin Firebase Hosting to the new Cloud Run revision
 - [ ] T023 Run sequential public silence/ACK/follow-up/proof, inbox and accessibility paths with
   one worker and zero retries
 - [ ] T024 Record redacted Cloud Task/action/evidence evidence and update final audit
-- [ ] T025 Re-audit the public product before reopening the video gate
+- [x] T025 Re-audit the public product before reopening the video gate

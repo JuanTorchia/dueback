@@ -380,7 +380,7 @@ export function PlanReview({
               <p className="email-rule">An acknowledgement that the request was received will not be treated as completion.</p>
             </>}
           </div>
-          <div className="follow-up-policy"><span>Up to {draft.plan.maxLogicalSends ?? 3} sends</span><span>Every {Math.round((draft.plan.followUpIntervalSeconds ?? 172800) / 86400)} days</span><span>Stops for decisions</span></div>
+          <div className="follow-up-policy"><span>Up to {draft.plan.maxLogicalSends ?? 3} sends</span><span>{draft.plan.executionMode === "ACCELERATED_DEMO" ? "Seconds apart in this demo" : `Every ${String(Math.round((draft.plan.followUpIntervalSeconds ?? 172800) / 86400))} days`}</span><span>Stops for decisions</span></div>
           {activeChannelType === "MANAGED_EMAIL" ? (
             <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
           ) : null}

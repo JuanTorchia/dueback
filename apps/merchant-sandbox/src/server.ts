@@ -18,9 +18,9 @@ export class MerchantLedger {
     return this.records.size;
   }
 
-  attempt(key: string): number {
-    const next = (this.attempts.get(key) ?? 0) + 1;
-    this.attempts.set(key, next);
+  attempt(scope: string): number {
+    const next = (this.attempts.get(scope) ?? 0) + 1;
+    this.attempts.set(scope, next);
     return next;
   }
 
@@ -84,8 +84,6 @@ export function createMerchantServer(input: {
         const correlationId = request.headers["x-dueback-correlation-id"];
         const scenario = (request.headers["x-dueback-scenario"] ??
           "signed-completion") as ScenarioName;
-        const attempt = ledger.attempt(key);
-        const step = scenarioStep(scenario, attempt);
         const raw = await readBody(request);
         const envelope = JSON.parse(raw) as {
           caseId?: string;
@@ -96,6 +94,11 @@ export function createMerchantServer(input: {
         }
         const caseId = envelope.caseId;
         const sharedFields = envelope.proposal.sharedFields;
+        // Scenario progression belongs to the case, not the idempotency key.
+        // Transport retries reuse a key, while a later approved follow-up gets
+        // a new key; both must advance one observable case story.
+        const attempt = ledger.attempt(caseId);
+        const step = scenarioStep(scenario, attempt);
         if (step.status >= 500) {
           response.writeHead(step.status, { "content-type": "application/json" });
           response.end(JSON.stringify({ error: "INJECTED_RECOVERABLE_FAILURE", attempt }));

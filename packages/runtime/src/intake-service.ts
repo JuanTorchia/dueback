@@ -162,7 +162,9 @@ function buildPlan(input: {
     messageTemplateVersion: "company-follow-up/v1",
     messageSubject: message.subject,
     messageBody: message.body,
-    followUpIntervalSeconds: 2 * 24 * 60 * 60,
+    followUpIntervalSeconds: input.channel.channelType === "CONTROLLED_SANDBOX"
+      ? 8
+      : 2 * 24 * 60 * 60,
     maxLogicalSends: 3,
     sharedFields: [
       "transactionRef",

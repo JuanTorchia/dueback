@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">DueBack deployed architecture and authority boundaries</title>
+  <desc id="desc">A person approves a typed contract extracted by Gemini. Firestore and Cloud Tasks preserve and resume the bounded workflow. A narrow action broker contacts a controlled merchant. Signed evidence returns to a deterministic verifier before the result is shown.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#386157"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#17332d" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .eyebrow { font: 700 22px Inter, Arial, sans-serif; letter-spacing: 2.8px; fill: #117357; }
+      .title { font: 750 64px Inter, Arial, sans-serif; letter-spacing: -2.5px; fill: #071b17; }
+      .subtitle { font: 400 26px Inter, Arial, sans-serif; fill: #4c605a; }
+      .card-title { font: 700 29px Inter, Arial, sans-serif; fill: #071b17; }
+      .card-copy { font: 400 21px Inter, Arial, sans-serif; fill: #40564f; }
+      .chip { font: 700 16px Inter, Arial, sans-serif; letter-spacing: 1.3px; fill: #117357; }
+      .boundary { font: 700 17px Inter, Arial, sans-serif; letter-spacing: 1.4px; fill: #9f3e1f; }
+      .footer { font: 600 20px Inter, Arial, sans-serif; fill: #40564f; }
+    </style>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#f6f0e6"/>
+  <circle cx="1770" cy="90" r="240" fill="#e0eee7" opacity="0.75"/>
+  <text x="120" y="102" class="eyebrow">DEPLOYED ON GOOGLE CLOUD</text>
+  <text x="120" y="178" class="title">Authority and proof stay outside the model.</text>
+  <text x="120" y="226" class="subtitle">One durable path from a messy promise to evidence strong enough to close the case.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="120" y="322" width="300" height="300" rx="28" fill="#fffdfa" stroke="#d8d4ca"/>
+    <rect x="470" y="322" width="300" height="300" rx="28" fill="#eff8f3" stroke="#69a891" stroke-width="2"/>
+    <rect x="820" y="322" width="300" height="300" rx="28" fill="#fffdfa" stroke="#d8d4ca"/>
+    <rect x="1170" y="322" width="300" height="300" rx="28" fill="#fff7f1" stroke="#d47d58" stroke-width="2"/>
+    <rect x="1520" y="322" width="280" height="300" rx="28" fill="#e7f6ed" stroke="#238563" stroke-width="2"/>
+  </g>
+
+  <g>
+    <rect x="148" y="350" width="94" height="34" rx="17" fill="#e6f3ed"/><text x="168" y="373" class="chip">PERSON</text>
+    <text x="150" y="438" class="card-title">Approve</text><text x="150" y="474" class="card-title">the boundary</text>
+    <text x="150" y="526" class="card-copy">Recipient, message,</text><text x="150" y="558" class="card-copy">shared data, attempts</text><text x="150" y="590" class="card-copy">and required proof</text>
+
+    <rect x="498" y="350" width="182" height="34" rx="17" fill="#d9eee4"/><text x="518" y="373" class="chip">GEMINI + GENKIT</text>
+    <text x="500" y="438" class="card-title">Propose typed</text><text x="500" y="474" class="card-title">facts</text>
+    <text x="500" y="526" class="card-copy">Extraction, citations</text><text x="500" y="558" class="card-copy">and uncertainty</text><text x="500" y="590" class="boundary">NO ACTION TOOLS</text>
+
+    <rect x="848" y="350" width="198" height="34" rx="17" fill="#edf0ec"/><text x="868" y="373" class="chip">FIRESTORE + TASKS</text>
+    <text x="850" y="438" class="card-title">Persist and</text><text x="850" y="474" class="card-title">resume</text>
+    <text x="850" y="526" class="card-copy">Versioned state, OIDC,</text><text x="850" y="558" class="card-copy">bounded retries and</text><text x="850" y="590" class="card-copy">idempotent wakes</text>
+
+    <rect x="1198" y="350" width="192" height="34" rx="17" fill="#f8e4d9"/><text x="1218" y="373" class="chip">ACTION BROKER</text>
+    <text x="1200" y="438" class="card-title">Cross one</text><text x="1200" y="474" class="card-title">narrow boundary</text>
+    <text x="1200" y="526" class="card-copy">Only approved fields</text><text x="1200" y="558" class="card-copy">reach the controlled</text><text x="1200" y="590" class="card-copy">merchant sandbox</text>
+
+    <rect x="1548" y="350" width="142" height="34" rx="17" fill="#d6eee1"/><text x="1568" y="373" class="chip">VERIFIER</text>
+    <text x="1550" y="438" class="card-title">Accept proof,</text><text x="1550" y="474" class="card-title">not claims</text>
+    <text x="1550" y="526" class="card-copy">Signed evidence must</text><text x="1550" y="558" class="card-copy">match the exact contract</text><text x="1550" y="590" class="boundary">ACK ≠ DONE</text>
+  </g>
+
+  <g stroke="#386157" stroke-width="4" fill="none" marker-end="url(#arrow)">
+    <path d="M420 472 H458"/><path d="M770 472 H808"/><path d="M1120 472 H1158"/><path d="M1470 472 H1508"/>
+  </g>
+
+  <g>
+    <rect x="300" y="710" width="1320" height="152" rx="28" fill="#102d26"/>
+    <text x="350" y="775" style="font:700 20px Inter,Arial,sans-serif;letter-spacing:1.8px;fill:#72d2ad">THE COMPLETION RULE</text>
+    <text x="350" y="815" style="font:700 27px Inter,Arial,sans-serif;fill:#ffffff">Gemini proposes structure. Deterministic policy authorizes action.</text>
+    <text x="350" y="850" style="font:700 27px Inter,Arial,sans-serif;fill:#ffffff">Deterministic evidence closes the case.</text>
+  </g>
+
+  <text x="120" y="970" class="footer">Cloud Run · Firestore · Cloud Tasks · Vertex AI · controlled Merchant Sandbox</text>
+  <text x="1800" y="970" text-anchor="end" class="footer">DueBack · Taskmaster</text>
+</svg>

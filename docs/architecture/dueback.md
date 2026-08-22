@@ -1,6 +1,7 @@
 # DueBack Architecture and Trust Boundaries
 
-Last verified locally: 2026-08-18. This diagram describes the implemented system, not a roadmap.
+Last verified locally and against the public deployment: 2026-08-22. This diagram describes the
+implemented system, not a roadmap.
 
 ```mermaid
 flowchart LR
@@ -53,18 +54,18 @@ acknowledgement stays open. `DONE` requires sufficient evidence.
 
 ## Trust boundaries
 
-| Boundary                | Untrusted input                           | Enforced control                                                                                |
-| ----------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Browser → product       | token, text, file, command                | Firebase verification, owner check, same-origin mutation, MIME/content and size limits          |
-| Product → model         | uploaded source and embedded instructions | extractor has no tools; typed schema; provenance normalization; uncertainty blocks activation   |
-| Task → worker           | duplicate or stale delivery               | signed OIDC bound to audience and service account, case version, bounded attempts, stable task name |
-| State → next wake       | Firestore succeeds while enqueue fails    | transactional wake intent, idempotent dispatch, stale-task repair and scheduled reconciliation  |
-| Worker → counterparty   | proposed recipient, fields, action        | deterministic policy, approval expiry, closed adapter, idempotency ledger                       |
-| Counterparty → callback | body, timestamp, replay, case claim       | separate HMAC secret, five-minute freshness, replay reservation, schema validation              |
+| Boundary                 | Untrusted input                           | Enforced control                                                                                    |
+| ------------------------ | ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Browser → product        | token, text, file, command                | Firebase verification, owner check, same-origin mutation, MIME/content and size limits              |
+| Product → model          | uploaded source and embedded instructions | extractor has no tools; typed schema; provenance normalization; uncertainty blocks activation       |
+| Task → worker            | duplicate or stale delivery               | signed OIDC bound to audience and service account, case version, bounded attempts, stable task name |
+| State → next wake        | Firestore succeeds while enqueue fails    | transactional wake intent, idempotent dispatch, stale-task repair and scheduled reconciliation      |
+| Worker → counterparty    | proposed recipient, fields, action        | deterministic policy, approval expiry, closed adapter, idempotency ledger                           |
+| Counterparty → callback  | body, timestamp, replay, case claim       | separate HMAC secret, five-minute freshness, replay reservation, schema validation                  |
 | Email provider → inbound | signature, provider ID, body, attachments | original-body HMAC, event reservation, exact endpoint, 100 KB text bound, metadata-only attachments |
-| Inbound text → model     | hostile email, prompt injection          | tool-less typed extraction; exact excerpts; sender/thread correlation before business decision |
-| Candidate → lifecycle   | insufficient or mismatched evidence       | deterministic verifier; conflicts produce one intervention; terminal cases reject late evidence |
-| Artifact access         | copied or modified link                   | HMAC grant bound to owner/case/artifact, maximum ten-minute lifetime                            |
+| Inbound text → model     | hostile email, prompt injection           | tool-less typed extraction; exact excerpts; sender/thread correlation before business decision      |
+| Candidate → lifecycle    | insufficient or mismatched evidence       | deterministic verifier; conflicts produce one intervention; terminal cases reject late evidence     |
+| Artifact access          | copied or modified link                   | HMAC grant bound to owner/case/artifact, maximum ten-minute lifetime                                |
 
 ## Durable state
 

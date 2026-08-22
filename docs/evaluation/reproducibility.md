@@ -713,3 +713,16 @@ runtime service account, environment, secrets, controlled Merchant Sandbox and c
 
 This remains a controlled sandbox demonstration. Company confirmation is not bank settlement, and
 the result does not claim arbitrary-company connectivity.
+
+### Firebase Hosting repin correction — 2026-08-22
+
+The initial web-only Cloud Run deployment did not update Firebase Hosting's pinned revision. A
+visual check of the public URL exposed that Hosting was still serving the previous interface even
+though Cloud Run sent 100% of its direct traffic to `dueback-web-00069-8qs`. The screenshots from
+that first check are retained separately and are not valid v11 release evidence.
+
+Firebase Hosting was redeployed at `2026-08-22 22:37:41 UTC`, repinning the live channel to the
+current `dueback-web` revision. The public URL then showed the v11-only approval boundary,
+`ACK ≠ PROOF` decision trail, verdict-first result and technical trace. A fresh mobile deployed
+journey passed 1/1 with one worker in 31.8 seconds. Canonical post-repin screenshots are stored in
+`docs/submission/evidence/2026-08-22/v11-final-storyboard-repinned/`.

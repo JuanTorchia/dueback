@@ -673,3 +673,23 @@ Observed from `2026-08-18T16:18:33Z` through `2026-08-18T16:24:01Z`:
 
 These are controlled sandbox outcomes and do not prove bank settlement or arbitrary-company
 connectivity.
+
+## Product-comprehension and localization release — 2026-08-22
+
+Commits `dc429b8` and `524ae92` were built by Cloud Build
+`77e90f4a-463b-4ee6-b9d0-2cea150f80fd` (`SUCCESS`) and deployed as Cloud Run revision
+`dueback-web-00065-mx2` with 100% traffic. Firebase Hosting was repinned to that revision.
+
+- Public `/en`, `/es` and `/pt` routes returned HTTP 200 with localized metadata and navigation.
+- `/api/channels` continued to report the controlled sandbox and managed-email pilot as available;
+  Gmail and partner API remained fail-closed as future capabilities.
+- The first deployed browser gate stopped on an obsolete assertion for a detailed limits sentence
+  that the product intentionally moved under disclosure. The visible `Before you start` summary
+  retained the same no-spending, no-outcome-change and false-DONE boundaries.
+- After aligning the assertion to the visible consumer summary, the public mobile journey passed
+  1/1 with one worker and zero retries in 39.1 seconds. It completed durable analysis, approval,
+  tab-independent continuation, acknowledgement rejection and sufficient signed proof.
+
+This release also fixes a consumer projection that displayed minor currency units as `5900` rather
+than `USD 59.00`, and prevents an intentionally in-app return from appearing as an unavailable
+email delivery. Localization does not change plan authority, verification or channel availability.

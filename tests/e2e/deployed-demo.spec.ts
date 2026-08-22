@@ -31,7 +31,8 @@ test.describe("deployed mobile judge path", () => {
     );
     await page.getByRole("link", { name: /New promise/ }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
-    await expect(page.getByText("No spending, outcome changes, extra data, or bank-settlement claims.")).toBeVisible();
+    await expect(page.getByText("Before you start")).toBeVisible();
+    await expect(page.getByText(/It cannot spend, change the outcome, or call an acknowledgement done/)).toBeVisible();
     await expect(page.getByText("How DueBack contacts them")).toBeVisible();
     await expect(page.getByText("The first follow-up")).toBeVisible();
     await expect(page.getByText(`Follow-up for ${reference}`)).toBeVisible();

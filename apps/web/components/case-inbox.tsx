@@ -5,8 +5,11 @@ import { anonymousIdToken, recoverableIdentity } from "../lib/firebase-client";
 import type { CaseSummary } from "../lib/cases-controller";
 import { emptyInboxPresentation, type InboxIdentity } from "../lib/inbox-presentation";
 import { GoogleSignIn } from "./google-sign-in";
+import { useLocale } from "../lib/use-locale";
 
 export function CaseInbox() {
+  const { locale, localize } = useLocale();
+  const tr = useCallback((en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en, [locale]);
   const [items, setItems] = useState<CaseSummary[]>();
   const [identity, setIdentity] = useState<InboxIdentity>();
   const [nextCursor, setNextCursor] = useState<string | null>();
@@ -24,33 +27,33 @@ export function CaseInbox() {
       const pageItems = result.items;
       setItems((current) => cursor && current ? [...current, ...pageItems] : pageItems);
       setNextCursor(result.nextCursor ?? null); setIdentity(currentIdentity); setError(undefined);
-    } catch { setError(cursor ? "We could not load more follow-ups. Your current list is still here." : "We could not refresh your follow-ups. Sign in if you saved these cases on another device."); }
+    } catch { setError(cursor ? tr("We could not load more follow-ups. Your current list is still here.", "No pudimos cargar más seguimientos. Tu lista actual sigue disponible.", "Não foi possível carregar mais acompanhamentos. Sua lista atual continua disponível.") : tr("We could not refresh your follow-ups. Sign in if you saved these cases on another device.", "No pudimos actualizar tus seguimientos. Iniciá sesión si los guardaste en otro dispositivo.", "Não foi possível atualizar seus acompanhamentos. Entre se você os salvou em outro dispositivo.")); }
     finally { setLoadingMore(false); }
-  }, []);
+  }, [tr]);
   useEffect(() => { void load(); }, [load]);
 
   if (!items && !error) return <section className="card inbox-loading" role="status" aria-live="polite" aria-busy="true">
-    <div><span className="case-bucket">Working</span><small>Checking saved cases</small></div>
-    <h2>Opening your follow-ups…</h2>
-    <p>Loading the latest company activity and decisions.</p>
+    <div><span className="case-bucket">{tr("Working", "Trabajando", "Trabalhando")}</span><small>{tr("Checking saved cases", "Revisando casos guardados", "Verificando casos salvos")}</small></div>
+    <h2>{tr("Opening your follow-ups…", "Abriendo tus seguimientos…", "Abrindo seus acompanhamentos…")}</h2>
+    <p>{tr("Loading the latest company activity and decisions.", "Cargando la actividad y decisiones más recientes.", "Carregando atividades e decisões mais recentes.")}</p>
     <div className="case-loading-steps" aria-hidden="true"><span /><span /><span /></div>
   </section>;
   const empty = identity ? emptyInboxPresentation(identity) : undefined;
   return <div className="case-inbox">
-    {items && items.length > 0 ? <section className="inbox-summary" aria-label="Follow-up summary">
-      <p><strong>{items.filter((item) => item.bucket === "WORKING").length}</strong><span>Working</span></p>
-      <p><strong>{items.filter((item) => item.bucket === "NEEDS_YOU").length}</strong><span>Need you</span></p>
-      <p><strong>{items.filter((item) => item.bucket === "DONE").length}</strong><span>Done</span></p>
+    {items && items.length > 0 ? <section className="inbox-summary" aria-label={tr("Follow-up summary", "Resumen de seguimientos", "Resumo dos acompanhamentos")}>
+      <p><strong>{items.filter((item) => item.bucket === "WORKING").length}</strong><span>{tr("Working", "Trabajando", "Trabalhando")}</span></p>
+      <p><strong>{items.filter((item) => item.bucket === "NEEDS_YOU").length}</strong><span>{tr("Need you", "Te necesitan", "Precisam de você")}</span></p>
+      <p><strong>{items.filter((item) => item.bucket === "DONE").length}</strong><span>{tr("Done", "Terminados", "Concluídos")}</span></p>
       {identity?.email ? <small>Signed in as {identity.email}</small> : null}
     </section> : null}
-    {error ? <section className="card error" role="alert"><p>{error}</p>{identity?.isAnonymous !== false ? <GoogleSignIn compact onSignedIn={() => { void load(); }} /> : null}<button type="button" onClick={() => void load()}>Try again</button></section> : null}
-    {items?.length === 0 && empty ? <section className="card empty-state"><h2>{empty.heading}</h2><p>{empty.message}</p>{empty.showSignIn ? <GoogleSignIn onSignedIn={() => { void load(); }} /> : <p className="identity-confirmation"><span aria-hidden="true">✓</span> Google access is active on this device.</p>}<a className="button-link" href="/intake">Add a promise</a></section> : null}
-    {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={item.detailPath ?? `/cases/${item.caseId}/result`} key={item.caseId}>
-      <div><span className="case-bucket">{item.bucket === "NEEDS_YOU" ? "Needs you" : item.bucket === "DONE" ? "Done" : "Working"}</span><small>{item.channelLabel}</small></div>
+    {error ? <section className="card error" role="alert"><p>{error}</p>{identity?.isAnonymous !== false ? <GoogleSignIn compact onSignedIn={() => { void load(); }} /> : null}<button type="button" onClick={() => void load()}>{tr("Try again", "Intentar nuevamente", "Tentar novamente")}</button></section> : null}
+    {items?.length === 0 && empty ? <section className="card empty-state"><h2>{empty.heading}</h2><p>{empty.message}</p>{empty.showSignIn ? <GoogleSignIn onSignedIn={() => { void load(); }} /> : <p className="identity-confirmation"><span aria-hidden="true">✓</span> {tr("Google access is active on this device.", "El acceso con Google está activo en este dispositivo.", "O acesso do Google está ativo neste dispositivo.")}</p>}<a className="button-link" href={localize("/intake")}>{tr("Add a promise", "Agregar una promesa", "Adicionar uma promessa")}</a></section> : null}
+    {items?.map((item) => <a className={`case-inbox-card ${item.attentionRequired ? "needs-you" : ""}`} href={localize(item.detailPath ?? `/cases/${item.caseId}/result`)} key={item.caseId}>
+      <div><span className="case-bucket">{item.bucket === "NEEDS_YOU" ? tr("Needs you", "Te necesita", "Precisa de você") : item.bucket === "DONE" ? tr("Done", "Terminado", "Concluído") : tr("Working", "Trabajando", "Trabalhando")}</span><small>{item.channelLabel}</small></div>
       <h2>{item.companyName}</h2><p className="case-outcome">{item.outcomeLabel}</p>
       <strong>{item.statusLabel}</strong><p>{item.nextStepLabel}</p>
-      <small>Updated {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.lastActivityAt))}</small>
+      <small>{tr("Updated", "Actualizado", "Atualizado")} {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.lastActivityAt))}</small>
     </a>)}
-    {nextCursor ? <button type="button" className="secondary inbox-load-more" disabled={loadingMore} onClick={() => { void load(nextCursor); }}>{loadingMore ? "Loading more…" : "Load more follow-ups"}</button> : null}
+    {nextCursor ? <button type="button" className="secondary inbox-load-more" disabled={loadingMore} onClick={() => { void load(nextCursor); }}>{loadingMore ? tr("Loading more…", "Cargando más…", "Carregando mais…") : tr("Load more follow-ups", "Cargar más seguimientos", "Carregar mais acompanhamentos")}</button> : null}
   </div>;
 }

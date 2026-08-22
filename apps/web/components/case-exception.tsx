@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
 import type { InterventionRecord } from "@dueback/runtime/interventions";
 import { anonymousIdToken } from "../lib/firebase-client";
+import { useLocale } from "../lib/use-locale";
 
 interface ExceptionPayload {
   case: FollowThroughCase;
@@ -12,6 +13,8 @@ interface ExceptionPayload {
 }
 
 export function CaseException({ caseId }: { readonly caseId: string }) {
+  const { locale, localize } = useLocale();
+  const tr = (en: string, es: string, pt: string) => locale === "es" ? es : locale === "pt" ? pt : en;
   const [payload, setPayload] = useState<ExceptionPayload>();
   const [reason, setReason] = useState("The promised result did not actually arrive.");
   const [error, setError] = useState<string>();
@@ -48,11 +51,11 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
       const result = (await response.json()) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? "CONTROL_FAILED");
       if (action === "DELETE") {
-        window.location.assign("/intake?deleted=1");
+        window.location.assign(`${localize("/intake")}?deleted=1`);
         return;
       }
       if (action === "REVISE") {
-        window.location.assign(`/cases/${caseId}/review`);
+        window.location.assign(localize(`/cases/${caseId}/review`));
         return;
       }
       await load();
@@ -64,27 +67,27 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
   }
 
   if (error && !payload) return <section className="card error">{error}</section>;
-  if (!payload) return <section className="card">Loading the decision…</section>;
+  if (!payload) return <section className="card">{tr("Loading the decision…", "Cargando la decisión…", "Carregando a decisão…")}</section>;
   const latest = payload.interventions.at(-1);
   return (
     <div className="review-grid">
       <section className="card">
-        <div className="eyebrow">Your decision is required</div>
-        <h2>{latest?.question ?? (payload.case.state === "DONE" ? "Did the promised result actually arrive?" : "Should DueBack stop future actions?")}</h2>
+        <div className="eyebrow">{tr("Your decision is required", "Necesitamos tu decisión", "Precisamos da sua decisão")}</div>
+        <h2>{latest?.question ?? (payload.case.state === "DONE" ? tr("Did the promised result actually arrive?", "¿Llegó realmente el resultado prometido?", "O resultado prometido realmente chegou?") : tr("Should DueBack stop future actions?", "¿DueBack debe detener las acciones futuras?", "O DueBack deve interromper as ações futuras?"))}</h2>
         <p>
           {latest?.requestedField
             ? `Check only the ${latest.requestedField}. DueBack has not changed the approved plan.`
             : `Current state: ${payload.case.state}`}
         </p>
         {latest ? <code>{latest.reasonCodes.join(" · ")}</code> : null}
-        {latest ? <p><strong>What happens next:</strong> {latest.consequence}</p> : null}
+        {latest ? <p><strong>{tr("What happens next", "Qué sucede ahora", "O que acontece agora")}:</strong> {latest.consequence}</p> : null}
       </section>
       <section className="card">
-        <h2>You remain in control</h2>
-        <p>Stop prevents future actions. Delete removes this case and its nested records; actions already sent cannot be recalled.</p>
+        <h2>{tr("You remain in control", "Vos mantenés el control", "Você mantém o controle")}</h2>
+        <p>{tr("Stop prevents future actions. Delete removes this case and its nested records; actions already sent cannot be recalled.", "Detener impide acciones futuras. Eliminar borra el caso y sus registros; las acciones ya enviadas no pueden recuperarse.", "Parar impede ações futuras. Excluir remove o caso e seus registros; ações já enviadas não podem ser recuperadas.")}</p>
         {payload.case.state === "DONE" ? (
           <>
-            <label htmlFor="reopen-reason">Why is this not resolved?</label>
+            <label htmlFor="reopen-reason">{tr("Why is this not resolved?", "¿Por qué no está resuelto?", "Por que isto não está resolvido?")}</label>
             <textarea
               id="reopen-reason"
               value={reason}
@@ -94,26 +97,26 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
               }}
             />
             <button disabled={busy || !reason.trim()} onClick={() => void command("REOPEN")}>
-              This isn&apos;t resolved
+              {tr("This isn't resolved", "Esto no está resuelto", "Isto não está resolvido")}
             </button>
           </>
         ) : payload.case.state === "NEEDS_ATTENTION" ? latest?.allowedDecisions.includes("REVISE") ? (
           <button disabled={busy} onClick={() => void command("REVISE")}>
-            Correct the approved plan
+            {tr("Correct the approved plan", "Corregir el plan aprobado", "Corrigir o plano aprovado")}
           </button>
         ) : (
           <button disabled={busy} onClick={() => void command("RESUME")}>
-            Retry within the approved limits
+            {tr("Retry within the approved limits", "Reintentar dentro de los límites aprobados", "Tentar novamente dentro dos limites aprovados")}
           </button>
         ) : (
           <button disabled={busy} onClick={() => void command("STOP")}>
-            Stop future actions
+            {tr("Stop future actions", "Detener acciones futuras", "Interromper ações futuras")}
           </button>
         )}
         <button className="secondary" disabled={busy} onClick={() => {
-          if (window.confirm("Delete this case and stop all future actions? Actions already sent cannot be recalled.")) void command("DELETE");
+          if (window.confirm(tr("Delete this case and stop all future actions? Actions already sent cannot be recalled.", "¿Eliminar este caso y detener toda acción futura? Las acciones enviadas no pueden recuperarse.", "Excluir este caso e interromper todas as ações futuras? Ações enviadas não podem ser recuperadas."))) void command("DELETE");
         }}>
-          Delete this case
+          {tr("Delete this case", "Eliminar este caso", "Excluir este caso")}
         </button>
         {error ? <p className="error">{error}</p> : null}
       </section>

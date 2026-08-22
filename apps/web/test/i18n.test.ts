@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getMessages, isLocale, localizePath } from "../lib/i18n";
+import { getReviewCopy } from "../lib/review-copy";
 
 describe("localized routing", () => {
   it("recognizes exactly the three supported locales", () => {
@@ -17,5 +18,13 @@ describe("localized routing", () => {
     const keys = Object.keys(getMessages("en"));
     expect(Object.keys(getMessages("es"))).toEqual(keys);
     expect(Object.keys(getMessages("pt"))).toEqual(keys);
+  });
+
+  it("ships the same approval-consent keys in all three languages", () => {
+    const keys = Object.keys(getReviewCopy("en"));
+    expect(Object.keys(getReviewCopy("es"))).toEqual(keys);
+    expect(Object.keys(getReviewCopy("pt"))).toEqual(keys);
+    expect(getReviewCopy("es").authorized).not.toBe(getReviewCopy("en").authorized);
+    expect(getReviewCopy("pt").confirmDelete).not.toBe(getReviewCopy("en").confirmDelete);
   });
 });

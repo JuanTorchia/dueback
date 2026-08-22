@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
+import { getInteractiveCopy } from "../lib/interactive-copy";
+import { useLocale } from "../lib/use-locale";
 
 interface AnalysisStatus {
   status: "QUEUED" | "ANALYZING" | "READY" | "FAILED";
@@ -12,15 +14,13 @@ interface AnalysisStatus {
   error?: string;
 }
 
-const stages = [
-  ["EVIDENCE_SECURED", "Evidence secured"],
-  ["GEMINI_EXTRACTION", "Gemini is reading the promise"],
-  ["VALIDATING", "Checking dates, amounts and proof"],
-  ["REVIEW_READY", "Review ready"]
-] as const;
+const stageIds = ["EVIDENCE_SECURED", "GEMINI_EXTRACTION", "VALIDATING", "REVIEW_READY"] as const;
 
 export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
   const router = useRouter();
+  const { locale, localize } = useLocale();
+  const copy = getInteractiveCopy(locale).analysis;
+  const stages = stageIds.map((stage, index) => [stage, copy.stages[index] ?? stage] as const);
   const [analysis, setAnalysis] = useState<AnalysisStatus>();
   const [error, setError] = useState<string>();
   const [retrying, setRetrying] = useState(false);
@@ -42,7 +42,7 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
         setAnalysis(body);
         setError(undefined);
         if (body.status === "READY") {
-          router.replace(`/cases/${caseId}/review`);
+          router.replace(localize(`/cases/${caseId}/review`));
           return;
         }
         if (body.status !== "FAILED") timeout = setTimeout(() => void poll(), 1_200);
@@ -57,7 +57,7 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
       cancelled = true;
       if (timeout) clearTimeout(timeout);
     };
-  }, [caseId, router, pollGeneration]);
+  }, [caseId, router, pollGeneration, localize]);
 
   async function retry() {
     setRetrying(true);
@@ -83,8 +83,8 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
     ? Math.max(0, stages.findIndex(([stage]) => stage === analysis.stage))
     : 0;
   const phaseAnnouncement = analysis?.status === "FAILED"
-    ? "Analysis stopped. You can try again."
-    : stages[activeIndex]?.[1] ?? "Evidence secured";
+    ? copy.stopped
+    : stages[activeIndex]?.[1] ?? copy.stages[0];
   const retentionEndsAt = analysis?.createdAt
     ? new Date(new Date(analysis.createdAt).getTime() + 86_400_000)
     : undefined;
@@ -92,22 +92,22 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
     <span className="sr-only" role="status" aria-live="polite">{phaseAnnouncement}</span>
     <div className="analysis-visual" aria-hidden="true"><div className="progress-orbit"><span /></div><b>Gemini</b></div>
     <div>
-      <div className="eyebrow">Saved and running in the background</div>
-      <h2>{analysis?.status === "FAILED" ? "DueBack could not finish the analysis." : "Building your follow-up plan…"}</h2>
+      <div className="eyebrow">{copy.saved}</div>
+      <h2>{analysis?.status === "FAILED" ? copy.failedTitle : copy.building}</h2>
       <p>{analysis?.status === "FAILED"
-        ? "Nothing was sent. Your private source is still available for a bounded retry."
-        : "You can close this page. DueBack will keep the job and reopen the review when it is ready."}</p>
+        ? copy.failedText
+        : copy.running}</p>
       <ol className="analysis-stage-list">
         {stages.map(([stage, label], index) => <li key={stage} data-state={index < activeIndex || analysis?.stage === "REVIEW_READY" ? "done" : index === activeIndex ? "active" : "pending"}>
           <span>{index < activeIndex || analysis?.stage === "REVIEW_READY" ? "✓" : index + 1}</span><strong>{label}</strong>
         </li>)}
       </ol>
-      {analysis?.attemptCount ? <small>Bounded attempt {analysis.attemptCount} of 3</small> : null}
+      {analysis?.attemptCount ? <small>{copy.attempt} {analysis.attemptCount} {copy.of}</small> : null}
       {retentionEndsAt ? <small className="retention-deadline">
-        Raw-source retention ends {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(retentionEndsAt)}. Deletion processing may be asynchronous.
+        {copy.retentionBefore} {new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(retentionEndsAt)}. {copy.retentionAfter}
       </small> : null}
-      {analysis?.status === "FAILED" ? <button type="button" disabled={retrying} onClick={() => void retry()}>{retrying ? "Restarting…" : "Try analysis again"}</button> : null}
-      {error ? <p className="error" role="alert">DueBack could not refresh this saved job. Retrying automatically.</p> : null}
+      {analysis?.status === "FAILED" ? <button type="button" disabled={retrying} onClick={() => void retry()}>{retrying ? copy.restarting : copy.retry}</button> : null}
+      {error ? <p className="error" role="alert">{copy.refresh}</p> : null}
     </div>
   </section>;
 }

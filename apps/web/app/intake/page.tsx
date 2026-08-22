@@ -14,22 +14,17 @@ export default async function IntakePage() {
           <div className="use-case-row" aria-label={copy.useCases}>
             <span data-live="true">{copy.followup}</span><span>{copy.appointments}</span><span>{copy.documents}</span>
           </div>
-          <div className="after-approval">
-            <strong>{copy.after}</strong>
+          <details className="after-approval intake-process">
+            <summary>{copy.after}</summary>
             <ol>
               <li><span>1</span><p><b>{copy.contactTitle}</b> {copy.contactText}</p></li>
               <li><span>2</span><p><b>{copy.openTitle}</b> {copy.openText}</p></li>
               <li><span>3</span><p><b>{copy.returnTitle}</b> {copy.returnText}</p></li>
             </ol>
             <p className="channel-disclosure"><b>{copy.demoTitle}</b> {copy.demoText}</p>
-          </div>
+          </details>
         </section>
         <IntakeForm />
-      </div>
-      <div className="proof-strip" role="list" aria-label={copy.principles}>
-        <div role="listitem"><span>01</span><strong>{copy.geminiTitle}</strong><p>{copy.geminiText}</p></div>
-        <div role="listitem"><span>02</span><strong>{copy.boundariesTitle}</strong><p>{copy.boundariesText}</p></div>
-        <div role="listitem"><span>03</span><strong>{copy.proofTitle}</strong><p>{copy.proofText}</p></div>
       </div>
     </main>
   );

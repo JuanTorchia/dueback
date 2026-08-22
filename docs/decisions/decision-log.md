@@ -399,3 +399,18 @@
   con `VERSION_CONFLICT`, recibió callbacks `422` y terminó en `ACTION_BUDGET_EXHAUSTED`.
 - Motivo: sólo el worker que reservó la acción puede publicar su recibo. Un duplicado es una
   observación idempotente, no un nuevo fallo operacional ni autoridad para cambiar el caso.
+
+## D-031 — La interfaz cuenta la decisión antes de exponer el detalle
+
+- Fecha: 22 de agosto de 2026
+- Estado: aceptada
+- Decisión: las pantallas de revisión y resultado muestran arriba una síntesis visual del recorrido.
+  La revisión separa `Gemini understood → You control → Done requires`; el resultado hace explícito
+  `Contacted → ACK ≠ proof → Verified/Retrying`. Los contratos, límites, conversación y trazas
+  permanecen disponibles debajo como evidencia inspeccionable.
+- Límite: la síntesis nunca sustituye el estado persistido ni inventa progreso. Se deriva del mismo
+  detalle de caso y conserva visibles el sandbox, la aprobación y la diferencia entre confirmación
+  del comercio y acreditación bancaria.
+- Motivo: auditorías de video y UX coincidieron en que el flujo era correcto pero demasiado denso en
+  una primera lectura. Hacer visible la causalidad reduce carga cognitiva, mejora la demo y mantiene
+  intacta la arquitectura verificable.

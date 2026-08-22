@@ -693,3 +693,23 @@ Commits `dc429b8` and `524ae92` were built by Cloud Build
 This release also fixes a consumer projection that displayed minor currency units as `5900` rather
 than `USD 59.00`, and prevents an intentionally in-app return from appearing as an unavailable
 email delivery. Localization does not change plan authority, verification or channel availability.
+
+## Proof-first interface release — 2026-08-22
+
+The final proof-first interface candidate was built by Cloud Build
+`83fd68fd-8ba8-4af6-8669-709929bbbd82` (`SUCCESS`) as image
+`us-central1-docker.pkg.dev/bulbasour-503317/dueback/web:v11-ui-20260822` and deployed as Cloud Run
+revision `dueback-web-00069-8qs` with 100% traffic. The web-only deployment preserved the existing
+runtime service account, environment, secrets, controlled Merchant Sandbox and channel settings.
+
+- The pre-deploy gate passed workspace lint, typecheck, all package and root test suites, and the
+  production build.
+- The public Firebase URL remained the stable entry point and continued routing to `dueback-web`.
+- The retries-disabled deployed browser journey passed 1/1 in 40.3 seconds. It created and analyzed
+  a controlled case, approved bounded authority, left the page, observed acknowledgement-only
+  evidence remain open, and returned only after matching signed evidence was accepted.
+- The release introduces the verdict-first result, compact approval boundary, explicit proof trail,
+  jury-readable technical hierarchy and unified step headers audited at desktop and 390px.
+
+This remains a controlled sandbox demonstration. Company confirmation is not bank settlement, and
+the result does not claim arbitrary-company connectivity.

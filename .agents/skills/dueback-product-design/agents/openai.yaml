@@ -1,0 +1,4 @@
+interface:
+  display_name: "DueBack Product Design"
+  short_description: "Apply DueBack visual identity and jury-first UX rules"
+  default_prompt: "Review or implement this DueBack interface using the product design system and jury-first UX rules."

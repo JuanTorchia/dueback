@@ -11,9 +11,21 @@ export default async function AnalyzingPage({
   const copy = (await getRequestMessages()).steps;
   return <main className="shell">
     <AppHeader />
-    <section className="hero compact">
-      <div className="eyebrow">{copy.analysisEye}</div><h1>{copy.analysisTitle}</h1><p className="lede">{copy.analysisText}</p>
+    <section className="journey-header analysis-page-header">
+      <div>
+        <span>{copy.analysisEye}</span>
+        <h1>{copy.analysisTitle}</h1>
+        <p>{copy.analysisText}</p>
+      </div>
     </section>
-    <AnalysisProgress caseId={caseId} />
+    <AnalysisProgress
+      caseId={caseId}
+      {...(caseId === "demo-analysis" && process.env.NODE_ENV === "development" ? { preview: {
+        status: "ANALYZING",
+        stage: "GEMINI_EXTRACTION",
+        attemptCount: 1,
+        createdAt: new Date().toISOString()
+      } as const } : {})}
+    />
   </main>;
 }

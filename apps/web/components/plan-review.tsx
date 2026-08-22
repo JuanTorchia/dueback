@@ -9,6 +9,7 @@ import { errorCopy } from "../lib/error-copy";
 import { RecoverableIdentity } from "./recoverable-identity";
 import { getReviewCopy } from "../lib/review-copy";
 import { useLocale } from "../lib/use-locale";
+import { ApprovalPanel } from "./approval-panel";
 
 type PlanResponse = DraftCase & { error?: string };
 
@@ -242,6 +243,7 @@ export function PlanReview({
   const activeChannelType = draft.plan.channelType ??
     (contactMode === "email" ? "MANAGED_EMAIL" : "CONTROLLED_SANDBOX");
   const activeCapability = capabilities.find((item) => item.channelType === activeChannelType);
+  const approvalBlocker: "facts" | "channel" | "contact" | "identity" | null = draft.activationBlocked ? "facts" : activeCapability?.status !== "AVAILABLE" ? "channel" : !legitimateContact ? "contact" : activeChannelType === "MANAGED_EMAIL" && !recoverable ? "identity" : null;
   const chooseChannel = (channelType: "CONTROLLED_SANDBOX" | "MANAGED_EMAIL") => {
     if (channelType === activeChannelType) return;
     void command({
@@ -341,6 +343,22 @@ export function PlanReview({
         <div className="delegate-heading">
           <span>{copy.delegation}</span><h2>{copy.approve}</h2><p>{copy.intro}</p>
         </div>
+        <ApprovalPanel
+          planVersion={draft.plan.version}
+          outcome={outcome?.outcome ?? draft.plan.goal}
+          company={outcome?.responsibleParty ?? draft.promiseDraft.promisor.value}
+          channel={activeChannelType === "MANAGED_EMAIL" ? copy.email : copy.demo}
+          maximumFollowUps={draft.plan.maxLogicalSends ?? 3}
+          proofRequired={outcome?.proofRequired ?? draft.plan.goal}
+          controlled={activeChannelType === "CONTROLLED_SANDBOX"}
+          legitimateContact={legitimateContact}
+          onLegitimateContactChange={setLegitimateContact}
+          actionLabel={draft.state === "READY" ? copy.activated : copy.start}
+          busy={busy}
+          disabled={draft.state === "READY" || approvalBlocker !== null}
+          blockerReason={approvalBlocker}
+          onApprove={() => { void command({ action: "approve", expectedPlanVersion: draft.plan.version, expectedPlanHash: draft.plan.planHash }); }}
+        />
         <div className="channel-plan">
           <div className="channel-plan-heading">
             <span>1</span><div><strong>{copy.how}</strong><p>{copy.oneChannel}</p></div>
@@ -424,10 +442,6 @@ export function PlanReview({
           </div>
           <small>{draft.plan.notificationRecipient ? `${tr("Updates configured for", "Novedades configuradas para", "Atualizações configuradas para")} ${draft.plan.notificationRecipient}.` : activeChannelType === "MANAGED_EMAIL" ? tr("Link Google, then save its verified email for updates.", "Vinculá Google y guardá su correo verificado para novedades.", "Vincule o Google e salve o e-mail verificado para atualizações.") : tr("Optional for the controlled demo.", "Opcional para la demo controlada.", "Opcional para a demonstração controlada.")}</small>
         </div>
-        <label className="legitimate-contact">
-          <input type="checkbox" checked={legitimateContact} onChange={(event) => { setLegitimateContact(event.target.checked); }} />
-          <span><strong>{copy.authorized}</strong><small>{copy.authorizedHelp}</small></span>
-        </label>
         <RecoverableIdentity
           required={activeChannelType === "MANAGED_EMAIL"}
           onChange={identityChange}
@@ -447,21 +461,6 @@ export function PlanReview({
             {copy.previewOnly} {simulation.recipient}.
           </p>
         ) : null}
-        <button
-          className="primary"
-          type="button"
-          disabled={busy || draft.activationBlocked || draft.state === "READY" || !legitimateContact || activeCapability?.status !== "AVAILABLE" || (activeChannelType === "MANAGED_EMAIL" && !recoverable)}
-          onClick={() => {
-            void command({
-              action: "approve",
-              expectedPlanVersion: draft.plan.version,
-              expectedPlanHash: draft.plan.planHash
-            });
-          }}
-        >
-          {draft.state === "READY" ? copy.activated : copy.start}
-        </button>
-        {draft.activationBlocked ? <p className="button-help">{tr("Activation stays locked until every highlighted field above is confirmed.", "La activación permanece bloqueada hasta confirmar todos los campos resaltados.", "A ativação permanece bloqueada até confirmar todos os campos destacados.")}</p> : activeCapability?.status !== "AVAILABLE" ? <p className="button-help">{tr("This channel cannot be activated until its configuration and health checks pass.", "Este canal no puede activarse hasta superar la configuración y controles de salud.", "Este canal não pode ser ativado até passar pela configuração e verificações de saúde.")}</p> : !legitimateContact ? <p className="button-help">{tr("Confirm that this is an authorized, legitimate contact before activation.", "Confirmá que es un contacto legítimo y autorizado antes de activar.", "Confirme que este é um contato legítimo e autorizado antes de ativar.")}</p> : activeChannelType === "MANAGED_EMAIL" && !recoverable ? <p className="button-help">{tr("Save recoverable access before activating a real email follow-up.", "Guardá acceso recuperable antes de activar un seguimiento por correo real.", "Salve o acesso recuperável antes de ativar um acompanhamento por e-mail real.")}</p> : null}
         <button
           className="text-button"
           type="button"

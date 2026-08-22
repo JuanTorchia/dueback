@@ -13,8 +13,12 @@ export default async function ResultPage({
   return (
     <main className="shell">
       <AppHeader />
-      <section className="hero compact">
-        <div className="eyebrow">{copy.resultEye}</div><h1>{copy.resultTitle}</h1><p className="lede">{copy.resultText}</p>
+      <section className="journey-header result-page-header">
+        <div>
+          <span>{copy.resultEye}</span>
+          <h1>{copy.resultTitle}</h1>
+          <p>{copy.resultText}</p>
+        </div>
       </section>
       {caseId === "demo-verified" && process.env.NODE_ENV === "development" ? (
         <CaseResultPreview />

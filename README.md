@@ -158,7 +158,8 @@ confirmation hash; see `scripts/demo/reset.ts` before use.
 - Gmail, WhatsApp, banks, general web browsing, and arbitrary merchant APIs are not built. Gmail is
   intentionally reported as unavailable because its OAuth/token/watch gate has not passed. A
   signed HTTPS partner fixture is only a portability proof, not a production partner.
-- English is the judging UI; one Spanish promise is processed without changing its financial meaning.
+- The complete product flow is available in English, Spanish, and Portuguese; the judging demo uses
+  English while processing a Spanish promise without changing its financial meaning.
 - The eight-person usability study has a published protocol but results must not be claimed until the
   sessions are actually completed.
 

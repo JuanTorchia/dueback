@@ -1,0 +1,49 @@
+1
+00:00:00,000 --> 00:00:12,000
+Companies can call a request "received" while the customer still carries the work.
+DueBack keeps the promise open until there is proof.
+
+2
+00:00:12,000 --> 00:00:28,000
+This is the public English experience. The same complete flow is also available
+in Spanish and Portuguese.
+
+3
+00:00:28,000 --> 00:00:43,000
+I choose the missing-refund example. The Spanish promise says Northstar Store
+owes USD 59 for order ORDER-1842.
+
+4
+00:00:43,000 --> 00:01:00,000
+Gemini 3.5 Flash analyzes the source asynchronously and builds a typed contract
+with amount, reference, deadline, provenance, and uncertainty.
+
+5
+00:01:00,000 --> 00:01:15,000
+Before any action, DueBack shows the exact channel, message, shared data,
+limits, and proof requirement. The person approves this versioned scope.
+
+6
+00:01:15,000 --> 00:01:29,000
+The first signed reply only acknowledges the request. DueBack rejects it:
+acknowledgement is not proof, so the case remains open.
+
+7
+00:01:29,000 --> 00:01:47,000
+Cloud Tasks retries in the background. Exact signed evidence then matches the
+case, amount, currency, and reference. A deterministic verifier accepts it.
+
+8
+00:01:47,000 --> 00:02:08,000
+This is the public architecture: Gemini through Genkit extracts without tools
+or lifecycle authority. Policy, approval, action, and verification stay separate.
+
+9
+00:02:08,000 --> 00:02:23,000
+Cloud Run hosts isolated services, Cloud Tasks provides bounded retries, and
+Firestore preserves durable state. Hostile or mismatched evidence fails closed.
+
+10
+00:02:23,000 --> 00:02:33,600
+The counterparty shown here is an explicitly labeled controlled sandbox,
+not a real merchant. DueBack: delegate the chase, keep the proof.

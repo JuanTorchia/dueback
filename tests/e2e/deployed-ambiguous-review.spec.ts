@@ -10,7 +10,9 @@ test.describe("deployed ambiguous promise review", () => {
   }) => {
     test.setTimeout(120_000);
     await page.goto(`${deployedUrl}/privacy`);
-    await expect(page.getByRole("heading", { name: "Only the promise you choose to share." })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Only the promise you choose to share." })
+    ).toBeVisible();
 
     await page.goto(`${deployedUrl}/intake`);
     await expect(page.getByTestId("intake-form")).toHaveAttribute("data-hydrated", "true", {
@@ -23,11 +25,13 @@ test.describe("deployed ambiguous promise review", () => {
       );
     await page.getByRole("button", { name: "Build my plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
-    await expect(page.getByText(/Conflicting information|Needs confirmation/).first()).toBeVisible();
+    await expect(
+      page.getByText(/Conflicting information|Needs confirmation/).first()
+    ).toBeVisible();
 
     await page.getByRole("textbox", { name: "Company name" }).fill("Northstar Store");
     await page.getByRole("textbox", { name: "Promised result" }).fill("refund");
-    await page.getByRole("textbox", { name: "Correct amount" }).fill("59.00");
+    await page.getByRole("textbox", { name: "Amount" }).fill("59.00");
     await page.getByRole("textbox", { name: "Currency" }).fill("USD");
     await page.getByRole("textbox", { name: "Order or case reference" }).fill("ORDER-79");
     await page.getByRole("textbox", { name: "Follow-up date" }).fill("2026-08-15T12:00");
@@ -40,7 +44,9 @@ test.describe("deployed ambiguous promise review", () => {
     await activate.click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Company confirmed the refund instruction" })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: "Company confirmed the refund instruction" })
+    ).toBeVisible({
       timeout: 75_000
     });
   });

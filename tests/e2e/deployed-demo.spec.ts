@@ -32,28 +32,44 @@ test.describe("deployed mobile judge path", () => {
     await page.getByRole("link", { name: /New promise/ }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 35_000 });
     await expect(page.getByText("Before you start")).toBeVisible();
-    await expect(page.getByText(/It cannot spend, change the outcome, or call an acknowledgement done/)).toBeVisible();
+    await expect(
+      page.getByText(/It cannot spend, change the outcome, or call an acknowledgement done/)
+    ).toBeVisible();
     await expect(page.getByText("How DueBack contacts them")).toBeVisible();
     await expect(page.getByText("The first follow-up")).toBeVisible();
     await expect(page.getByText(`Follow-up for ${reference}`)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Accelerated proof demo Selected" })).toBeVisible();
-    await expect(page.getByText(/proof demo is reproducible but contacts no company/)).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Accelerated proof demo Selected" })
+    ).toBeVisible();
+    await expect(
+      page.getByText(/proof demo is reproducible but contacts no company/)
+    ).toBeVisible();
     await expect(page.getByText(/Accelerated controlled demo/)).toBeVisible();
     await expect(page.getByText("3 · How the result comes back to you")).toBeVisible();
     await expect(
-      page.getByText(
-        "Signed evidence from the responsible party confirming the exact outcome and reference."
-      )
+      page
+        .getByText(
+          "Signed evidence from the responsible party confirming the exact outcome and reference."
+        )
+        .first()
     ).toBeVisible();
     await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
     await page.getByRole("button", { name: "Approve and start follow-up" }).click();
     await expect(page).toHaveURL(/\/result/);
     await page.reload();
-    await expect(page.getByRole("heading", { name: "The reply did not prove the promised outcome" })).toBeVisible({
+    await expect(
+      page.getByRole("heading", { name: "The reply did not prove the promised outcome" })
+    ).toBeVisible({
       timeout: 70_000
     });
-    await expect(page.getByText("Another approved follow-up is scheduled because the reply only acknowledged the request")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Company confirmed the refund instruction" })).toBeVisible({
+    await expect(
+      page.getByText(
+        "Another approved follow-up is scheduled because the reply only acknowledged the request"
+      )
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Company confirmed the refund instruction" })
+    ).toBeVisible({
       timeout: 75_000
     });
     await expect(page.getByText(/Bank settlement is not verified/i).first()).toBeVisible();

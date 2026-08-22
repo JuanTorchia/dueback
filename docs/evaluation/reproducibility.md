@@ -574,6 +574,7 @@ showed `Not done — the company only acknowledged the request`, explained that 
 proof, and kept the case in `Waiting for proof`. This proves outbound action, real inbound transport,
 durable processing and false-DONE rejection; it does not prove refund settlement or arbitrary-company
 support.
+
 ## Four pre-video gates — 2026-08-18
 
 Revision `dueback-web-00058-vts` deployed image tag `oidc-20260818` from Cloud Build
@@ -726,3 +727,25 @@ current `dueback-web` revision. The public URL then showed the v11-only approval
 `ACK ≠ PROOF` decision trail, verdict-first result and technical trace. A fresh mobile deployed
 journey passed 1/1 with one worker in 31.8 seconds. Canonical post-repin screenshots are stored in
 `docs/submission/evidence/2026-08-22/v11-final-storyboard-repinned/`.
+
+## Redacted trace release — 2026-08-22
+
+Commit `5b583b6` was built by Cloud Build `6587671f-9632-4d67-9e52-d899b9052cba` (`SUCCESS`) as
+image `us-central1-docker.pkg.dev/bulbasour-503317/dueback/web:v12-trace-20260822`. Cloud Run
+revision `dueback-web-00070-wkz` received 100% of traffic, and Firebase Hosting was repinned in the
+same release operation.
+
+- Workspace lint, typecheck, 295 tests and the production build passed before deployment.
+- The retries-disabled public mobile journey passed 1/1 in 41.6 seconds after repinning.
+- Case `case_49c56463-5188-441d-bb48-50f1ec35764e` completed at
+  `2026-08-22T23:12:13.265Z`. Firestore reported state `DONE`, version `4`, and correlation ID
+  `corr_3c815f86bd0313c3137e7555`.
+- The consumer trace exposes only the final redacted suffix `…13c3137e7555`. That same suffix was
+  visibly attached to the approval transition, Cloud Task result, insufficient-evidence rejection,
+  accepted-evidence transition and successful deterministic verifier. The full identifier remains
+  absent from the consumer projection.
+- Cloud Tasks queue `dueback-cases` was `RUNNING` with two concurrent dispatches, two dispatches per
+  second, five attempts and 10–300 second backoff. Firestore remained native mode in `us-central1`.
+
+The visible suffix is correlation evidence, not an access token or case-control grant. It does not
+change the controlled-sandbox or bank-settlement limitations.

@@ -1,0 +1,2346 @@
+{
+  "language": "en",
+  "probability": 1,
+  "words": [
+    {
+      "text": "A",
+      "start": 0.0,
+      "end": 0.34
+    },
+    {
+      "text": "company",
+      "start": 0.34,
+      "end": 0.68
+    },
+    {
+      "text": "can",
+      "start": 0.68,
+      "end": 1.0
+    },
+    {
+      "text": "say,",
+      "start": 1.0,
+      "end": 1.38
+    },
+    {
+      "text": "request",
+      "start": 1.72,
+      "end": 2.0
+    },
+    {
+      "text": "received,",
+      "start": 2.0,
+      "end": 2.52
+    },
+    {
+      "text": "while",
+      "start": 2.96,
+      "end": 3.16
+    },
+    {
+      "text": "the",
+      "start": 3.16,
+      "end": 3.32
+    },
+    {
+      "text": "customer",
+      "start": 3.32,
+      "end": 3.74
+    },
+    {
+      "text": "still",
+      "start": 3.74,
+      "end": 4.08
+    },
+    {
+      "text": "carries",
+      "start": 4.08,
+      "end": 4.48
+    },
+    {
+      "text": "every",
+      "start": 4.48,
+      "end": 4.88
+    },
+    {
+      "text": "follow-up.",
+      "start": 4.88,
+      "end": 5.44
+    },
+    {
+      "text": "DueBack",
+      "start": 6.04,
+      "end": 6.3
+    },
+    {
+      "text": "keeps",
+      "start": 6.3,
+      "end": 6.64
+    },
+    {
+      "text": "that",
+      "start": 6.64,
+      "end": 6.96
+    },
+    {
+      "text": "promise",
+      "start": 6.96,
+      "end": 7.3
+    },
+    {
+      "text": "open",
+      "start": 7.3,
+      "end": 7.68
+    },
+    {
+      "text": "until",
+      "start": 7.68,
+      "end": 8.16
+    },
+    {
+      "text": "the",
+      "start": 8.16,
+      "end": 8.34
+    },
+    {
+      "text": "evidence",
+      "start": 8.34,
+      "end": 8.76
+    },
+    {
+      "text": "matches",
+      "start": 8.76,
+      "end": 9.18
+    },
+    {
+      "text": "the",
+      "start": 9.18,
+      "end": 9.4
+    },
+    {
+      "text": "outcome",
+      "start": 9.4,
+      "end": 9.78
+    },
+    {
+      "text": "the",
+      "start": 9.78,
+      "end": 10.1
+    },
+    {
+      "text": "person",
+      "start": 10.1,
+      "end": 10.44
+    },
+    {
+      "text": "actually",
+      "start": 10.44,
+      "end": 10.96
+    },
+    {
+      "text": "approved.",
+      "start": 10.96,
+      "end": 11.44
+    },
+    {
+      "text": "Here",
+      "start": 12.16,
+      "end": 12.42
+    },
+    {
+      "text": "is",
+      "start": 12.42,
+      "end": 12.58
+    },
+    {
+      "text": "a",
+      "start": 12.58,
+      "end": 12.76
+    },
+    {
+      "text": "synthetic",
+      "start": 12.76,
+      "end": 13.1
+    },
+    {
+      "text": "refund",
+      "start": 13.1,
+      "end": 13.52
+    },
+    {
+      "text": "case.",
+      "start": 13.52,
+      "end": 13.94
+    },
+    {
+      "text": "The",
+      "start": 14.48,
+      "end": 14.56
+    },
+    {
+      "text": "store",
+      "start": 14.56,
+      "end": 14.84
+    },
+    {
+      "text": "promised",
+      "start": 14.84,
+      "end": 15.32
+    },
+    {
+      "text": "$59",
+      "start": 15.32,
+      "end": 15.88
+    },
+    {
+      "text": "for",
+      "start": 15.88,
+      "end": 16.5
+    },
+    {
+      "text": "Order",
+      "start": 16.5,
+      "end": 16.78
+    },
+    {
+      "text": "1842,",
+      "start": 16.78,
+      "end": 17.68
+    },
+    {
+      "text": "but",
+      "start": 18.04,
+      "end": 18.34
+    },
+    {
+      "text": "the",
+      "start": 18.34,
+      "end": 18.52
+    },
+    {
+      "text": "refund",
+      "start": 18.52,
+      "end": 18.9
+    },
+    {
+      "text": "has",
+      "start": 18.9,
+      "end": 19.12
+    },
+    {
+      "text": "not",
+      "start": 19.12,
+      "end": 19.36
+    },
+    {
+      "text": "arrived.",
+      "start": 19.36,
+      "end": 19.82
+    },
+    {
+      "text": "Gemini",
+      "start": 20.52,
+      "end": 20.7
+    },
+    {
+      "text": "reads",
+      "start": 20.7,
+      "end": 21.18
+    },
+    {
+      "text": "this",
+      "start": 21.18,
+      "end": 21.48
+    },
+    {
+      "text": "source",
+      "start": 21.48,
+      "end": 21.74
+    },
+    {
+      "text": "asynchronously",
+      "start": 21.74,
+      "end": 22.56
+    },
+    {
+      "text": "and",
+      "start": 22.56,
+      "end": 23.04
+    },
+    {
+      "text": "proposes",
+      "start": 23.04,
+      "end": 23.48
+    },
+    {
+      "text": "a",
+      "start": 23.48,
+      "end": 23.8
+    },
+    {
+      "text": "typed",
+      "start": 23.8,
+      "end": 24.04
+    },
+    {
+      "text": "outcome",
+      "start": 24.04,
+      "end": 24.5
+    },
+    {
+      "text": "contract,",
+      "start": 24.5,
+      "end": 25.1
+    },
+    {
+      "text": "responsible",
+      "start": 25.58,
+      "end": 25.92
+    },
+    {
+      "text": "party,",
+      "start": 25.92,
+      "end": 26.28
+    },
+    {
+      "text": "amount,",
+      "start": 26.7,
+      "end": 27.04
+    },
+    {
+      "text": "reference,",
+      "start": 27.48,
+      "end": 27.84
+    },
+    {
+      "text": "deadline,",
+      "start": 28.18,
+      "end": 28.58
+    },
+    {
+      "text": "citations,",
+      "start": 29.38,
+      "end": 29.38
+    },
+    {
+      "text": "and",
+      "start": 29.74,
+      "end": 29.94
+    },
+    {
+      "text": "uncertainty.",
+      "start": 29.94,
+      "end": 30.46
+    },
+    {
+      "text": "The",
+      "start": 31.16,
+      "end": 31.34
+    },
+    {
+      "text": "source",
+      "start": 31.34,
+      "end": 31.58
+    },
+    {
+      "text": "is",
+      "start": 31.58,
+      "end": 31.84
+    },
+    {
+      "text": "retained",
+      "start": 31.84,
+      "end": 32.24
+    },
+    {
+      "text": "for",
+      "start": 32.24,
+      "end": 32.5
+    },
+    {
+      "text": "no",
+      "start": 32.5,
+      "end": 32.68
+    },
+    {
+      "text": "more",
+      "start": 32.68,
+      "end": 32.92
+    },
+    {
+      "text": "than",
+      "start": 32.92,
+      "end": 33.1
+    },
+    {
+      "text": "24",
+      "start": 33.1,
+      "end": 33.52
+    },
+    {
+      "text": "hours.",
+      "start": 33.52,
+      "end": 33.92
+    },
+    {
+      "text": "Gemini",
+      "start": 34.6,
+      "end": 34.76
+    },
+    {
+      "text": "has",
+      "start": 34.76,
+      "end": 35.16
+    },
+    {
+      "text": "no",
+      "start": 35.16,
+      "end": 35.44
+    },
+    {
+      "text": "contact",
+      "start": 35.44,
+      "end": 35.86
+    },
+    {
+      "text": "tools,",
+      "start": 35.86,
+      "end": 36.32
+    },
+    {
+      "text": "cannot",
+      "start": 36.68,
+      "end": 36.92
+    },
+    {
+      "text": "approve",
+      "start": 36.92,
+      "end": 37.32
+    },
+    {
+      "text": "an",
+      "start": 37.32,
+      "end": 37.5
+    },
+    {
+      "text": "action,",
+      "start": 37.5,
+      "end": 37.82
+    },
+    {
+      "text": "and",
+      "start": 38.1,
+      "end": 38.3
+    },
+    {
+      "text": "cannot",
+      "start": 38.3,
+      "end": 38.62
+    },
+    {
+      "text": "decide",
+      "start": 38.62,
+      "end": 39.1
+    },
+    {
+      "text": "that",
+      "start": 39.1,
+      "end": 39.32
+    },
+    {
+      "text": "the",
+      "start": 39.32,
+      "end": 39.44
+    },
+    {
+      "text": "case",
+      "start": 39.44,
+      "end": 39.68
+    },
+    {
+      "text": "is",
+      "start": 39.68,
+      "end": 39.9
+    },
+    {
+      "text": "done.",
+      "start": 39.9,
+      "end": 40.16
+    },
+    {
+      "text": "Now",
+      "start": 40.68,
+      "end": 40.98
+    },
+    {
+      "text": "I",
+      "start": 40.98,
+      "end": 41.22
+    },
+    {
+      "text": "review",
+      "start": 41.22,
+      "end": 41.56
+    },
+    {
+      "text": "what",
+      "start": 41.56,
+      "end": 41.84
+    },
+    {
+      "text": "it",
+      "start": 41.84,
+      "end": 41.96
+    },
+    {
+      "text": "understood.",
+      "start": 41.96,
+      "end": 42.5
+    },
+    {
+      "text": "The",
+      "start": 43.2,
+      "end": 43.44
+    },
+    {
+      "text": "contract",
+      "start": 43.44,
+      "end": 43.88
+    },
+    {
+      "text": "requires",
+      "start": 43.88,
+      "end": 44.48
+    },
+    {
+      "text": "signed",
+      "start": 44.48,
+      "end": 44.96
+    },
+    {
+      "text": "company",
+      "start": 44.96,
+      "end": 45.4
+    },
+    {
+      "text": "evidence",
+      "start": 45.4,
+      "end": 45.8
+    },
+    {
+      "text": "for",
+      "start": 45.8,
+      "end": 46.12
+    },
+    {
+      "text": "this",
+      "start": 46.12,
+      "end": 46.32
+    },
+    {
+      "text": "exact",
+      "start": 46.32,
+      "end": 46.72
+    },
+    {
+      "text": "outcome",
+      "start": 46.72,
+      "end": 47.2
+    },
+    {
+      "text": "and",
+      "start": 47.2,
+      "end": 47.48
+    },
+    {
+      "text": "reference.",
+      "start": 47.48,
+      "end": 47.9
+    },
+    {
+      "text": "Before",
+      "start": 48.7,
+      "end": 49.0
+    },
+    {
+      "text": "anything",
+      "start": 49.0,
+      "end": 49.32
+    },
+    {
+      "text": "leaves",
+      "start": 49.32,
+      "end": 49.78
+    },
+    {
+      "text": "DueBack,",
+      "start": 49.78,
+      "end": 50.28
+    },
+    {
+      "text": "the",
+      "start": 50.58,
+      "end": 50.74
+    },
+    {
+      "text": "approval",
+      "start": 50.74,
+      "end": 51.08
+    },
+    {
+      "text": "boundary",
+      "start": 51.08,
+      "end": 51.58
+    },
+    {
+      "text": "shows",
+      "start": 51.58,
+      "end": 51.96
+    },
+    {
+      "text": "the",
+      "start": 51.96,
+      "end": 52.16
+    },
+    {
+      "text": "recipient,",
+      "start": 52.16,
+      "end": 52.5
+    },
+    {
+      "text": "channel,",
+      "start": 53.06,
+      "end": 53.24
+    },
+    {
+      "text": "first",
+      "start": 53.74,
+      "end": 53.94
+    },
+    {
+      "text": "message,",
+      "start": 53.94,
+      "end": 54.4
+    },
+    {
+      "text": "shared",
+      "start": 54.76,
+      "end": 55.0
+    },
+    {
+      "text": "fields,",
+      "start": 55.0,
+      "end": 55.44
+    },
+    {
+      "text": "attempt",
+      "start": 55.76,
+      "end": 56.0
+    },
+    {
+      "text": "limit,",
+      "start": 56.0,
+      "end": 56.3
+    },
+    {
+      "text": "and",
+      "start": 56.6,
+      "end": 56.72
+    },
+    {
+      "text": "return",
+      "start": 56.72,
+      "end": 57.02
+    },
+    {
+      "text": "path.",
+      "start": 57.02,
+      "end": 57.4
+    },
+    {
+      "text": "This",
+      "start": 58.16,
+      "end": 58.42
+    },
+    {
+      "text": "accelerated",
+      "start": 58.42,
+      "end": 58.98
+    },
+    {
+      "text": "route",
+      "start": 58.98,
+      "end": 59.36
+    },
+    {
+      "text": "contacts",
+      "start": 59.36,
+      "end": 59.84
+    },
+    {
+      "text": "only",
+      "start": 59.84,
+      "end": 60.34
+    },
+    {
+      "text": "DueBack's",
+      "start": 60.34,
+      "end": 61.0
+    },
+    {
+      "text": "isolated",
+      "start": 61.0,
+      "end": 61.44
+    },
+    {
+      "text": "merchant",
+      "start": 61.44,
+      "end": 61.82
+    },
+    {
+      "text": "simulator.",
+      "start": 61.82,
+      "end": 62.34
+    },
+    {
+      "text": "It",
+      "start": 62.92,
+      "end": 63.18
+    },
+    {
+      "text": "cannot",
+      "start": 63.18,
+      "end": 63.48
+    },
+    {
+      "text": "spend",
+      "start": 63.48,
+      "end": 63.78
+    },
+    {
+      "text": "money,",
+      "start": 63.78,
+      "end": 64.1
+    },
+    {
+      "text": "change",
+      "start": 64.52,
+      "end": 64.74
+    },
+    {
+      "text": "the",
+      "start": 64.74,
+      "end": 64.92
+    },
+    {
+      "text": "requested",
+      "start": 64.92,
+      "end": 65.3
+    },
+    {
+      "text": "outcome,",
+      "start": 65.3,
+      "end": 65.78
+    },
+    {
+      "text": "add",
+      "start": 66.16,
+      "end": 66.32
+    },
+    {
+      "text": "new",
+      "start": 66.32,
+      "end": 66.54
+    },
+    {
+      "text": "data,",
+      "start": 66.54,
+      "end": 66.82
+    },
+    {
+      "text": "or",
+      "start": 67.04,
+      "end": 67.3
+    },
+    {
+      "text": "contact",
+      "start": 67.3,
+      "end": 67.78
+    },
+    {
+      "text": "an",
+      "start": 67.78,
+      "end": 67.98
+    },
+    {
+      "text": "arbitrary",
+      "start": 67.98,
+      "end": 68.44
+    },
+    {
+      "text": "company.",
+      "start": 68.44,
+      "end": 68.9
+    },
+    {
+      "text": "I",
+      "start": 69.56,
+      "end": 69.76
+    },
+    {
+      "text": "authorize",
+      "start": 69.76,
+      "end": 70.12
+    },
+    {
+      "text": "only",
+      "start": 70.12,
+      "end": 70.64
+    },
+    {
+      "text": "this",
+      "start": 70.64,
+      "end": 70.98
+    },
+    {
+      "text": "versioned",
+      "start": 70.98,
+      "end": 71.52
+    },
+    {
+      "text": "plan.",
+      "start": 71.52,
+      "end": 71.74
+    },
+    {
+      "text": "From",
+      "start": 72.64,
+      "end": 72.84
+    },
+    {
+      "text": "this",
+      "start": 72.84,
+      "end": 73.06
+    },
+    {
+      "text": "point,",
+      "start": 73.06,
+      "end": 73.36
+    },
+    {
+      "text": "the",
+      "start": 73.5,
+      "end": 73.66
+    },
+    {
+      "text": "run",
+      "start": 73.66,
+      "end": 73.84
+    },
+    {
+      "text": "is",
+      "start": 73.84,
+      "end": 74.02
+    },
+    {
+      "text": "continuous.",
+      "start": 74.02,
+      "end": 74.5
+    },
+    {
+      "text": "The",
+      "start": 75.14,
+      "end": 75.38
+    },
+    {
+      "text": "browser",
+      "start": 75.38,
+      "end": 75.64
+    },
+    {
+      "text": "is",
+      "start": 75.64,
+      "end": 75.96
+    },
+    {
+      "text": "not",
+      "start": 75.96,
+      "end": 76.24
+    },
+    {
+      "text": "executing",
+      "start": 76.24,
+      "end": 76.74
+    },
+    {
+      "text": "the",
+      "start": 76.74,
+      "end": 76.96
+    },
+    {
+      "text": "workflow.",
+      "start": 76.96,
+      "end": 77.36
+    },
+    {
+      "text": "Firestore",
+      "start": 78.18,
+      "end": 78.56
+    },
+    {
+      "text": "stores",
+      "start": 78.56,
+      "end": 78.94
+    },
+    {
+      "text": "the",
+      "start": 78.94,
+      "end": 79.2
+    },
+    {
+      "text": "approved",
+      "start": 79.2,
+      "end": 79.52
+    },
+    {
+      "text": "state,",
+      "start": 79.52,
+      "end": 79.92
+    },
+    {
+      "text": "and",
+      "start": 80.3,
+      "end": 80.52
+    },
+    {
+      "text": "Cloud",
+      "start": 80.52,
+      "end": 80.7
+    },
+    {
+      "text": "Tasks",
+      "start": 80.7,
+      "end": 81.1
+    },
+    {
+      "text": "resumes",
+      "start": 81.1,
+      "end": 81.52
+    },
+    {
+      "text": "the",
+      "start": 81.52,
+      "end": 81.76
+    },
+    {
+      "text": "case",
+      "start": 81.76,
+      "end": 81.98
+    },
+    {
+      "text": "in",
+      "start": 81.98,
+      "end": 82.18
+    },
+    {
+      "text": "the",
+      "start": 82.18,
+      "end": 82.3
+    },
+    {
+      "text": "background",
+      "start": 82.3,
+      "end": 82.68
+    },
+    {
+      "text": "with",
+      "start": 82.68,
+      "end": 83.12
+    },
+    {
+      "text": "authenticated,",
+      "start": 83.12,
+      "end": 83.84
+    },
+    {
+      "text": "idempotent",
+      "start": 84.1,
+      "end": 84.76
+    },
+    {
+      "text": "delivery.",
+      "start": 84.76,
+      "end": 85.24
+    },
+    {
+      "text": "The",
+      "start": 86.18,
+      "end": 86.28
+    },
+    {
+      "text": "first",
+      "start": 86.28,
+      "end": 86.6
+    },
+    {
+      "text": "signed",
+      "start": 86.6,
+      "end": 86.88
+    },
+    {
+      "text": "company",
+      "start": 86.88,
+      "end": 87.28
+    },
+    {
+      "text": "reply",
+      "start": 87.28,
+      "end": 87.72
+    },
+    {
+      "text": "includes",
+      "start": 87.72,
+      "end": 88.22
+    },
+    {
+      "text": "the",
+      "start": 88.22,
+      "end": 88.46
+    },
+    {
+      "text": "right",
+      "start": 88.46,
+      "end": 88.64
+    },
+    {
+      "text": "reference",
+      "start": 88.64,
+      "end": 89.02
+    },
+    {
+      "text": "and",
+      "start": 89.02,
+      "end": 89.22
+    },
+    {
+      "text": "amount,",
+      "start": 89.22,
+      "end": 89.54
+    },
+    {
+      "text": "but",
+      "start": 89.78,
+      "end": 89.96
+    },
+    {
+      "text": "says",
+      "start": 89.96,
+      "end": 90.2
+    },
+    {
+      "text": "only",
+      "start": 90.2,
+      "end": 90.52
+    },
+    {
+      "text": "that",
+      "start": 90.52,
+      "end": 90.8
+    },
+    {
+      "text": "the",
+      "start": 90.8,
+      "end": 90.92
+    },
+    {
+      "text": "request",
+      "start": 90.92,
+      "end": 91.24
+    },
+    {
+      "text": "was",
+      "start": 91.24,
+      "end": 91.5
+    },
+    {
+      "text": "received.",
+      "start": 91.5,
+      "end": 92.0
+    },
+    {
+      "text": "Acknowledgement",
+      "start": 92.78,
+      "end": 93.34
+    },
+    {
+      "text": "is",
+      "start": 93.34,
+      "end": 93.66
+    },
+    {
+      "text": "not",
+      "start": 93.66,
+      "end": 93.98
+    },
+    {
+      "text": "proof.",
+      "start": 93.98,
+      "end": 94.34
+    },
+    {
+      "text": "The",
+      "start": 95.84,
+      "end": 95.9
+    },
+    {
+      "text": "deterministic",
+      "start": 95.9,
+      "end": 96.68
+    },
+    {
+      "text": "verifier",
+      "start": 96.68,
+      "end": 97.44
+    },
+    {
+      "text": "rejects",
+      "start": 97.44,
+      "end": 97.82
+    },
+    {
+      "text": "it,",
+      "start": 97.82,
+      "end": 98.2
+    },
+    {
+      "text": "so",
+      "start": 98.4,
+      "end": 98.68
+    },
+    {
+      "text": "DueBack",
+      "start": 98.68,
+      "end": 99.2
+    },
+    {
+      "text": "keeps",
+      "start": 99.2,
+      "end": 99.54
+    },
+    {
+      "text": "the",
+      "start": 99.54,
+      "end": 99.76
+    },
+    {
+      "text": "case",
+      "start": 99.76,
+      "end": 99.98
+    },
+    {
+      "text": "open",
+      "start": 99.98,
+      "end": 100.36
+    },
+    {
+      "text": "and",
+      "start": 100.36,
+      "end": 100.68
+    },
+    {
+      "text": "performs",
+      "start": 100.68,
+      "end": 101.08
+    },
+    {
+      "text": "the",
+      "start": 101.08,
+      "end": 101.36
+    },
+    {
+      "text": "next",
+      "start": 101.36,
+      "end": 101.7
+    },
+    {
+      "text": "bounded",
+      "start": 101.7,
+      "end": 102.02
+    },
+    {
+      "text": "attempt.",
+      "start": 102.02,
+      "end": 102.46
+    },
+    {
+      "text": "The",
+      "start": 103.18,
+      "end": 103.38
+    },
+    {
+      "text": "controlled",
+      "start": 103.38,
+      "end": 103.78
+    },
+    {
+      "text": "merchant",
+      "start": 103.78,
+      "end": 104.26
+    },
+    {
+      "text": "then",
+      "start": 104.26,
+      "end": 104.62
+    },
+    {
+      "text": "returns",
+      "start": 104.62,
+      "end": 105.06
+    },
+    {
+      "text": "signed",
+      "start": 105.06,
+      "end": 105.46
+    },
+    {
+      "text": "evidence,",
+      "start": 105.46,
+      "end": 105.96
+    },
+    {
+      "text": "confirming",
+      "start": 106.2,
+      "end": 106.6
+    },
+    {
+      "text": "the",
+      "start": 106.6,
+      "end": 106.88
+    },
+    {
+      "text": "exact",
+      "start": 106.88,
+      "end": 107.2
+    },
+    {
+      "text": "outcome,",
+      "start": 107.2,
+      "end": 107.66
+    },
+    {
+      "text": "amount,",
+      "start": 108.02,
+      "end": 108.34
+    },
+    {
+      "text": "currency,",
+      "start": 109.1,
+      "end": 109.1
+    },
+    {
+      "text": "and",
+      "start": 109.48,
+      "end": 109.58
+    },
+    {
+      "text": "reference.",
+      "start": 109.58,
+      "end": 110.02
+    },
+    {
+      "text": "A",
+      "start": 110.62,
+      "end": 110.98
+    },
+    {
+      "text": "deterministic",
+      "start": 110.98,
+      "end": 111.68
+    },
+    {
+      "text": "verifier,",
+      "start": 111.68,
+      "end": 112.38
+    },
+    {
+      "text": "not",
+      "start": 112.68,
+      "end": 112.92
+    },
+    {
+      "text": "the",
+      "start": 112.92,
+      "end": 113.06
+    },
+    {
+      "text": "model,",
+      "start": 113.06,
+      "end": 113.4
+    },
+    {
+      "text": "accepts",
+      "start": 113.66,
+      "end": 114.02
+    },
+    {
+      "text": "that",
+      "start": 114.02,
+      "end": 114.36
+    },
+    {
+      "text": "evidence.",
+      "start": 114.36,
+      "end": 114.78
+    },
+    {
+      "text": "The",
+      "start": 115.46,
+      "end": 115.6
+    },
+    {
+      "text": "result",
+      "start": 115.6,
+      "end": 115.92
+    },
+    {
+      "text": "says",
+      "start": 115.92,
+      "end": 116.26
+    },
+    {
+      "text": "precisely",
+      "start": 116.26,
+      "end": 116.74
+    },
+    {
+      "text": "what",
+      "start": 116.74,
+      "end": 117.14
+    },
+    {
+      "text": "was",
+      "start": 117.14,
+      "end": 117.32
+    },
+    {
+      "text": "proved.",
+      "start": 117.32,
+      "end": 117.72
+    },
+    {
+      "text": "The",
+      "start": 118.04,
+      "end": 118.18
+    },
+    {
+      "text": "company",
+      "start": 118.18,
+      "end": 118.5
+    },
+    {
+      "text": "confirmed",
+      "start": 118.5,
+      "end": 119.04
+    },
+    {
+      "text": "the",
+      "start": 119.04,
+      "end": 119.26
+    },
+    {
+      "text": "refund",
+      "start": 119.26,
+      "end": 119.62
+    },
+    {
+      "text": "instruction.",
+      "start": 119.62,
+      "end": 120.2
+    },
+    {
+      "text": "It",
+      "start": 120.86,
+      "end": 120.98
+    },
+    {
+      "text": "also",
+      "start": 120.98,
+      "end": 121.34
+    },
+    {
+      "text": "preserves",
+      "start": 121.34,
+      "end": 121.72
+    },
+    {
+      "text": "the",
+      "start": 121.72,
+      "end": 121.98
+    },
+    {
+      "text": "important",
+      "start": 121.98,
+      "end": 122.42
+    },
+    {
+      "text": "limitation.",
+      "start": 122.42,
+      "end": 122.96
+    },
+    {
+      "text": "Bank",
+      "start": 123.64,
+      "end": 123.8
+    },
+    {
+      "text": "settlement",
+      "start": 123.8,
+      "end": 124.12
+    },
+    {
+      "text": "is",
+      "start": 124.12,
+      "end": 124.52
+    },
+    {
+      "text": "not",
+      "start": 124.52,
+      "end": 124.8
+    },
+    {
+      "text": "verified,",
+      "start": 124.8,
+      "end": 125.3
+    },
+    {
+      "text": "so",
+      "start": 125.62,
+      "end": 125.84
+    },
+    {
+      "text": "the",
+      "start": 125.84,
+      "end": 125.96
+    },
+    {
+      "text": "person",
+      "start": 125.96,
+      "end": 126.34
+    },
+    {
+      "text": "must",
+      "start": 126.34,
+      "end": 126.62
+    },
+    {
+      "text": "still",
+      "start": 126.62,
+      "end": 126.94
+    },
+    {
+      "text": "check",
+      "start": 126.94,
+      "end": 127.22
+    },
+    {
+      "text": "the",
+      "start": 127.22,
+      "end": 127.44
+    },
+    {
+      "text": "underlying",
+      "start": 127.44,
+      "end": 127.92
+    },
+    {
+      "text": "payment",
+      "start": 127.92,
+      "end": 128.34
+    },
+    {
+      "text": "account.",
+      "start": 128.34,
+      "end": 128.74
+    },
+    {
+      "text": "The",
+      "start": 129.5,
+      "end": 129.68
+    },
+    {
+      "text": "product",
+      "start": 129.68,
+      "end": 130.0
+    },
+    {
+      "text": "trace",
+      "start": 130.0,
+      "end": 130.36
+    },
+    {
+      "text": "shows",
+      "start": 130.36,
+      "end": 130.76
+    },
+    {
+      "text": "the",
+      "start": 130.76,
+      "end": 131.02
+    },
+    {
+      "text": "same",
+      "start": 131.02,
+      "end": 131.26
+    },
+    {
+      "text": "redacted",
+      "start": 131.26,
+      "end": 131.72
+    },
+    {
+      "text": "trace",
+      "start": 131.72,
+      "end": 132.1
+    },
+    {
+      "text": "suffix",
+      "start": 132.1,
+      "end": 132.5
+    },
+    {
+      "text": "across",
+      "start": 132.5,
+      "end": 133.14
+    },
+    {
+      "text": "approval,",
+      "start": 133.14,
+      "end": 133.66
+    },
+    {
+      "text": "Firestore",
+      "start": 134.16,
+      "end": 134.62
+    },
+    {
+      "text": "transitions,",
+      "start": 134.62,
+      "end": 135.18
+    },
+    {
+      "text": "the",
+      "start": 135.6,
+      "end": 135.7
+    },
+    {
+      "text": "cloud",
+      "start": 135.7,
+      "end": 135.96
+    },
+    {
+      "text": "task,",
+      "start": 135.96,
+      "end": 136.38
+    },
+    {
+      "text": "rejected",
+      "start": 136.78,
+      "end": 137.12
+    },
+    {
+      "text": "acknowledgement,",
+      "start": 137.12,
+      "end": 137.7
+    },
+    {
+      "text": "and",
+      "start": 138.24,
+      "end": 138.32
+    },
+    {
+      "text": "accepted",
+      "start": 138.32,
+      "end": 138.86
+    },
+    {
+      "text": "proof.",
+      "start": 138.86,
+      "end": 139.2
+    },
+    {
+      "text": "It",
+      "start": 139.6,
+      "end": 139.98
+    },
+    {
+      "text": "also",
+      "start": 139.98,
+      "end": 140.36
+    },
+    {
+      "text": "records",
+      "start": 140.36,
+      "end": 140.82
+    },
+    {
+      "text": "the",
+      "start": 140.82,
+      "end": 141.04
+    },
+    {
+      "text": "real",
+      "start": 141.04,
+      "end": 141.34
+    },
+    {
+      "text": "Gemini",
+      "start": 141.34,
+      "end": 141.68
+    },
+    {
+      "text": "latency,",
+      "start": 141.68,
+      "end": 142.28
+    },
+    {
+      "text": "token",
+      "start": 142.74,
+      "end": 142.94
+    },
+    {
+      "text": "usage,",
+      "start": 142.94,
+      "end": 143.3
+    },
+    {
+      "text": "and",
+      "start": 143.64,
+      "end": 143.8
+    },
+    {
+      "text": "estimated",
+      "start": 143.8,
+      "end": 144.3
+    },
+    {
+      "text": "model",
+      "start": 144.3,
+      "end": 144.68
+    },
+    {
+      "text": "cost.",
+      "start": 144.68,
+      "end": 145.1
+    },
+    {
+      "text": "Missing",
+      "start": 146.04,
+      "end": 146.06
+    },
+    {
+      "text": "telemetry",
+      "start": 146.06,
+      "end": 146.64
+    },
+    {
+      "text": "would",
+      "start": 146.64,
+      "end": 146.9
+    },
+    {
+      "text": "remain",
+      "start": 146.9,
+      "end": 147.34
+    },
+    {
+      "text": "labeled",
+      "start": 147.34,
+      "end": 147.7
+    },
+    {
+      "text": "missing.",
+      "start": 147.7,
+      "end": 148.1
+    },
+    {
+      "text": "DueBack",
+      "start": 148.66,
+      "end": 148.9
+    },
+    {
+      "text": "does",
+      "start": 148.9,
+      "end": 149.16
+    },
+    {
+      "text": "not",
+      "start": 149.16,
+      "end": 149.44
+    },
+    {
+      "text": "manufacture",
+      "start": 149.44,
+      "end": 150.04
+    },
+    {
+      "text": "evidence.",
+      "start": 150.04,
+      "end": 150.56
+    },
+    {
+      "text": "Here",
+      "start": 151.16,
+      "end": 151.46
+    },
+    {
+      "text": "is",
+      "start": 151.46,
+      "end": 151.72
+    },
+    {
+      "text": "the",
+      "start": 151.72,
+      "end": 151.9
+    },
+    {
+      "text": "deployed",
+      "start": 151.9,
+      "end": 152.28
+    },
+    {
+      "text": "back",
+      "start": 152.28,
+      "end": 152.6
+    },
+    {
+      "text": "end",
+      "start": 152.6,
+      "end": 152.88
+    },
+    {
+      "text": "on",
+      "start": 152.88,
+      "end": 153.16
+    },
+    {
+      "text": "Google",
+      "start": 153.16,
+      "end": 153.42
+    },
+    {
+      "text": "Cloud.",
+      "start": 153.42,
+      "end": 153.82
+    },
+    {
+      "text": "Cloud",
+      "start": 154.22,
+      "end": 154.6
+    },
+    {
+      "text": "Run",
+      "start": 154.6,
+      "end": 154.86
+    },
+    {
+      "text": "serves",
+      "start": 154.86,
+      "end": 155.26
+    },
+    {
+      "text": "the",
+      "start": 155.26,
+      "end": 155.56
+    },
+    {
+      "text": "current",
+      "start": 155.56,
+      "end": 155.82
+    },
+    {
+      "text": "product",
+      "start": 155.82,
+      "end": 156.18
+    },
+    {
+      "text": "revision.",
+      "start": 156.18,
+      "end": 156.64
+    },
+    {
+      "text": "Cloud",
+      "start": 157.36,
+      "end": 157.54
+    },
+    {
+      "text": "Tasks",
+      "start": 157.54,
+      "end": 157.98
+    },
+    {
+      "text": "provides",
+      "start": 157.98,
+      "end": 158.48
+    },
+    {
+      "text": "bounded",
+      "start": 158.48,
+      "end": 158.84
+    },
+    {
+      "text": "delivery",
+      "start": 158.84,
+      "end": 159.36
+    },
+    {
+      "text": "and",
+      "start": 159.36,
+      "end": 159.72
+    },
+    {
+      "text": "retry.",
+      "start": 159.72,
+      "end": 160.2
+    },
+    {
+      "text": "Firestore",
+      "start": 160.96,
+      "end": 161.38
+    },
+    {
+      "text": "persists",
+      "start": 161.38,
+      "end": 162.0
+    },
+    {
+      "text": "the",
+      "start": 162.0,
+      "end": 162.3
+    },
+    {
+      "text": "versioned",
+      "start": 162.3,
+      "end": 162.82
+    },
+    {
+      "text": "case.",
+      "start": 162.82,
+      "end": 162.98
+    },
+    {
+      "text": "Vertex",
+      "start": 163.74,
+      "end": 164.04
+    },
+    {
+      "text": "AI",
+      "start": 164.04,
+      "end": 164.38
+    },
+    {
+      "text": "records",
+      "start": 164.38,
+      "end": 165.06
+    },
+    {
+      "text": "the",
+      "start": 165.06,
+      "end": 165.38
+    },
+    {
+      "text": "Gemini",
+      "start": 165.38,
+      "end": 165.78
+    },
+    {
+      "text": "invocation.",
+      "start": 165.78,
+      "end": 166.28
+    },
+    {
+      "text": "The",
+      "start": 166.84,
+      "end": 167.24
+    },
+    {
+      "text": "controlled",
+      "start": 167.24,
+      "end": 167.66
+    },
+    {
+      "text": "merchant",
+      "start": 167.66,
+      "end": 168.1
+    },
+    {
+      "text": "is",
+      "start": 168.1,
+      "end": 168.36
+    },
+    {
+      "text": "a",
+      "start": 168.36,
+      "end": 168.52
+    },
+    {
+      "text": "separately",
+      "start": 168.52,
+      "end": 168.82
+    },
+    {
+      "text": "deployed",
+      "start": 168.82,
+      "end": 169.36
+    },
+    {
+      "text": "Cloud",
+      "start": 169.36,
+      "end": 169.62
+    },
+    {
+      "text": "Run",
+      "start": 169.62,
+      "end": 169.86
+    },
+    {
+      "text": "service",
+      "start": 169.86,
+      "end": 170.26
+    },
+    {
+      "text": "with",
+      "start": 170.26,
+      "end": 170.56
+    },
+    {
+      "text": "a",
+      "start": 170.56,
+      "end": 170.7
+    },
+    {
+      "text": "narrow",
+      "start": 170.7,
+      "end": 170.96
+    },
+    {
+      "text": "identity",
+      "start": 170.96,
+      "end": 171.54
+    },
+    {
+      "text": "and",
+      "start": 171.54,
+      "end": 171.96
+    },
+    {
+      "text": "no",
+      "start": 171.96,
+      "end": 172.24
+    },
+    {
+      "text": "access",
+      "start": 172.24,
+      "end": 172.66
+    },
+    {
+      "text": "to",
+      "start": 172.66,
+      "end": 172.94
+    },
+    {
+      "text": "Firestore,",
+      "start": 172.94,
+      "end": 173.5
+    },
+    {
+      "text": "Vertex",
+      "start": 173.8,
+      "end": 174.2
+    },
+    {
+      "text": "AI,",
+      "start": 174.2,
+      "end": 174.5
+    },
+    {
+      "text": "or",
+      "start": 174.9,
+      "end": 175.06
+    },
+    {
+      "text": "Cloud",
+      "start": 175.06,
+      "end": 175.36
+    },
+    {
+      "text": "Tasks.",
+      "start": 175.36,
+      "end": 175.78
+    },
+    {
+      "text": "The",
+      "start": 176.54,
+      "end": 176.66
+    },
+    {
+      "text": "architecture",
+      "start": 176.66,
+      "end": 177.14
+    },
+    {
+      "text": "keeps",
+      "start": 177.14,
+      "end": 177.66
+    },
+    {
+      "text": "authority",
+      "start": 177.66,
+      "end": 178.12
+    },
+    {
+      "text": "and",
+      "start": 178.12,
+      "end": 178.52
+    },
+    {
+      "text": "proof",
+      "start": 178.52,
+      "end": 178.86
+    },
+    {
+      "text": "outside",
+      "start": 178.86,
+      "end": 179.42
+    },
+    {
+      "text": "the",
+      "start": 179.42,
+      "end": 179.64
+    },
+    {
+      "text": "model.",
+      "start": 179.64,
+      "end": 180.0
+    },
+    {
+      "text": "Gemini",
+      "start": 180.68,
+      "end": 180.8
+    },
+    {
+      "text": "and",
+      "start": 180.8,
+      "end": 181.32
+    },
+    {
+      "text": "Genkit",
+      "start": 181.32,
+      "end": 181.74
+    },
+    {
+      "text": "propose",
+      "start": 181.74,
+      "end": 182.22
+    },
+    {
+      "text": "typed",
+      "start": 182.22,
+      "end": 182.6
+    },
+    {
+      "text": "facts.",
+      "start": 182.6,
+      "end": 183.04
+    },
+    {
+      "text": "The",
+      "start": 183.48,
+      "end": 183.68
+    },
+    {
+      "text": "person",
+      "start": 183.68,
+      "end": 184.0
+    },
+    {
+      "text": "approves",
+      "start": 184.0,
+      "end": 184.42
+    },
+    {
+      "text": "an",
+      "start": 184.42,
+      "end": 184.68
+    },
+    {
+      "text": "exact",
+      "start": 184.68,
+      "end": 185.06
+    },
+    {
+      "text": "boundary.",
+      "start": 185.06,
+      "end": 185.56
+    },
+    {
+      "text": "Firestore",
+      "start": 186.28,
+      "end": 186.68
+    },
+    {
+      "text": "and",
+      "start": 186.68,
+      "end": 186.94
+    },
+    {
+      "text": "Cloud",
+      "start": 186.94,
+      "end": 187.22
+    },
+    {
+      "text": "Tasks",
+      "start": 187.22,
+      "end": 187.66
+    },
+    {
+      "text": "persist",
+      "start": 187.66,
+      "end": 188.14
+    },
+    {
+      "text": "and",
+      "start": 188.14,
+      "end": 188.5
+    },
+    {
+      "text": "resume",
+      "start": 188.5,
+      "end": 188.82
+    },
+    {
+      "text": "the",
+      "start": 188.82,
+      "end": 189.02
+    },
+    {
+      "text": "work.",
+      "start": 189.02,
+      "end": 189.28
+    },
+    {
+      "text": "The",
+      "start": 189.78,
+      "end": 189.96
+    },
+    {
+      "text": "action",
+      "start": 189.96,
+      "end": 190.32
+    },
+    {
+      "text": "broker",
+      "start": 190.32,
+      "end": 190.62
+    },
+    {
+      "text": "releases",
+      "start": 190.62,
+      "end": 191.18
+    },
+    {
+      "text": "only",
+      "start": 191.18,
+      "end": 191.7
+    },
+    {
+      "text": "approved",
+      "start": 191.7,
+      "end": 192.06
+    },
+    {
+      "text": "fields.",
+      "start": 192.06,
+      "end": 192.56
+    },
+    {
+      "text": "Signed",
+      "start": 192.56,
+      "end": 193.42
+    },
+    {
+      "text": "evidence",
+      "start": 193.42,
+      "end": 193.88
+    },
+    {
+      "text": "returns",
+      "start": 193.88,
+      "end": 194.38
+    },
+    {
+      "text": "through",
+      "start": 194.38,
+      "end": 194.72
+    },
+    {
+      "text": "a",
+      "start": 194.72,
+      "end": 194.88
+    },
+    {
+      "text": "deterministic",
+      "start": 194.88,
+      "end": 195.5
+    },
+    {
+      "text": "verifier",
+      "start": 195.5,
+      "end": 196.16
+    },
+    {
+      "text": "and",
+      "start": 196.16,
+      "end": 196.58
+    },
+    {
+      "text": "only",
+      "start": 196.58,
+      "end": 196.96
+    },
+    {
+      "text": "sufficient",
+      "start": 196.96,
+      "end": 197.42
+    },
+    {
+      "text": "evidence",
+      "start": 197.42,
+      "end": 197.92
+    },
+    {
+      "text": "can",
+      "start": 197.92,
+      "end": 198.2
+    },
+    {
+      "text": "close",
+      "start": 198.2,
+      "end": 198.5
+    },
+    {
+      "text": "the",
+      "start": 198.5,
+      "end": 198.7
+    },
+    {
+      "text": "case.",
+      "start": 198.7,
+      "end": 199.04
+    },
+    {
+      "text": "DueBack",
+      "start": 199.9,
+      "end": 200.18
+    },
+    {
+      "text": "is",
+      "start": 200.18,
+      "end": 200.44
+    },
+    {
+      "text": "a",
+      "start": 200.44,
+      "end": 200.64
+    },
+    {
+      "text": "taskmaster",
+      "start": 200.64,
+      "end": 201.2
+    },
+    {
+      "text": "entry",
+      "start": 201.2,
+      "end": 201.66
+    },
+    {
+      "text": "built",
+      "start": 201.66,
+      "end": 201.94
+    },
+    {
+      "text": "by",
+      "start": 201.94,
+      "end": 202.18
+    },
+    {
+      "text": "one",
+      "start": 202.18,
+      "end": 202.42
+    },
+    {
+      "text": "individual",
+      "start": 202.42,
+      "end": 202.88
+    },
+    {
+      "text": "for",
+      "start": 202.88,
+      "end": 203.32
+    },
+    {
+      "text": "the",
+      "start": 203.32,
+      "end": 203.46
+    },
+    {
+      "text": "all",
+      "start": 203.46,
+      "end": 203.66
+    },
+    {
+      "text": "things",
+      "start": 203.66,
+      "end": 203.94
+    },
+    {
+      "text": "agentic",
+      "start": 203.94,
+      "end": 204.62
+    },
+    {
+      "text": "hackathon.",
+      "start": 204.62,
+      "end": 205.12
+    },
+    {
+      "text": "Delegate",
+      "start": 205.8,
+      "end": 206.04
+    },
+    {
+      "text": "the",
+      "start": 206.04,
+      "end": 206.26
+    },
+    {
+      "text": "chase.",
+      "start": 206.26,
+      "end": 206.56
+    },
+    {
+      "text": "Keep",
+      "start": 207.02,
+      "end": 207.14
+    },
+    {
+      "text": "the",
+      "start": 207.14,
+      "end": 207.36
+    },
+    {
+      "text": "proof.",
+      "start": 207.36,
+      "end": 207.56
+    }
+  ]
+}

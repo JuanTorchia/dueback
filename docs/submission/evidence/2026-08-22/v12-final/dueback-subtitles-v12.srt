@@ -1,0 +1,415 @@
+1
+00:00:00,000 --> 00:00:02,520
+A company can say, request received,
+
+2
+00:00:02,960 --> 00:00:04,880
+while the customer still carries every
+
+3
+00:00:04,880 --> 00:00:06,080
+follow-up.
+
+4
+00:00:06,040 --> 00:00:08,160
+DueBack keeps that promise open until
+
+5
+00:00:08,160 --> 00:00:10,100
+the evidence matches the outcome the
+
+6
+00:00:10,100 --> 00:00:11,440
+person actually approved.
+
+7
+00:00:12,160 --> 00:00:13,940
+Here is a synthetic refund case.
+
+8
+00:00:14,480 --> 00:00:17,680
+The store promised $59 for Order 1842,
+
+9
+00:00:18,040 --> 00:00:19,820
+but the refund has not arrived.
+
+10
+00:00:20,520 --> 00:00:21,740
+Gemini reads this source
+
+11
+00:00:21,740 --> 00:00:24,040
+asynchronously and proposes a typed
+
+12
+00:00:24,040 --> 00:00:26,280
+outcome contract, responsible party,
+
+13
+00:00:26,700 --> 00:00:28,580
+amount, reference, deadline,
+
+14
+00:00:29,380 --> 00:00:30,580
+citations, and uncertainty.
+
+15
+00:00:31,160 --> 00:00:32,920
+The source is retained for no more
+
+16
+00:00:32,920 --> 00:00:34,120
+than 24 hours.
+
+17
+00:00:34,600 --> 00:00:36,920
+Gemini has no contact tools, cannot
+
+18
+00:00:36,920 --> 00:00:39,100
+approve an action, and cannot decide
+
+19
+00:00:39,100 --> 00:00:40,300
+that the case is done.
+
+20
+00:00:40,680 --> 00:00:42,500
+Now I review what it understood.
+
+21
+00:00:43,200 --> 00:00:45,400
+The contract requires signed company
+
+22
+00:00:45,400 --> 00:00:47,480
+evidence for this exact outcome and
+
+23
+00:00:47,480 --> 00:00:48,680
+reference.
+
+24
+00:00:48,700 --> 00:00:50,740
+Before anything leaves DueBack, the
+
+25
+00:00:50,740 --> 00:00:52,500
+approval boundary shows the recipient,
+
+26
+00:00:53,060 --> 00:00:55,440
+channel, first message, shared fields,
+
+27
+00:00:55,760 --> 00:00:57,400
+attempt limit, and return path.
+
+28
+00:00:58,160 --> 00:01:00,340
+This accelerated route contacts only
+
+29
+00:01:00,340 --> 00:01:02,340
+DueBack's isolated merchant simulator.
+
+30
+00:01:02,920 --> 00:01:04,920
+It cannot spend money, change the
+
+31
+00:01:04,920 --> 00:01:07,300
+requested outcome, add new data, or
+
+32
+00:01:07,300 --> 00:01:08,900
+contact an arbitrary company.
+
+33
+00:01:09,560 --> 00:01:11,740
+I authorize only this versioned plan.
+
+34
+00:01:12,640 --> 00:01:14,020
+From this point, the run is
+
+35
+00:01:14,020 --> 00:01:15,220
+continuous.
+
+36
+00:01:15,140 --> 00:01:16,960
+The browser is not executing the
+
+37
+00:01:16,960 --> 00:01:18,160
+workflow.
+
+38
+00:01:18,180 --> 00:01:19,920
+Firestore stores the approved state,
+
+39
+00:01:20,300 --> 00:01:22,180
+and Cloud Tasks resumes the case in
+
+40
+00:01:22,180 --> 00:01:23,840
+the background with authenticated,
+
+41
+00:01:24,100 --> 00:01:25,300
+idempotent delivery.
+
+42
+00:01:26,180 --> 00:01:27,720
+The first signed company reply
+
+43
+00:01:27,720 --> 00:01:29,220
+includes the right reference and
+
+44
+00:01:29,220 --> 00:01:31,240
+amount, but says only that the request
+
+45
+00:01:31,240 --> 00:01:32,440
+was received.
+
+46
+00:01:32,780 --> 00:01:34,340
+Acknowledgement is not proof.
+
+47
+00:01:35,840 --> 00:01:38,200
+The deterministic verifier rejects it,
+
+48
+00:01:38,400 --> 00:01:40,680
+so DueBack keeps the case open and
+
+49
+00:01:40,680 --> 00:01:42,460
+performs the next bounded attempt.
+
+50
+00:01:43,180 --> 00:01:45,060
+The controlled merchant then returns
+
+51
+00:01:45,060 --> 00:01:47,200
+signed evidence, confirming the exact
+
+52
+00:01:47,200 --> 00:01:49,580
+outcome, amount, currency, and
+
+53
+00:01:49,580 --> 00:01:50,780
+reference.
+
+54
+00:01:50,620 --> 00:01:53,060
+A deterministic verifier, not the
+
+55
+00:01:53,060 --> 00:01:54,780
+model, accepts that evidence.
+
+56
+00:01:55,460 --> 00:01:57,320
+The result says precisely what was
+
+57
+00:01:57,320 --> 00:01:59,260
+proved. The company confirmed the
+
+58
+00:01:59,260 --> 00:02:00,460
+refund instruction.
+
+59
+00:02:00,860 --> 00:02:02,420
+It also preserves the important
+
+60
+00:02:02,420 --> 00:02:03,620
+limitation.
+
+61
+00:02:03,640 --> 00:02:05,840
+Bank settlement is not verified, so
+
+62
+00:02:05,840 --> 00:02:07,440
+the person must still check the
+
+63
+00:02:07,440 --> 00:02:08,740
+underlying payment account.
+
+64
+00:02:09,500 --> 00:02:11,260
+The product trace shows the same
+
+65
+00:02:11,260 --> 00:02:13,660
+redacted trace suffix across approval,
+
+66
+00:02:14,160 --> 00:02:16,380
+Firestore transitions, the cloud task,
+
+67
+00:02:16,780 --> 00:02:18,860
+rejected acknowledgement, and accepted
+
+68
+00:02:18,860 --> 00:02:21,680
+proof. It also records the real Gemini
+
+69
+00:02:21,680 --> 00:02:24,300
+latency, token usage, and estimated
+
+70
+00:02:24,300 --> 00:02:25,500
+model cost.
+
+71
+00:02:26,040 --> 00:02:27,700
+Missing telemetry would remain labeled
+
+72
+00:02:27,700 --> 00:02:28,900
+missing.
+
+73
+00:02:28,660 --> 00:02:30,560
+DueBack does not manufacture evidence.
+
+74
+00:02:31,160 --> 00:02:33,160
+Here is the deployed back end on
+
+75
+00:02:33,160 --> 00:02:34,360
+Google Cloud.
+
+76
+00:02:34,220 --> 00:02:36,180
+Cloud Run serves the current product
+
+77
+00:02:36,180 --> 00:02:37,380
+revision.
+
+78
+00:02:37,360 --> 00:02:39,360
+Cloud Tasks provides bounded delivery
+
+79
+00:02:39,360 --> 00:02:40,560
+and retry.
+
+80
+00:02:40,960 --> 00:02:42,980
+Firestore persists the versioned case.
+
+81
+00:02:43,740 --> 00:02:45,780
+Vertex AI records the Gemini
+
+82
+00:02:45,780 --> 00:02:46,980
+invocation.
+
+83
+00:02:46,840 --> 00:02:48,520
+The controlled merchant is a
+
+84
+00:02:48,520 --> 00:02:50,260
+separately deployed Cloud Run service
+
+85
+00:02:50,260 --> 00:02:52,660
+with a narrow identity and no access
+
+86
+00:02:52,660 --> 00:02:55,360
+to Firestore, Vertex AI, or Cloud
+
+87
+00:02:55,360 --> 00:02:56,560
+Tasks.
+
+88
+00:02:56,540 --> 00:02:58,520
+The architecture keeps authority and
+
+89
+00:02:58,520 --> 00:03:00,000
+proof outside the model.
+
+90
+00:03:00,680 --> 00:03:03,040
+Gemini and Genkit propose typed facts.
+
+91
+00:03:03,480 --> 00:03:05,560
+The person approves an exact boundary.
+
+92
+00:03:06,280 --> 00:03:08,500
+Firestore and Cloud Tasks persist and
+
+93
+00:03:08,500 --> 00:03:09,700
+resume the work.
+
+94
+00:03:09,780 --> 00:03:11,700
+The action broker releases only
+
+95
+00:03:11,700 --> 00:03:12,900
+approved fields.
+
+96
+00:03:12,560 --> 00:03:14,880
+Signed evidence returns through a
+
+97
+00:03:14,880 --> 00:03:16,960
+deterministic verifier and only
+
+98
+00:03:16,960 --> 00:03:18,700
+sufficient evidence can close the
+
+99
+00:03:18,700 --> 00:03:19,900
+case.
+
+100
+00:03:19,900 --> 00:03:22,180
+DueBack is a taskmaster entry built by
+
+101
+00:03:22,180 --> 00:03:23,940
+one individual for the all things
+
+102
+00:03:23,940 --> 00:03:25,140
+agentic hackathon.
+
+103
+00:03:25,800 --> 00:03:27,000
+Delegate the chase.
+
+104
+00:03:27,020 --> 00:03:28,220
+Keep the proof.

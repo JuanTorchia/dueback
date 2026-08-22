@@ -1,23 +1,18 @@
 import { AppHeader } from "../../components/app-header";
+import { getRequestMessages } from "../../lib/i18n-server";
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const copy = (await getRequestMessages()).privacy;
   return (
     <main className="shell narrow-shell">
       <AppHeader />
       <section className="hero compact">
-        <p className="eyebrow">DueBack privacy</p>
-        <h1>Only the promise you choose to share.</h1>
-        <p className="lede">
-          DueBack does not read your inbox. Uploaded bytes are processed transiently and are not
-          stored after extraction. The structured case remains while active and is scheduled for
-          deletion after completion or expiry. You can delete an activated case from its controls.
-        </p>
+        <p className="eyebrow">{copy.eyebrow}</p><h1>{copy.title}</h1><p className="lede">{copy.lede}</p>
       </section>
       <section className="card boundaries">
-        <div><strong>Before activation</strong><p>Nothing is sent to a company.</p></div>
-        <div><strong>When activated</strong><p>Only the reference, amount, and currency listed in the approved plan are shared.</p></div>
-        <div><strong>Logs</strong><p>Operational records use identifiers and hashes, not uploaded files or full promise text.</p></div>
-        <div><strong>Demo limitation</strong><p>The merchant is a controlled sandbox, not a real company. Merchant confirmation is not bank settlement.</p></div>
+        <div><strong>{copy.before}</strong><p>{copy.beforeText}</p></div><div><strong>{copy.activated}</strong><p>{copy.activatedText}</p></div>
+        <div><strong>{copy.gemini}</strong><p>{copy.geminiText}</p></div><div><strong>{copy.deletion}</strong><p>{copy.deletionText}</p></div>
+        <div><strong>{copy.logs}</strong><p>{copy.logsText}</p></div><div><strong>{copy.limitation}</strong><p>{copy.limitationText}</p></div>
       </section>
     </main>
   );

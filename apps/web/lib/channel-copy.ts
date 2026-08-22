@@ -20,9 +20,9 @@ export function channelCopy(channel: ActiveCaseChannel) {
   }
   return {
     disclosure:
-      "Controlled hackathon demo — Merchant Sandbox is not a real merchant; callback timing is accelerated.",
-    contact: "Controlled merchant adapter",
-    reply: "Signed sandbox callback",
+      "Accelerated demo using DueBack’s controlled merchant simulator—not a real company.",
+    contact: "DueBack demo merchant",
+    reply: "Signed demo reply",
     actionTitle: "Follow-up accepted by demo merchant",
     actionSummary: "One authorized follow-up crossed the demo HTTP boundary.",
     evidenceTitle: "Sandbox evidence checked",

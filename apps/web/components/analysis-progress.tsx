@@ -8,6 +8,7 @@ interface AnalysisStatus {
   status: "QUEUED" | "ANALYZING" | "READY" | "FAILED";
   stage: "EVIDENCE_SECURED" | "GEMINI_EXTRACTION" | "VALIDATING" | "REVIEW_READY" | "FAILED";
   attemptCount: number;
+  createdAt: string;
   error?: string;
 }
 
@@ -84,6 +85,9 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
   const phaseAnnouncement = analysis?.status === "FAILED"
     ? "Analysis stopped. You can try again."
     : stages[activeIndex]?.[1] ?? "Evidence secured";
+  const retentionEndsAt = analysis?.createdAt
+    ? new Date(new Date(analysis.createdAt).getTime() + 86_400_000)
+    : undefined;
   return <section className="card durable-analysis" aria-busy={analysis?.status !== "FAILED"}>
     <span className="sr-only" role="status" aria-live="polite">{phaseAnnouncement}</span>
     <div className="analysis-visual" aria-hidden="true"><div className="progress-orbit"><span /></div><b>Gemini</b></div>
@@ -99,6 +103,9 @@ export function AnalysisProgress({ caseId }: { readonly caseId: string }) {
         </li>)}
       </ol>
       {analysis?.attemptCount ? <small>Bounded attempt {analysis.attemptCount} of 3</small> : null}
+      {retentionEndsAt ? <small className="retention-deadline">
+        Raw-source retention ends {new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(retentionEndsAt)}. Deletion processing may be asynchronous.
+      </small> : null}
       {analysis?.status === "FAILED" ? <button type="button" disabled={retrying} onClick={() => void retry()}>{retrying ? "Restarting…" : "Try analysis again"}</button> : null}
       {error ? <p className="error" role="alert">DueBack could not refresh this saved job. Retrying automatically.</p> : null}
     </div>

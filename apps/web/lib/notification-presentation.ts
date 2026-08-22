@@ -1,7 +1,8 @@
 import type { NotificationRecord } from "@dueback/runtime/notifications";
 
 export function notificationPresentation(record: NotificationRecord) {
-  const status = record.deliveryStatus ?? "RECORDED";
+  const inAppOnly = record.deliveryChannel === "IN_APP";
+  const status = inAppOnly ? "RECORDED" : (record.deliveryStatus ?? "RECORDED");
   const copy = {
     RECORDED: "Saved in your case",
     ACCEPTED: "Email accepted by the provider",
@@ -13,7 +14,8 @@ export function notificationPresentation(record: NotificationRecord) {
   }[status];
   return {
     copy,
-    canRetry: ["FAILED", "UNAVAILABLE"].includes(status) && (record.attemptCount ?? 0) < 3,
+    canRetry: !inAppOnly && ["FAILED", "UNAVAILABLE"].includes(status) && (record.attemptCount ?? 0) < 3,
+    inAppOnly,
     destination: record.destinationHint ?? (record.deliveryChannel === "EMAIL" ? "your verified email" : "this case"),
     attempts: record.attemptCount ?? 0
   };

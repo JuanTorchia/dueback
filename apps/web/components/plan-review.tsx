@@ -385,14 +385,21 @@ export function PlanReview({
             <details><summary>Change the company email</summary><div className="inline-edit"><input type="email" aria-label="Company support email" value={recipient} placeholder={draft.plan.allowedRecipient} onChange={(event) => { setRecipient(event.target.value); }} /><button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)} onClick={() => void saveRevision({ allowedRecipient: recipient.trim() })}>Save recipient</button></div></details>
           ) : null}
         </div>
-        <div className="permission-list approval-summary" aria-label="Approval summary">
+        <div className="approval-decision" aria-label="Approval decision">
+          <strong>Before you start</strong>
+          <p>DueBack will contact {activeChannelType === "MANAGED_EMAIL" ? draft.plan.allowedRecipient : "only its demo merchant"}, share {monetaryPromise ? "the reference, amount, and currency" : "the reference and promised outcome"}, make up to {draft.plan.maxLogicalSends ?? 3} attempts, and stop for decisions. It cannot spend, change the outcome, or call an acknowledgement done.</p>
+        </div>
+        <details className="approval-details">
+          <summary>Review every approved limit</summary>
+          <div className="permission-list approval-summary" aria-label="Full approval limits">
           <div><span className="permission-icon">1</span><div><strong>Request</strong><p>{draft.plan.goal}</p></div></div>
           <div><span className="permission-icon">2</span><div><strong>Contact</strong><p>{draft.plan.allowedRecipient} via {activeChannelType === "MANAGED_EMAIL" ? "managed email" : "controlled demo API"}.</p></div></div>
           <div><span className="permission-icon">3</span><div><strong>Timing</strong><p>{draft.plan.executionMode === "ACCELERATED_DEMO" ? "Runs in seconds after approval for this demo." : `First follow-up ${draft.plan.followUpAt ? dateTime(draft.plan.followUpAt) : "after the due time"}.`}</p></div></div>
           <div><span className="permission-icon">4</span><div><strong>Limits</strong><p>Up to {draft.plan.maxLogicalSends ?? 3} sends. No spending, outcome changes, extra data, or bank-settlement claims.</p></div></div>
           <div><span className="permission-icon">5</span><div><strong>Done only with proof</strong><p>{monetaryPromise ? "Signed evidence matching this case, amount, currency, and reference." : "Signed evidence matching this case, reference, and promised outcome."} “Request received” is not completion.</p></div></div>
-        </div>
-        <details className="shared-data"><summary>Exactly what data will be shared</summary><p>{monetaryPromise ? "Order/case reference, amount, and currency." : "Case reference and the promised outcome."} No inbox access or extra fields.</p></details>
+          </div>
+        </details>
+        <details className="shared-data" open><summary>Exactly what data will be shared—and with whom</summary><p>{monetaryPromise ? "DueBack shares the order/case reference, amount, and currency" : "DueBack shares the case reference and promised outcome"} only with {activeChannelType === "MANAGED_EMAIL" ? draft.plan.allowedRecipient : "the controlled demo merchant"}. No inbox access or extra fields.</p></details>
         {activeChannelType === "CONTROLLED_SANDBOX" ? <p className="demo-warning"><strong>Accelerated controlled demo:</strong> after approval, real Cloud Tasks and the isolated merchant adapter run in seconds instead of waiting for the promised date. The action goes to DueBack’s simulator, not {draft.promiseDraft.promisor.value}; no real company will be contacted.</p> : null}
         <div className="return-promise">
           <strong>3 · How the result comes back to you</strong>

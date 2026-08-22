@@ -13,10 +13,14 @@ export interface ConversationEntry {
 
 function explicitFacts(record: EvidenceRecord): string {
   const candidate = record.candidate;
+  const amount = candidate.amountMinor === undefined
+    ? undefined
+    : candidate.currency
+      ? `${candidate.currency} ${(candidate.amountMinor / 100).toFixed(2)}`
+      : (candidate.amountMinor / 100).toFixed(2);
   const facts = [
     candidate.transactionRef ? `Reference ${candidate.transactionRef}` : undefined,
-    candidate.amountMinor !== undefined ? `Amount ${String(candidate.amountMinor)}` : undefined,
-    candidate.currency ? `Currency ${candidate.currency}` : undefined,
+    amount ? `Amount ${amount}` : undefined,
     candidate.subject ? `Subject ${candidate.subject}` : undefined,
     candidate.billPeriod ? `Bill period ${candidate.billPeriod}` : undefined,
     candidate.trackingNumber ? `Tracking ${candidate.trackingNumber}` : undefined

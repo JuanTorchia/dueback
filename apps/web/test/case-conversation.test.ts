@@ -24,4 +24,20 @@ describe("consumer conversation projection", () => {
     expect(entries[1]?.safeBody).not.toContain("59 refund");
     expect(entries[1]?.reason).toContain("Acknowledgement is not proof");
   });
+
+  it("formats minor currency units as consumer money", () => {
+    const evidence = [{
+      candidate: {
+        evidenceId: "evidence_money_1234", caseId: "case_money_12345678",
+        level: "MERCHANT_CONFIRMED", transactionRef: "R-59", amountMinor: 5900,
+        currency: "USD", issuedAt: "2026-08-17T10:01:00.000Z", issuer: "sandbox:test",
+        signatureValid: true
+      },
+      recordedAt: "2026-08-17T10:01:00.000Z", correlationId: "corr_money_12345678",
+      verification: { accepted: true, reasonCodes: ["ACCEPTED"] }
+    }] as EvidenceRecord[];
+    const entries = caseConversation(item, evidence, []);
+    expect(entries[0]?.safeBody).toBe("Reference R-59 · Amount USD 59.00");
+    expect(entries[0]?.safeBody).not.toContain("5900");
+  });
 });

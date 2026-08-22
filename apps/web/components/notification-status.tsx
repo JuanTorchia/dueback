@@ -20,8 +20,10 @@ export function NotificationStatus({
   return <section className="card notification-status" aria-label="Your return notification">
     <div className="eyebrow">Return notification</div>
     <h2>{presentation.copy}</h2>
-    <p>Destination: {presentation.destination}. Attempts: {presentation.attempts} of 3.</p>
-    <p>Notification delivery never changes whether the company promise has enough proof.</p>
+    {presentation.inAppOnly
+      ? <p>This case page is your return path. No email update was requested.</p>
+      : <p>Destination: {presentation.destination}. Attempts: {presentation.attempts} of 3.</p>}
+    <p>{presentation.inAppOnly ? "The proof decision is saved here." : "Notification delivery never changes whether the company promise has enough proof."}</p>
     {presentation.canRetry ? <button type="button" className="secondary" disabled={busy} onClick={() => {
       setBusy(true); setError(undefined);
       void anonymousIdToken().then((token) => fetch(`/api/cases/${caseId}/notifications/retry`, {

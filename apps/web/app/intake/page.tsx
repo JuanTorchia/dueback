@@ -1,40 +1,35 @@
 import { IntakeForm } from "../../components/intake-form";
 import { AppHeader } from "../../components/app-header";
+import { getRequestMessages } from "../../lib/i18n-server";
 
-export default function IntakePage() {
+export default async function IntakePage() {
+  const copy = (await getRequestMessages()).intake;
   return (
     <main className="shell">
       <AppHeader />
       <div className="intake-layout">
         <section className="hero">
-          <div className="eyebrow">Proof-of-done for everyday agents</div>
-          <h1>Say what needs to happen. DueBack keeps it moving.</h1>
-          <p className="lede">
-            Turn unfinished outcomes into an approved plan with boundaries, autonomous follow-up,
-            and evidence strong enough to call the work done.
-          </p>
-          <p className="trust-line">You approve the boundaries <span>•</span> Rules verify the result</p>
-          <div className="use-case-row" aria-label="DueBack use cases">
-            <span data-live="true">Company follow-up · live</span>
-            <span>Appointments · next</span>
-            <span>Documents · next</span>
+          <div className="eyebrow">{copy.eyebrow}</div><h1>{copy.title}</h1><p className="lede">{copy.lede}</p>
+          <p className="trust-line">{copy.trust} <span>•</span> {copy.rules}</p>
+          <div className="use-case-row" aria-label={copy.useCases}>
+            <span data-live="true">{copy.followup}</span><span>{copy.appointments}</span><span>{copy.documents}</span>
           </div>
           <div className="after-approval">
-            <strong>After you approve</strong>
+            <strong>{copy.after}</strong>
             <ol>
-              <li><span>1</span><p><b>DueBack contacts the counterparty</b> using the one recipient and action you approved.</p></li>
-              <li><span>2</span><p><b>It keeps the case open</b> when a reply only says “request received.”</p></li>
-              <li><span>3</span><p><b>You return only for a decision or result.</b> This demo updates the case page automatically.</p></li>
+              <li><span>1</span><p><b>{copy.contactTitle}</b> {copy.contactText}</p></li>
+              <li><span>2</span><p><b>{copy.openTitle}</b> {copy.openText}</p></li>
+              <li><span>3</span><p><b>{copy.returnTitle}</b> {copy.returnText}</p></li>
             </ol>
-            <p className="channel-disclosure"><b>Live demo:</b> the controlled HTTP adapter is the safe default. Signed-in owners may explicitly choose the allowlisted Managed Email pilot during review.</p>
+            <p className="channel-disclosure"><b>{copy.demoTitle}</b> {copy.demoText}</p>
           </div>
         </section>
         <IntakeForm />
       </div>
-      <div className="proof-strip" role="list" aria-label="DueBack principles">
-        <div role="listitem"><span>01</span><strong>Gemini understands the outcome</strong><p>Messages, screenshots, PDFs, and your own context.</p></div>
-        <div role="listitem"><span>02</span><strong>You set every boundary</strong><p>Review the action, recipient, data, contact channel, and proof first.</p></div>
-        <div role="listitem"><span>03</span><strong>Proof decides what counts</strong><p>An acknowledgement is not completion. Evidence must match.</p></div>
+      <div className="proof-strip" role="list" aria-label={copy.principles}>
+        <div role="listitem"><span>01</span><strong>{copy.geminiTitle}</strong><p>{copy.geminiText}</p></div>
+        <div role="listitem"><span>02</span><strong>{copy.boundariesTitle}</strong><p>{copy.boundariesText}</p></div>
+        <div role="listitem"><span>03</span><strong>{copy.proofTitle}</strong><p>{copy.proofText}</p></div>
       </div>
     </main>
   );

@@ -90,6 +90,15 @@ a {
   gap: 14px;
   align-items: center;
 }
+
+.language-switcher select {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  padding: 0.42rem 0.65rem;
+}
 .header-cta {
   padding: 8px 12px;
   border-radius: 999px;
@@ -1160,6 +1169,36 @@ textarea {
   font-size: 12px;
   line-height: 1.4;
 }
+.intake-ai-note {
+  margin: 8px 2px 0;
+}
+.approval-decision {
+  padding: 14px;
+  border: 2px solid var(--ink);
+  background: var(--paper-strong);
+}
+.approval-decision p {
+  margin: 6px 0 0;
+}
+.approval-details {
+  margin-top: 12px;
+}
+.approval-details > summary {
+  font-weight: 750;
+}
+.success {
+  padding: 12px;
+  border: 2px solid #15803d;
+  background: #f0fdf4;
+  color: #14532d;
+  font-weight: 700;
+}
+.retention-deadline {
+  display: block;
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.4;
+}
 .demo-warning {
   padding: 12px;
   border: 2px solid #c2410c;
@@ -1601,10 +1640,9 @@ summary {
 .preview-label {
   margin: 0;
   color: #9a3412;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
 }
 .outcome h2 {
   font-size: clamp(28px, 6vw, 46px);

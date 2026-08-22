@@ -5,19 +5,25 @@ import { useRouter } from "next/navigation";
 import { anonymousIdToken } from "../lib/firebase-client";
 import { errorCopy } from "../lib/error-copy";
 import { examplePromises } from "../lib/example-promises";
+import { getInteractiveCopy } from "../lib/interactive-copy";
+import { useLocale } from "../lib/use-locale";
 
 export function IntakeForm() {
   const router = useRouter();
+  const { locale, localize } = useLocale();
+  const copy = getInteractiveCopy(locale).intake;
   const [text, setText] = useState("");
   const [file, setFile] = useState<File>();
   const [busy, setBusy] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [error, setError] = useState<string>();
   const [hydrated, setHydrated] = useState(false);
+  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
   const examples = examplePromises();
 
   useEffect(() => {
     setHydrated(true);
+    setDeletionConfirmed(new URLSearchParams(window.location.search).get("deleted") === "1");
   }, []);
 
   useEffect(() => {
@@ -51,8 +57,8 @@ export function IntakeForm() {
       if (!response.ok || !result.caseId) throw new Error(result.error ?? "INTAKE_FAILED");
       router.push(
         result.status === "READY"
-          ? `/cases/${result.caseId}/review`
-          : `/cases/${result.caseId}/analyzing`
+          ? localize(`/cases/${result.caseId}/review`)
+          : localize(`/cases/${result.caseId}/analyzing`)
       );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "INTAKE_FAILED");
@@ -63,15 +69,15 @@ export function IntakeForm() {
   const ready = text.trim().length > 0 || file !== undefined;
   return (
     <div className="card intake-composer-card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
+      {deletionConfirmed ? <p className="success" role="status">{copy.deleted}</p> : null}
       <div className="form-heading">
-        <span>Live recipe · company follow-up</span>
-        <strong>Give DueBack the messy version.</strong>
+        <span>{copy.recipe}</span><strong>{copy.title}</strong>
       </div>
       <p className="recipe-scope">
-        Describe it, paste the message, attach the proof—or combine them. Gemini will organize it.
+        {copy.scope}
       </p>
       <div className="smart-composer">
-        <label className="composer-label" htmlFor="promise">What happened, and what are you waiting for?</label>
+        <label className="composer-label" htmlFor="promise">{copy.prompt}</label>
         <textarea
           id="promise"
           value={text}
@@ -79,12 +85,12 @@ export function IntakeForm() {
           onChange={(event) => {
             setText(event.target.value);
           }}
-          placeholder="Example: The store promised to refund $59 for order 1842 by Friday…"
+          placeholder={copy.placeholder}
           maxLength={50_000}
         />
         <div className="composer-footer">
           <div className="composer-attachment">
-            <label htmlFor="artifact">{file ? file.name : "+ Add screenshot, photo, or PDF"}</label>
+            <label htmlFor="artifact">{file ? file.name : copy.addFile}</label>
             <input
               id="artifact"
               type="file"
@@ -101,16 +107,19 @@ export function IntakeForm() {
             disabled={!ready || busy}
             onClick={() => void submit()}
           >
-            {busy ? "Working…" : "Build my plan →"}
+            {busy ? copy.working : copy.build}
           </button>
         </div>
       </div>
+      <p className="button-help intake-ai-note">
+        {copy.ai} <a href={localize("/privacy")}>{copy.data}</a>.
+      </p>
       {file ? (
-        <div className="attachment-status"><span>{(file.size / 1024 / 1024).toFixed(1)} MB · ready to analyze</span><button className="remove-file" type="button" disabled={busy} onClick={() => { setFile(undefined); }}>Remove</button></div>
+        <div className="attachment-status"><span>{(file.size / 1024 / 1024).toFixed(1)} MB · {copy.ready}</span><button className="remove-file" type="button" disabled={busy} onClick={() => { setFile(undefined); }}>{copy.remove}</button></div>
       ) : null}
-      {text.trim() && file ? <p className="combined-source">✓ Text and file will be analyzed together</p> : null}
+      {text.trim() && file ? <p className="combined-source">{copy.combined}</p> : null}
       <div className="example-picker">
-        <span>Or start with a common situation</span>
+        <span>{copy.common}</span>
         <div>
           {examples.map((example) => (
             <button key={example.label} type="button" disabled={busy} onClick={() => { setText(example.text); setError(undefined); }}>
@@ -120,41 +129,38 @@ export function IntakeForm() {
         </div>
       </div>
       <details className="mobile-after">
-        <summary>What happens after I approve?</summary>
+        <summary>{copy.after}</summary>
         <ol>
-          <li>DueBack sends the one follow-up you approved.</li>
-          <li>It rejects acknowledgements that do not prove the result.</li>
-          <li>Your durable case page records every decision and supported result.</li>
+          <li>{copy.after1}</li><li>{copy.after2}</li><li>{copy.after3}</li>
         </ol>
-        <p>The accelerated demo uses a controlled adapter. A controlled email pilot is available only for reviewed, allowlisted recipients.</p>
+        <p>{copy.adapter}</p>
       </details>
       {busy ? (
         <div className="analysis-progress">
           <div className="progress-orbit" aria-hidden="true"><span /></div>
           <div>
-            <strong>Gemini is reading your evidence</strong>
+            <strong>{copy.reading}</strong>
             <p>
               {elapsedSeconds < 15
-                ? "Extracting the outcome, responsible party, dates, and proof requirements."
+                ? copy.extracting
                 : elapsedSeconds < 30
-                  ? "Still working — complex or ambiguous evidence can take a little longer."
-                  : "This is taking longer than usual. Nothing has been sent to the company."}
+                  ? copy.complex
+                  : copy.slow}
             </p>
-            <small aria-hidden="true">{elapsedSeconds}s elapsed · usually 10–25 seconds</small>
+            <small aria-hidden="true">{elapsedSeconds}s {copy.elapsed}</small>
           </div>
         </div>
       ) : null}
       <p className="privacy">
-        DueBack processes only what you share. Raw files expire within 24 hours. No external action
-        happens before you review and activate a versioned plan. <a href="/privacy">Privacy details</a>.
+        {copy.privacy} <a href={localize("/privacy")}>{copy.privacyLink}</a>.
       </p>
       <p className="sr-status" role="status" aria-live="polite">
         {busy
           ? elapsedSeconds < 15
-            ? "Gemini is analyzing the evidence. This usually takes 10 to 25 seconds."
+            ? copy.srInitial
             : elapsedSeconds < 30
-              ? "The analysis is still working on complex or ambiguous evidence."
-              : "The analysis is taking longer than usual. Nothing has been sent to the company."
+              ? copy.srComplex
+              : copy.srSlow
           : ""}
       </p>
       {error ? (

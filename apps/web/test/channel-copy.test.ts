@@ -10,8 +10,9 @@ describe("case channel copy", () => {
 
   it("retains an explicit disclosure for the controlled sandbox", () => {
     const copy = Object.values(channelCopy(activeCaseChannel("CONTROLLED_SANDBOX"))).join(" ");
-    expect(copy).toMatch(/controlled hackathon demo/i);
-    expect(copy).toMatch(/not a real merchant/i);
+    expect(copy).toMatch(/accelerated demo/i);
+    expect(copy).toMatch(/not a real company/i);
+    expect(copy).not.toMatch(/adapter|callback/i);
   });
 
   it("fails closed to sandbox copy for legacy unknown channel records", () => {

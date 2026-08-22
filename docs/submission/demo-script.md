@@ -5,17 +5,21 @@ labeled on screen. Never call the Merchant Sandbox a real merchant.
 
 | Time      | Narration / action                                                                                                                          | Evidence visible                                                                    |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 0:00–0:20 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps a commercial promise open until there is proof.” | Mobile landing; no dashboard or empty chat                                          |
-| 0:20–0:48 | Paste the Spanish USD 79 refund fixture.                                                                                                    | Formats, privacy line, Spanish source                                               |
-| 0:48–1:12 | “Gemini 3.5 Flash extracts a typed candidate with citations. It cannot call tools or close a case.”                                         | Promise Contract, amount/reference/date, provenance, uncertainty                    |
-| 1:12–1:34 | Show the five-line approval summary, Demo API already selected, exact recipient/message/limits/proof, then approve. | Sandbox selected by default for safety and deterministic timing; managed email remains an explicit controlled-pilot choice; plan version is visible and hash stays under technical disclosure |
-| 1:34–1:52 | Close/reload the tab. Label the demo clock acceleration.                                                                                    | Cloud Task and persisted case; user is not keeping the session alive                |
-| 1:52–2:16 | Merchant Sandbox sends `REQUEST_ACKNOWLEDGED`.                                                                                              | Consumer case says `Not done — request received only`; Promised vs. Observed keeps absent facts missing |
-| 2:16–2:38 | Show one injected retry/redelivery fixture.                                                                                                 | Stable idempotency key, one merchant ledger entry, bounded retry                    |
-| 2:38–3:02 | Signed `MERCHANT_CONFIRMED` callback arrives.                                                                                               | HMAC boundary, exact case/amount/currency/reference, state `DONE`                   |
-| 3:02–3:20 | Reopen from `My follow-ups` and inspect the completion.                                                                                      | Human status/next action, notification truth, `Company confirmed`, explicit “bank settlement is not verified” limitation |
-| 3:20–3:37 | Show the hostile-source and wrong-case tests.                                                                                               | Zero unauthorized action, evidence rejection, intervention deep link                |
-| 3:37–3:50 | Open `How DueBack ran`, then show current architecture and Cloud Run revision.                                                               | Redacted persisted stages; Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks; corpus denominator |
+| 0:00–0:15 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps the promise open until there is proof.” | Mobile landing and concrete refund example                                          |
+| 0:15–0:30 | Choose Missing refund; submit the synthetic Spanish promise.                                                                                | One-click preset, privacy/retention line, Spanish source                            |
+| 0:30–0:50 | Gemini extracts the cited candidate; quickly show amount, reference, deadline and required proof.                                            | Real asynchronous analysis, provenance, uncertainty                                |
+| 0:50–1:05 | Show the compact approval summary, shared data, limits and sandbox disclosure; approve.                                                       | Exact authority before action                                                       |
+| 1:05–1:15 | Close/reload the tab. Label the accelerated demo clock.                                                                                      | Saved case; browser is not executing the workflow                                   |
+| 1:15–1:30 | Show `REQUEST_ACKNOWLEDGED` rejected.                                                                                                        | `Still working`; promised versus observed; next follow-up scheduled                 |
+| 1:30–1:45 | Show the signed confirmation and reopen from `My follow-ups`.                                                                                | `Company confirmed`, durable return path, bank-settlement limitation                |
+| 1:45–2:05 | Brief controlled-email insert.                                                                                                              | Real allowlisted delivery and signed weak-reply rejection; no arbitrary-company claim |
+| 2:05–2:25 | Show retry/deduplication and hostile/wrong-case checks.                                                                                       | One logical action, zero unauthorized completion                                   |
+| 2:25–3:18 | Open `How DueBack ran` and correlate the case to redacted Cloud evidence.                                                                     | Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks, action and evidence records       |
+| 3:18–3:40 | Show the architecture as an explanation of the completed product journey.                                                                    | Model without authority; deterministic policy/verifier; narrow action boundary      |
+| 3:40–3:50 | End card and exact limitation.                                                                                                                | Taskmaster · Individual/Hobbyist · controlled demo, not bank settlement             |
+
+The complete consumer loop must be visible by `1:45`—90 seconds after intake begins. Architecture explains the observed product
+afterward; it must not delay the first visible result.
 
 ## Required capture checklist
 

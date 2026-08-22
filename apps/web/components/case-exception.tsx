@@ -81,6 +81,7 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
       </section>
       <section className="card">
         <h2>You remain in control</h2>
+        <p>Stop prevents future actions. Delete removes this case and its nested records; actions already sent cannot be recalled.</p>
         {payload.case.state === "DONE" ? (
           <>
             <label htmlFor="reopen-reason">Why is this not resolved?</label>
@@ -109,7 +110,9 @@ export function CaseException({ caseId }: { readonly caseId: string }) {
             Stop future actions
           </button>
         )}
-        <button className="secondary" disabled={busy} onClick={() => void command("DELETE")}>
+        <button className="secondary" disabled={busy} onClick={() => {
+          if (window.confirm("Delete this case and stop all future actions? Actions already sent cannot be recalled.")) void command("DELETE");
+        }}>
           Delete this case
         </button>
         {error ? <p className="error">{error}</p> : null}

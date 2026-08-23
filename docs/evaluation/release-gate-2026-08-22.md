@@ -55,3 +55,11 @@ durable return, stale-state recovery, and intake failure recovery.
 Kimi WebBridge confirmed an authenticated YouTube Studio session for the participant-owned channel.
 Its Devpost tabs closed immediately during two attempts on this machine, so no Devpost fields were
 mutated and no submission claim is made.
+
+## Video gate closed — 2026-08-23
+
+The audited `03:30.531` English master was published at <https://youtu.be/Du5XadyAt1A>. Anonymous
+HTTP/player evidence reported the expected title, `playabilityStatus: OK`, `isPrivate: false`, a
+211-second public duration and an available 1080p representation. The public description contains
+the live app, source repository, controlled-sandbox limitation, hackathon-purpose declaration and
+`#AllThingsAgenticHackathon`. Devpost submission and its final receipt remain separate gates.

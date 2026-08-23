@@ -4,22 +4,22 @@ Complete in order. Never mark an external action complete without reopening its 
 
 ## 1. YouTube
 
-- [ ] Upload `evidence/2026-08-22/v12-final/dueback-demo-v12-final.mp4`.
-- [ ] Paste the title, description and chapters from `youtube-upload-copy.md`.
-- [ ] Select `Public`, English, Science & Technology and not made for kids.
-- [ ] Wait until `1080p` processing is available.
-- [ ] Open the public URL in a signed-out/incognito window.
-- [ ] Confirm duration `03:30`, picture, narration and burned captions.
-- [ ] Confirm the description contains the live app, repository and hackathon-purpose declaration.
-- [ ] Record the final public URL below.
+- [x] Upload `evidence/2026-08-22/v12-final/dueback-demo-v12-final.mp4`.
+- [x] Paste the title, description and chapters from `youtube-upload-copy.md`.
+- [x] Publish a non-private, publicly indexed video.
+- [x] Wait until a `1080p` format is available.
+- [x] Open the public URL without relying on the Studio session.
+- [x] Confirm duration `03:31`, playability `OK` and the audited English master.
+- [x] Confirm the description contains the live app, repository, declaration and hashtag.
+- [x] Record the final public URL below.
 
-Public video URL: `[PUBLIC_VIDEO_URL]`
+Public video URL: <https://youtu.be/Du5XadyAt1A>
 
 ## 2. Repository update
 
-- [ ] Replace `[PUBLIC_VIDEO_URL]` in `devpost-copy.md`.
-- [ ] Add the URL to the README judge-access/submission section if appropriate.
-- [ ] Mark only the now-proven video checks in `docs/hackathon/compliance-checklist.md`.
+- [x] Add the verified public video URL to `devpost-copy.md`.
+- [x] Add the URL to the README judge-access section.
+- [x] Mark only the now-proven video checks in `docs/hackathon/compliance-checklist.md`.
 - [ ] Run the repository gates and push the URL-only update.
 
 ## 3. Devpost
@@ -40,7 +40,7 @@ Public video URL: `[PUBLIC_VIDEO_URL]`
 
 ## 4. Optional bonus
 
-- [ ] Use the public YouTube video as the public-content contribution only if Devpost provides the
+- [x] Use the public YouTube video as the public-content contribution only if Devpost provides the
   corresponding field; its description contains the required hackathon-purpose declaration.
 - [ ] Publish a separate X or LinkedIn post with the exact hashtag `#AllThingsAgenticHackathon`.
 - [ ] Record both public URLs in the Devpost bonus fields and verify them signed out.
@@ -50,4 +50,3 @@ Public video URL: `[PUBLIC_VIDEO_URL]`
 - [ ] Keep the submitted video, repository and live app available and unchanged through judging.
 - [ ] If development continues, use a separate branch or fork rather than changing the submitted
   evidence unexpectedly.
-

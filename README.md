@@ -11,6 +11,7 @@ individual participant in Argentina. The project also targets the Individual/Hob
 ## Judge access
 
 - App: <https://bulbasour-503317.web.app>
+- Demo video: <https://youtu.be/Du5XadyAt1A>
 - Controlled Merchant Sandbox: <https://dueback-merchant-sandbox-5m3karqdwa-uc.a.run.app>
 - Public source: <https://github.com/JuanTorchia/dueback>
 

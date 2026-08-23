@@ -40,13 +40,13 @@ the final revision passes the deployed suite:
 
 | Field | Required value |
 |---|---|
-| Date/time UTC | Pending real rehearsal |
-| Public revision | Pending final frozen revision |
-| Actual duration | Must be `≤ 04:00` |
-| Retakes during recorded run | Must be `0` |
-| Spoken/subtitle language | English, or Spanish with complete English subtitles |
-| Visible live evidence | App, Cloud Task/runtime result, proof comparison, redacted trace, Cloud Run revision |
-| Recording URL | Pending public YouTube/Vimeo URL |
+| Date/time UTC | 2026-08-23 |
+| Public revision | `dueback-web-00070-wkz` |
+| Actual duration | `03:30.531` (`≤ 04:00`) |
+| Retakes inside critical run | `0`; approval-to-proof is one uninterrupted source take |
+| Spoken/subtitle language | English narration with burned English subtitles |
+| Visible live evidence | App, Cloud Tasks, Firestore, proof comparison, redacted trace and Cloud Run services |
+| Recording URL | <https://youtu.be/Du5XadyAt1A> |
 
 ## Optional controlled-email insert
 

@@ -43,7 +43,7 @@ Marcar únicamente con evidencia verificable.
 - [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).
 - [x] Descripción de funciones, tecnologías, datos y limitaciones. Evidencia: [README](../../README.md).
-- [ ] Video público de máximo cuatro minutos.
+- [x] Video público de máximo cuatro minutos: <https://youtu.be/Du5XadyAt1A>, `03:31` publicado.
 - [x] Video en inglés o con subtítulos en inglés. Evidencia: máster auditado de 74 cues en inglés.
 - [x] Video muestra ejecución real sin editar. Evidencia: tramo continuo `01:12–01:48` del máster.
 - [x] Video muestra resultados observables: ACK rechazado, prueba aceptada, resultado y trazas.
@@ -53,6 +53,6 @@ Marcar únicamente con evidencia verificable.
 
 ## Bonificación
 
-- [ ] Artículo, podcast o video público con la declaración exigida.
+- [x] Video público con la declaración exigida: <https://youtu.be/Du5XadyAt1A>.
 - [ ] Publicación social con `#AllThingsAgenticHackathon`.
 - [ ] Integración adicional de Google AI probada y relevante.

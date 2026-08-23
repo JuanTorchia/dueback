@@ -44,11 +44,11 @@ Marcar únicamente con evidencia verificable.
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).
 - [x] Descripción de funciones, tecnologías, datos y limitaciones. Evidencia: [README](../../README.md).
 - [ ] Video público de máximo cuatro minutos.
-- [ ] Video en inglés o con subtítulos en inglés.
-- [ ] Video muestra ejecución real sin editar.
-- [ ] Video muestra resultados observables: logs, cambios en datos o UI.
-- [ ] Video muestra evidencia de despliegue/backend en Google Cloud.
-- [ ] Si se muestra email como real, Gates A–C incluyen remitente/dominio/mailbox controlados y evidencia redactada; de otro modo el video conserva sandbox.
+- [x] Video en inglés o con subtítulos en inglés. Evidencia: máster auditado de 74 cues en inglés.
+- [x] Video muestra ejecución real sin editar. Evidencia: tramo continuo `01:12–01:48` del máster.
+- [x] Video muestra resultados observables: ACK rechazado, prueba aceptada, resultado y trazas.
+- [x] Video muestra evidencia de despliegue/backend en Google Cloud: Run, Tasks, Firestore y trazas.
+- [x] El video conserva y declara el Merchant Sandbox controlado; no presenta email como retailer real.
 - [ ] Entrega final antes del 31 de agosto, 17:00 PT.
 
 ## Bonificación

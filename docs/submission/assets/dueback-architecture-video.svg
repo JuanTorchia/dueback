@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
   <title id="title">DueBack deployed architecture and authority boundaries</title>
-  <desc id="desc">A person approves a typed contract extracted by Gemini. Firestore and Cloud Tasks preserve and resume the bounded workflow. A narrow action broker contacts a controlled merchant. Signed evidence returns to a deterministic verifier before the result is shown.</desc>
+  <desc id="desc">Gemini proposes a typed contract without action authority. A person approves its exact boundary. Firestore and Cloud Tasks preserve and resume the bounded workflow. A narrow action broker contacts a controlled merchant. Signed evidence returns to a deterministic verifier before the result is shown.</desc>
   <defs>
     <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
       <path d="M0,0 L12,6 L0,12 Z" fill="#386157"/>
@@ -27,21 +27,21 @@
   <text x="120" y="226" class="subtitle">One durable path from a messy promise to evidence strong enough to close the case.</text>
 
   <g filter="url(#shadow)">
-    <rect x="120" y="322" width="300" height="300" rx="28" fill="#fffdfa" stroke="#d8d4ca"/>
-    <rect x="470" y="322" width="300" height="300" rx="28" fill="#eff8f3" stroke="#69a891" stroke-width="2"/>
+    <rect x="120" y="322" width="300" height="300" rx="28" fill="#eff8f3" stroke="#69a891" stroke-width="2"/>
+    <rect x="470" y="322" width="300" height="300" rx="28" fill="#fffdfa" stroke="#d8d4ca"/>
     <rect x="820" y="322" width="300" height="300" rx="28" fill="#fffdfa" stroke="#d8d4ca"/>
     <rect x="1170" y="322" width="300" height="300" rx="28" fill="#fff7f1" stroke="#d47d58" stroke-width="2"/>
     <rect x="1520" y="322" width="280" height="300" rx="28" fill="#e7f6ed" stroke="#238563" stroke-width="2"/>
   </g>
 
   <g>
-    <rect x="148" y="350" width="94" height="34" rx="17" fill="#e6f3ed"/><text x="168" y="373" class="chip">PERSON</text>
-    <text x="150" y="438" class="card-title">Approve</text><text x="150" y="474" class="card-title">the boundary</text>
-    <text x="150" y="526" class="card-copy">Recipient, message,</text><text x="150" y="558" class="card-copy">shared data, attempts</text><text x="150" y="590" class="card-copy">and required proof</text>
+    <rect x="148" y="350" width="182" height="34" rx="17" fill="#d9eee4"/><text x="168" y="373" class="chip">GEMINI + GENKIT</text>
+    <text x="150" y="438" class="card-title">Propose typed</text><text x="150" y="474" class="card-title">facts</text>
+    <text x="150" y="526" class="card-copy">Extraction, citations</text><text x="150" y="558" class="card-copy">and uncertainty</text><text x="150" y="590" class="boundary">NO ACTION TOOLS</text>
 
-    <rect x="498" y="350" width="182" height="34" rx="17" fill="#d9eee4"/><text x="518" y="373" class="chip">GEMINI + GENKIT</text>
-    <text x="500" y="438" class="card-title">Propose typed</text><text x="500" y="474" class="card-title">facts</text>
-    <text x="500" y="526" class="card-copy">Extraction, citations</text><text x="500" y="558" class="card-copy">and uncertainty</text><text x="500" y="590" class="boundary">NO ACTION TOOLS</text>
+    <rect x="498" y="350" width="94" height="34" rx="17" fill="#e6f3ed"/><text x="518" y="373" class="chip">PERSON</text>
+    <text x="500" y="438" class="card-title">Approve</text><text x="500" y="474" class="card-title">the boundary</text>
+    <text x="500" y="526" class="card-copy">Recipient, message,</text><text x="500" y="558" class="card-copy">shared data, attempts</text><text x="500" y="590" class="card-copy">and required proof</text>
 
     <rect x="848" y="350" width="198" height="34" rx="17" fill="#edf0ec"/><text x="868" y="373" class="chip">FIRESTORE + TASKS</text>
     <text x="850" y="438" class="card-title">Persist and</text><text x="850" y="474" class="card-title">resume</text>

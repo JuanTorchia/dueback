@@ -1,6 +1,6 @@
 # DueBack final demo narration
 
-Status: production candidate. English source, English narration, English captions.
+Status: final approved master. English source, English narration, English captions.
 
 ## Script
 
@@ -14,8 +14,8 @@ retained for no more than twenty-four hours. Gemini has no contact tools, cannot
 and cannot decide that the case is done.
 
 Now I review what it understood. The contract requires signed company evidence for this exact
-outcome and reference. Before anything leaves DueBack, the Approval Boundary shows the recipient,
-channel, first message, shared fields, attempt limit, and return path. This accelerated route contacts
+outcome and reference. Before anything leaves DueBack, the Approval Boundary shows the exact
+recipient, channel, proof requirement, attempt limit, and authorized path. This accelerated route contacts
 only DueBack’s isolated merchant simulator. It cannot spend money, change the requested outcome, add
 new data, or contact an arbitrary company. I authorize only this versioned plan.
 
@@ -42,9 +42,9 @@ token usage, and estimated model cost. Missing telemetry would remain labeled mi
 not manufacture evidence.
 
 Here is the deployed backend on Google Cloud. Cloud Run serves the current product revision. Cloud
-Tasks provides bounded delivery and retry. Firestore persists the versioned case. Vertex AI records
-the Gemini invocation. The controlled merchant is a separately deployed Cloud Run service with a
-narrow identity and no access to Firestore, Vertex AI, or Cloud Tasks.
+Tasks provides bounded delivery and retry. Firestore persists the versioned case. The product trace
+records the Gemini invocation. The merchant simulator is a separate Cloud Run service with its own
+service account, distinct from the DueBack runtime.
 
 The architecture keeps authority and proof outside the model. Gemini and Genkit propose typed facts.
 The person approves an exact boundary. Firestore and Cloud Tasks persist and resume the work. The

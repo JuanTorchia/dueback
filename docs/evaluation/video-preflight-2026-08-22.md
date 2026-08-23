@@ -1,49 +1,63 @@
-# Final video preflight — 2026-08-22
+# Final video preflight — 2026-08-23
 
 ## Decision
 
-`NOT_READY_FOR_UPLOAD`. Product revision v12, narration and captions pass their individual gates.
-The available continuous browser take is rehearsal evidence, not the final master, because its
-source frame rate is 10 fps and it does not hold the weak acknowledgement and verified result long
-enough for a judge.
+`PASS`. Product revision v12, authentic capture sources, narration, captions and the reproducible
+1080p master passed mechanical, evidence and three independent reviewer gates. Upload remains
+intentionally separate from this decision.
+
+## Final master
+
+- File: `docs/submission/evidence/2026-08-22/v12-final/dueback-demo-v12-final.mp4`.
+- Duration: 210.531 seconds (`03:30.531`), inside the target `03:25–03:45` range and below the
+  four-minute submission limit.
+- Video: H.264, 1920×1080, constant 30 fps, 6,315 frames, `yuv420p`.
+- Audio: AAC mono, 48 kHz, measured at -17.0 LUFS integrated and -2.9 dBFS true peak.
+- Captions: 74 English cues burned from the final audio transcript, Segoe UI Semibold and opaque
+  high-contrast treatment. Dense Review and Architecture shots reserve a lower caption band.
+- SHA-256: `1eb23b84acf88a75af5e3f871c8c82c09a91824a568249969e9b5c224fa705a6`.
 
 ## Product and evidence
 
 - Public revision: `dueback-web-00070-wkz`, 100% traffic and Firebase Hosting repinned.
 - Public mobile journey: 1/1 passed in 41.6 seconds with no retries.
-- Rehearsal case: `case_49c56463-5188-441d-bb48-50f1ec35764e`, Firestore state `DONE`, version 4.
-- Redacted trace suffix `…13c3137e7555` visibly joins the approval transition, Cloud Task,
-  insufficient ACK, accepted evidence and verifier result.
-- Architecture frame is 1920×1080 and describes only implemented services and boundaries.
+- Final capture case: `case_c7d8d53a-3e13-4d6c-b27c-5f036a5021c7`, Firestore state `DONE`,
+  version 4.
+- Product master: real Windows desktop capture at 1920×1080 and nominal 30 fps; the sequence from
+  approval through insufficient acknowledgement and accepted evidence remains one uninterrupted
+  take in the final edit.
+- Google Cloud source: sanitized 25-second capture of real `gcloud` output for the live Cloud Run
+  revision, Cloud Tasks retry policy, Firestore database, product Gemini trace and both Cloud Run
+  services with distinct service accounts. No other windows, account email, billing data or
+  credentials remain in the source.
+- The redacted product trace visibly joins Gemini/Genkit, Firestore, Cloud Task, action,
+  insufficient acknowledgement, accepted evidence and notification stages.
+- Architecture frame is 1920×1080 and describes implemented services and authority boundaries.
 
 ## Narration and captions
 
-- Canonical narration: 467 words, English-only.
-- Final processed WAV: 207.831 seconds, 48 kHz mono PCM 24-bit.
-- Measured integrated loudness: -16.9 LUFS; true peak: -3.0 dBTP; LRA: 2.0 LU.
-- Captions were regenerated from the final processed audio: 104 cues, no cue text over 38
-  characters, and corrected product/technical names (`DueBack`, `Firestore`, `idempotent`).
-- The obsolete 201-word subtitle file must not be used.
+- Canonical narration: 462 words, English-only.
+- Final WAV: 207.737 seconds, 48 kHz mono PCM 24-bit; the visual result holds through 210.531.
+- The only silence longer than one second is the intentional 1.03-second pause around
+  “Acknowledgement is not proof.”
+- Captions were transcribed from the processed WAV and manually corrected for `DueBack`,
+  `Firestore`, `idempotent` and `follow-up`.
+- No music, decorative transition, generic AI imagery or stock footage is present.
 
-## Rehearsal take rejection
+## Editorial sequence
 
-- Resolution is correct at 1920×1080, but the browser recorder emits VP8 at 10 fps.
-- The 54.5-second run is continuous, but asynchronous analysis occupies too much of the visible
-  time and the result arrives too near the end.
-- Review must be presented as two intentional views: Outcome Contract, then Approval Boundary.
-- The final capture must visibly hold the acknowledgement rejection, verified verdict, bank
-  limitation and correlated trace.
-- Required final source: 1920×1080 at 30 fps from the Windows/CapCut recording path. Frame
-  interpolation of the 10 fps rehearsal is not accepted as equivalent source evidence.
+1. `00:00–00:12`: problem and concrete refund case.
+2. `00:12–00:40`: asynchronous Gemini analysis and data boundaries.
+3. `00:40–01:12`: Outcome Contract and Approval Boundary.
+4. `01:12–01:48`: uninterrupted activation, insufficient ACK and accepted proof.
+5. `01:48–02:09`: verified result and bank-settlement limitation.
+6. `02:09–02:31`: correlated product trace.
+7. `02:31–02:56`: authentic Google Cloud evidence.
+8. `02:56–03:20`: implemented architecture.
+9. `03:20–03:30.531`: return to the verified product result and sustained closing line.
 
-## Remaining hard gates
+## Independent release gate
 
-1. Capture Google Cloud proof after the account passkey: active Cloud Run revision, Cloud Tasks
-   policy, Firestore case and Vertex/Gemini invocation. A real `gcloud` capture is an evidence
-   fallback, not a fabricated console replacement.
-2. Record the product master at 30 fps with deliberate holds and no cut from approval through final
-   proof.
-3. Mount the 3:25–3:45 cut, burn the regenerated captions in Inter SemiBold and preserve visible
-   evidence.
-4. Reopen the export and audit duration, frame rate, audio, caption safe area, redactions, factual
-   claims and anonymous/public playback before upload.
+Independent UX, hackathon-judge and visual-design reviews all returned `PASS` with no P0/P1. One
+accepted P2 is documented in the final audit. Publication still requires the upload action and
+public playback verification.

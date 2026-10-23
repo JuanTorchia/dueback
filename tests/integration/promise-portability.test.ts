@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { authorizeAction } from "../../packages/domain/src/policy";
 import { reduceCase } from "../../packages/domain/src/reducer";
 import { verifyEvidence } from "../../packages/domain/src/verifier";
@@ -12,6 +12,16 @@ import {
 const fixtures = [billCreditFixture, replacementFixture] as const;
 
 describe("promise type portability", () => {
+  // reduceCase checks approval expiry against the wall clock; pin it to the scenario's timeline.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-09-01T12:01:00.000Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it.each(fixtures)(
     "$manifest.type reuses approval, policy, verification, and lifecycle semantics",
     async ({ manifest, plan, acceptedEvidence }) => {

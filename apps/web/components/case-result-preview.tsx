@@ -26,7 +26,8 @@ const previewDetail: ConsumerCaseDetail = {
     acknowledgementOnly: true,
     title: "Company confirmation verified",
     explanation: "Signed evidence matched the approved case, amount, currency, and reference.",
-    limitation: "Bank settlement is not verified. Check your payment account before treating the money as received."
+    limitation:
+      "Bank settlement is not verified. Check your payment account before treating the money as received."
   },
   conversation: [],
   comparison: [],
@@ -37,9 +38,11 @@ const previewDetail: ConsumerCaseDetail = {
 };
 
 export function CaseResultPreview() {
-  return <div className="result-grid consumer-case-detail">
-    <ResultVerdict detail={previewDetail} />
-    <CaseDecisionStory detail={previewDetail} />
-    <p className="dev-preview-note">Development-only visual preview · synthetic data</p>
-  </div>;
+  return (
+    <div className="result-grid consumer-case-detail">
+      <ResultVerdict detail={previewDetail} />
+      <CaseDecisionStory detail={previewDetail} />
+      <p className="dev-preview-note">Development-only visual preview · synthetic data</p>
+    </div>
+  );
 }

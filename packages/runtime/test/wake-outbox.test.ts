@@ -9,9 +9,9 @@ import {
 class MemoryOutbox implements WakeOutboxStore {
   readonly intents = new Map<string, WakeIntent>();
   listPending(limit: number): Promise<readonly WakeIntent[]> {
-    return Promise.resolve([...this.intents.values()]
-      .filter((intent) => intent.status === "PENDING")
-      .slice(0, limit));
+    return Promise.resolve(
+      [...this.intents.values()].filter((intent) => intent.status === "PENDING").slice(0, limit)
+    );
   }
   markDispatched(intentId: string, taskName: string, observedAt: string): Promise<void> {
     const intent = this.intents.get(intentId);
@@ -48,7 +48,8 @@ describe("durable wake outbox", () => {
       createdAt: "2026-08-18T14:00:00.000Z"
     });
     outbox.intents.set(intent.intentId, intent);
-    const scheduleCase = vi.fn()
+    const scheduleCase = vi
+      .fn()
       .mockRejectedValueOnce(new Error("QUEUE_UNAVAILABLE"))
       .mockResolvedValueOnce({ taskName: "task-recovered", duplicate: false });
     let now = "2026-08-18T14:00:01.000Z";

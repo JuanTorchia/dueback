@@ -16,16 +16,18 @@ function planService() {
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const scheduler =
     projectId && workerUrl && serviceAccountEmail
-      ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-          projectId,
-          location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
-          workerUrl,
-          serviceAccountEmail,
-          ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-            ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
-            : {})
-        }))
+      ? durableCaseScheduler(
+          new TaskScheduler(new CloudTasksClient(), {
+            projectId,
+            location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
+            queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+            workerUrl,
+            serviceAccountEmail,
+            ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+              ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+              : {})
+          })
+        )
       : undefined;
   return new PlanService(new FirestoreIntakeStore(firestore), scheduler);
 }
@@ -43,33 +45,38 @@ function isChannelAvailable(channelType: string | undefined): boolean {
       process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
     ),
     managedEmailOutbound: Boolean(
-      process.env.RESEND_API_KEY && process.env.COMPANY_EMAIL_FROM &&
+      process.env.RESEND_API_KEY &&
+      process.env.COMPANY_EMAIL_FROM &&
       process.env.COMPANY_EMAIL_REPLY_DOMAIN &&
       process.env.COMPANY_EMAIL_ALLOWED_RECIPIENT_DOMAINS
     ),
     managedEmailInbound: Boolean(
-      process.env.RESEND_API_KEY && process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
+      process.env.RESEND_API_KEY &&
+      process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
       process.env.COMPANY_EMAIL_REPLY_DOMAIN
     ),
     partnerFixtureAvailable: Boolean(
       process.env.PARTNER_FIXTURE_ENDPOINT && process.env.PARTNER_FIXTURE_SIGNING_SECRET
     )
   });
-  return capabilities.some((item) =>
-    item.channelType === channelType && item.status === "AVAILABLE" && item.canSend
+  return capabilities.some(
+    (item) => item.channelType === channelType && item.status === "AVAILABLE" && item.canSend
   );
 }
 
 function resolveChannel(channelType: string) {
-  if (channelType === "CONTROLLED_SANDBOX") return {
-    channelType,
-    allowedRecipient: process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
-    senderIdentity: "DueBack controlled demo",
-    replyRoute: "Signed callback",
-    trustedIssuer: "merchant-sandbox"
-  } as const;
+  if (channelType === "CONTROLLED_SANDBOX")
+    return {
+      channelType,
+      allowedRecipient:
+        process.env.MERCHANT_SANDBOX_RECIPIENT ?? "merchant@controlled.dueback.test",
+      senderIdentity: "DueBack controlled demo",
+      replyRoute: "Signed callback",
+      trustedIssuer: "merchant-sandbox"
+    } as const;
   if (channelType === "MANAGED_EMAIL") {
-    const recipient = process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid";
+    const recipient =
+      process.env.COMPANY_EMAIL_DEFAULT_RECIPIENT ?? "recipient-required@dueback.invalid";
     const replyDomain = process.env.COMPANY_EMAIL_REPLY_DOMAIN;
     const senderIdentity = process.env.COMPANY_EMAIL_FROM;
     if (!replyDomain || !senderIdentity) return undefined;

@@ -76,7 +76,8 @@ function evidenceResult(item: EvaluationCase): ObservedResult | undefined {
     };
   }
   const candidate = { ...refundEvidence };
-  if (["ACKNOWLEDGEMENT_ONLY", "EMAIL_ACKNOWLEDGEMENT"].includes(item.scenario)) candidate.level = "REQUEST_ACKNOWLEDGED";
+  if (["ACKNOWLEDGEMENT_ONLY", "EMAIL_ACKNOWLEDGEMENT"].includes(item.scenario))
+    candidate.level = "REQUEST_ACKNOWLEDGED";
   else if (item.scenario === "WRONG_AMOUNT") candidate.amountMinor = 1;
   else if (item.scenario === "WRONG_CURRENCY") candidate.currency = "EUR";
   else if (item.scenario === "WRONG_REFERENCE") candidate.transactionRef = "WRONG";

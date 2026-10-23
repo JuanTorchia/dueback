@@ -61,17 +61,17 @@ verifier—not the model”. Do not add, omit, paraphrase, or repeat words. No m
 
 ## Shot contract
 
-| Time        | Visual                                   | Non-negotiable evidence                                                                     |
-| ----------- | ---------------------------------------- | ------------------------------------------------------------------------------------------- |
-| 00:00–00:12 | Landing and concrete refund card         | Problem, affected person and one-line value                                                 |
-| 00:12–00:40 | English preset and asynchronous analysis | Source, Gemini stage, saved/background state                                                |
-| 00:40–01:12 | Contract and Approval Boundary           | Facts, recipient, channel, proof requirement, attempts and authorized path                  |
-| 01:12–01:48 | Continuous activation-to-result run      | Weak ACK, bounded retry and accepted proof; one uninterrupted product take                  |
-| 01:48–02:09 | Verdict and proof comparison             | Merchant-confirmed limitation, `ACK ≠ PROOF`, promised vs observed                          |
-| 02:09–02:31 | Technical trace close-up                 | Visible Genkit/Gemini, Firestore, Task, action and verifier stages                          |
-| 02:31–02:56 | Sanitized `gcloud` evidence              | Active Run revision, Tasks retry, Firestore, Gemini trace and separate service identities   |
-| 02:56–03:20 | Architecture                             | Model without authority; policy, action, state and verifier boundaries                      |
-| 03:20–03:30 | Return to verified product result        | Limitation remains visible; “Keep the proof” holds for three seconds                        |
+| Time        | Visual                                   | Non-negotiable evidence                                                                   |
+| ----------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 00:00–00:12 | Landing and concrete refund card         | Problem, affected person and one-line value                                               |
+| 00:12–00:40 | English preset and asynchronous analysis | Source, Gemini stage, saved/background state                                              |
+| 00:40–01:12 | Contract and Approval Boundary           | Facts, recipient, channel, proof requirement, attempts and authorized path                |
+| 01:12–01:48 | Continuous activation-to-result run      | Weak ACK, bounded retry and accepted proof; one uninterrupted product take                |
+| 01:48–02:09 | Verdict and proof comparison             | Merchant-confirmed limitation, `ACK ≠ PROOF`, promised vs observed                        |
+| 02:09–02:31 | Technical trace close-up                 | Visible Genkit/Gemini, Firestore, Task, action and verifier stages                        |
+| 02:31–02:56 | Sanitized `gcloud` evidence              | Active Run revision, Tasks retry, Firestore, Gemini trace and separate service identities |
+| 02:56–03:20 | Architecture                             | Model without authority; policy, action, state and verifier boundaries                    |
+| 03:20–03:30 | Return to verified product result        | Limitation remains visible; “Keep the proof” holds for three seconds                      |
 
 ## CapCut contract
 

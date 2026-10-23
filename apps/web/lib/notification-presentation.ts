@@ -14,9 +14,12 @@ export function notificationPresentation(record: NotificationRecord) {
   }[status];
   return {
     copy,
-    canRetry: !inAppOnly && ["FAILED", "UNAVAILABLE"].includes(status) && (record.attemptCount ?? 0) < 3,
+    canRetry:
+      !inAppOnly && ["FAILED", "UNAVAILABLE"].includes(status) && (record.attemptCount ?? 0) < 3,
     inAppOnly,
-    destination: record.destinationHint ?? (record.deliveryChannel === "EMAIL" ? "your verified email" : "this case"),
+    destination:
+      record.destinationHint ??
+      (record.deliveryChannel === "EMAIL" ? "your verified email" : "this case"),
     attempts: record.attemptCount ?? 0
   };
 }

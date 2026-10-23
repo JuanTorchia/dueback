@@ -10,29 +10,29 @@ individual source files.
 
 ## Mechanical gates
 
-| Gate | Result | Reproducible evidence |
-| --- | --- | --- |
-| Duration | PASS | `ffprobe`: 210.531 seconds |
-| Resolution | PASS | H.264, 1920×1080 |
-| Frame rate | PASS | `r_frame_rate` and `avg_frame_rate` are both `30/1`; 6,315 frames |
-| Playback audio | PASS | AAC mono, 48 kHz |
-| Loudness | PASS | -17.0 LUFS integrated, 2.1 LU LRA, -2.9 dBFS true peak |
-| Captions | PASS | 74 burned English cues; high-contrast box; dedicated lower band for dense evidence |
-| Duration limit | PASS | 03:30.531 is below four minutes |
+| Gate           | Result | Reproducible evidence                                                              |
+| -------------- | ------ | ---------------------------------------------------------------------------------- |
+| Duration       | PASS   | `ffprobe`: 210.531 seconds                                                         |
+| Resolution     | PASS   | H.264, 1920×1080                                                                   |
+| Frame rate     | PASS   | `r_frame_rate` and `avg_frame_rate` are both `30/1`; 6,315 frames                  |
+| Playback audio | PASS   | AAC mono, 48 kHz                                                                   |
+| Loudness       | PASS   | -17.0 LUFS integrated, 2.1 LU LRA, -2.9 dBFS true peak                             |
+| Captions       | PASS   | 74 burned English cues; high-contrast box; dedicated lower band for dense evidence |
+| Duration limit | PASS   | 03:30.531 is below four minutes                                                    |
 
 ## Evidence gates
 
-| Requirement | Result | Evidence in the final master |
-| --- | --- | --- |
-| Product is visibly demonstrated | PASS | Landing, source, analysis, contract, approval, ACK, result and trace |
-| Approval-to-proof is continuous | PASS | One source take from 01:12 through 01:48; editorial speed is constant and contains no cut |
-| ACK is not presented as completion | PASS | Insufficient reply at 01:32; accepted proof follows after the bounded retry |
-| Google Cloud deployment is visible | PASS | Cloud Run revision/image, Tasks policy, Firestore database/case and deployed-case routes at 02:31–02:56 |
-| Gemini contribution is visible | PASS | Product analysis stage and trace expose Gemini latency, tokens and estimated cost |
-| Authority boundary is clear | PASS | Exact human approval plus architecture: model proposes, person approves, deterministic policy acts and verifies |
-| Limitations are honest | PASS | Controlled merchant sandbox and unverified bank settlement are stated and shown |
-| Sensitive data is absent | PASS | Sanitized Cloud source contains no account email, billing data, tokens or unrelated windows |
-| Generic AI/stock imagery is absent | PASS | Final uses only the real product, authentic command evidence and implemented architecture |
+| Requirement                        | Result | Evidence in the final master                                                                                    |
+| ---------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------- |
+| Product is visibly demonstrated    | PASS   | Landing, source, analysis, contract, approval, ACK, result and trace                                            |
+| Approval-to-proof is continuous    | PASS   | One source take from 01:12 through 01:48; editorial speed is constant and contains no cut                       |
+| ACK is not presented as completion | PASS   | Insufficient reply at 01:32; accepted proof follows after the bounded retry                                     |
+| Google Cloud deployment is visible | PASS   | Cloud Run revision/image, Tasks policy, Firestore database/case and deployed-case routes at 02:31–02:56         |
+| Gemini contribution is visible     | PASS   | Product analysis stage and trace expose Gemini latency, tokens and estimated cost                               |
+| Authority boundary is clear        | PASS   | Exact human approval plus architecture: model proposes, person approves, deterministic policy acts and verifies |
+| Limitations are honest             | PASS   | Controlled merchant sandbox and unverified bank settlement are stated and shown                                 |
+| Sensitive data is absent           | PASS   | Sanitized Cloud source contains no account email, billing data, tokens or unrelated windows                     |
+| Generic AI/stock imagery is absent | PASS   | Final uses only the real product, authentic command evidence and implemented architecture                       |
 
 ## Timeline inspection
 

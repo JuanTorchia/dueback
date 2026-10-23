@@ -8,14 +8,16 @@ export function caseScheduler(): DurableWakeScheduler | undefined {
   const workerUrl = process.env.DUEBACK_WORKER_URL;
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   if (!projectId || !workerUrl || !serviceAccountEmail) return undefined;
-  return durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-    projectId,
-    location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
-    workerUrl,
-    serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
-      : {})
-  }));
+  return durableCaseScheduler(
+    new TaskScheduler(new CloudTasksClient(), {
+      projectId,
+      location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
+      queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+      workerUrl,
+      serviceAccountEmail,
+      ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+        ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+        : {})
+    })
+  );
 }

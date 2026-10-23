@@ -8,7 +8,7 @@ Marcar únicamente con evidencia verificable.
 - [x] Edad declarada: 36 años; cumple el requisito de mayoría de edad.
 - [x] Se confirmó que no se participa mediante una empresa constituida; Startup Excellence queda descartado.
 - [x] El participante confirmó el 18 de agosto de 2026 que no está alcanzado por sanciones ni
-  conflictos de interés indicados en las reglas.
+      conflictos de interés indicados en las reglas.
 - [x] El participante está registrado en Devpost y unido al hackathon; Devpost mostró confirmación el 15 de agosto de 2026.
 - [x] Se decidió participación individual; no se requiere representante de equipo.
 - [x] Se solicitó crédito de Google Cloud el 15 de agosto de 2026; Google Forms confirmó la recepción. Pendiente de aprobación, con hasta 72 horas hábiles de procesamiento.
@@ -25,9 +25,9 @@ Marcar únicamente con evidencia verificable.
 - [x] Tiene estado y recuperación ante fallos demostrable. Evidencia: [pruebas de durabilidad](../../tests/integration/durable-follow-through.test.ts).
 - [x] Los canales declaran capacidades y salud reales; uno no disponible no puede aprobarse. Evidencia: `channel-registry.test.ts`, `plan-controller.test.ts` y `channel-plan.spec.ts`.
 - [x] Email administrado tiene envío controlado real, webhook firmado, procesamiento inbound y
-  rechazo false-DONE. No se afirma soporte arbitrario ni resolución del resultado. Evidencia:
-  `email-webhook.test.ts`, `email-inbound.test.ts`, `deployed-managed-email.spec.ts` y el registro
-  redactado en `docs/evaluation/reproducibility.md`.
+      rechazo false-DONE. No se afirma soporte arbitrario ni resolución del resultado. Evidencia:
+      `email-webhook.test.ts`, `email-inbound.test.ts`, `deployed-managed-email.spec.ts` y el registro
+      redactado en `docs/evaluation/reproducibility.md`.
 - [x] APIs, datos y activos implementados tienen autorización/licencia documentada. Evidencia: [registro](../compliance/dependencies.md).
 - [x] Funciona en inglés como mínimo y procesa un fixture español. Evidencia: [fixtures](../../packages/test-fixtures/src/promises.ts).
 
@@ -36,9 +36,9 @@ Marcar únicamente con evidencia verificable.
 - [x] Aplicación alojada e instrucciones de acceso para jueces. Evidencia: [README](../../README.md#judge-access).
 - [x] Acceso gratuito sin credenciales pagas ni datos personales; se mantendrá disponible durante la evaluación. Evidencia: URL pública y Firebase anonymous en [README](../../README.md#judge-access).
 - [x] Recuperación Google desplegada y verificada manualmente el 18 de agosto de 2026: el
-  propietario `j.s.torchia@gmail.com` creó y activó un caso en su navegador habitual y recuperó el
-  mismo caso desde una ventana de incógnito tras autenticarse nuevamente. Evidencia redactada en
-  `docs/evaluation/reproducibility.md`.
+      propietario `j.s.torchia@gmail.com` creó y activó un caso en su navegador habitual y recuperó el
+      mismo caso desde una ventana de incógnito tras autenticarse nuevamente. Evidencia redactada en
+      `docs/evaluation/reproducibility.md`.
 - [x] Repositorio público accesible para los jueces: <https://github.com/JuanTorchia/dueback>.
 - [x] README con instalación y ejecución reproducibles. Evidencia: [README](../../README.md#local-setup).
 - [x] Diagrama de arquitectura actualizado. Evidencia: [arquitectura](../architecture/dueback.md).

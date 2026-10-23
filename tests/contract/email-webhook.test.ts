@@ -26,15 +26,22 @@ describe("email webhook contract", () => {
       reserveProviderEvent: vi.fn(() => Promise.resolve("RESERVED" as const)),
       markProviderEvent: vi.fn(() => Promise.resolve())
     };
-    const scheduler = { scheduleInbound: vi.fn(() => Promise.resolve({ taskName: "task", duplicate: false })) };
+    const scheduler = {
+      scheduleInbound: vi.fn(() => Promise.resolve({ taskName: "task", duplicate: false }))
+    };
     const response = await handleEmailWebhook(request(body), {
-      secret, now: () => now, events, scheduler
+      secret,
+      now: () => now,
+      events,
+      scheduler
     });
     expect(response.status).toBe(202);
-    expect(events.reserveProviderEvent).toHaveBeenCalledWith(expect.objectContaining({
-      providerEventId: "provider_event_12345678",
-      eventType: "email.received"
-    }));
+    expect(events.reserveProviderEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        providerEventId: "provider_event_12345678",
+        eventType: "email.received"
+      })
+    );
     expect(scheduler.scheduleInbound).toHaveBeenCalledOnce();
   });
 
@@ -44,7 +51,10 @@ describe("email webhook contract", () => {
     const events = { reserveProviderEvent: vi.fn(), markProviderEvent: vi.fn() };
     const scheduler = { scheduleInbound: vi.fn() };
     const response = await handleEmailWebhook(request(changed, original), {
-      secret, now: () => now, events, scheduler
+      secret,
+      now: () => now,
+      events,
+      scheduler
     });
     expect(response.status).toBe(401);
     expect(events.reserveProviderEvent).not.toHaveBeenCalled();

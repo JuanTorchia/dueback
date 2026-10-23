@@ -115,7 +115,19 @@ components:
       properties:
         caseId: { type: string }
         state: { enum: [ANALYZING, AWAITING_APPROVAL, CANCELLED, FAILED] }
-        stage: { enum: [EVIDENCE_SECURED, EXTRACTION_RUNNING, VALIDATING, REVIEW_READY, RETRY_PENDING, FAILED, CANCELLED] }
+        stage:
+          {
+            enum:
+              [
+                EVIDENCE_SECURED,
+                EXTRACTION_RUNNING,
+                VALIDATING,
+                REVIEW_READY,
+                RETRY_PENDING,
+                FAILED,
+                CANCELLED
+              ]
+          }
         attemptCount: { type: integer, minimum: 0, maximum: 4 }
         updatedAt: { type: string, format: date-time }
         retryAt: { type: string, format: date-time }

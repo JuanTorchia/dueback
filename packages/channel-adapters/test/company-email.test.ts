@@ -15,7 +15,9 @@ describe("company email action adapter", () => {
     const request = vi.fn((input: string | URL | Request, init?: RequestInit) => {
       void input;
       void init;
-      return Promise.resolve(new Response(JSON.stringify({ id: "email_12345678" }), { status: 200 }));
+      return Promise.resolve(
+        new Response(JSON.stringify({ id: "email_12345678" }), { status: 200 })
+      );
     });
     const adapter = new CompanyEmailActionAdapter({
       apiKey: "test-key",
@@ -23,18 +25,21 @@ describe("company email action adapter", () => {
       replyDomain: "inbound.example.com",
       request
     });
-    await expect(adapter.execute(proposal, "action/case-79/1", { caseId: "case_12345678" }))
-      .resolves.toMatchObject({ receiptId: "email_12345678" });
+    await expect(
+      adapter.execute(proposal, "action/case-79/1", { caseId: "case_12345678" })
+    ).resolves.toMatchObject({ receiptId: "email_12345678" });
     expect(request).toHaveBeenCalledOnce();
     const [, init] = request.mock.calls[0] ?? [];
     expect(init?.headers).toMatchObject({ "idempotency-key": "action/case-79/1" });
     expect(typeof init?.body).toBe("string");
-    const body = typeof init?.body === "string" ? JSON.parse(init.body) as unknown : {};
+    const body = typeof init?.body === "string" ? (JSON.parse(init.body) as unknown) : {};
     expect(body).toMatchObject({
       to: ["support@example.com"],
       subject: "Follow-up for ORDER-79"
     });
-    expect((body as { reply_to?: string }).reply_to).toMatch(/^case\+[a-f0-9]{32}@inbound\.example\.com$/);
+    expect((body as { reply_to?: string }).reply_to).toMatch(
+      /^case\+[a-f0-9]{32}@inbound\.example\.com$/
+    );
   });
 
   it("rejects a non-email recipient before calling the provider", async () => {
@@ -43,9 +48,17 @@ describe("company email action adapter", () => {
       void init;
       return Promise.resolve(new Response(null, { status: 500 }));
     });
-    const adapter = new CompanyEmailActionAdapter({ apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com", request });
-    await expect(adapter.execute({ ...proposal, recipient: "not-an-email" }, "key", { caseId: "case_12345678" }))
-      .rejects.toThrow("COMPANY_EMAIL_RECIPIENT_INVALID");
+    const adapter = new CompanyEmailActionAdapter({
+      apiKey: "test-key",
+      from: "a@example.com",
+      replyDomain: "inbound.example.com",
+      request
+    });
+    await expect(
+      adapter.execute({ ...proposal, recipient: "not-an-email" }, "key", {
+        caseId: "case_12345678"
+      })
+    ).rejects.toThrow("COMPANY_EMAIL_RECIPIENT_INVALID");
     expect(request).not.toHaveBeenCalled();
   });
 
@@ -56,22 +69,29 @@ describe("company email action adapter", () => {
       replyDomain: "inbound.example.com",
       request: () => Promise.resolve(new Response(null, { status }))
     });
-    await expect(adapter.execute(proposal, "key", { caseId: "case_12345678" }))
-      .rejects.toThrow(`COMPANY_EMAIL_TRANSPORT_${String(status)}`);
+    await expect(adapter.execute(proposal, "key", { caseId: "case_12345678" })).rejects.toThrow(
+      `COMPANY_EMAIL_TRANSPORT_${String(status)}`
+    );
   });
 
   it("marks network and missing-receipt outcomes as uncertain", async () => {
     const networkFailure = new CompanyEmailActionAdapter({
-      apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
+      apiKey: "test-key",
+      from: "a@example.com",
+      replyDomain: "inbound.example.com",
       request: () => Promise.reject(new Error("socket closed"))
     });
-    await expect(networkFailure.execute(proposal, "key", { caseId: "case_12345678" }))
-      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+    await expect(
+      networkFailure.execute(proposal, "key", { caseId: "case_12345678" })
+    ).rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
     const missingReceipt = new CompanyEmailActionAdapter({
-      apiKey: "test-key", from: "a@example.com", replyDomain: "inbound.example.com",
+      apiKey: "test-key",
+      from: "a@example.com",
+      replyDomain: "inbound.example.com",
       request: () => Promise.resolve(new Response("{}"))
     });
-    await expect(missingReceipt.execute(proposal, "key", { caseId: "case_12345678" }))
-      .rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
+    await expect(
+      missingReceipt.execute(proposal, "key", { caseId: "case_12345678" })
+    ).rejects.toMatchObject({ name: "ActionOutcomeUnknownError" });
   });
 });

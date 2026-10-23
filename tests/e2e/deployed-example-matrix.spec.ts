@@ -29,9 +29,11 @@ test.describe("deployed visible example matrix", () => {
       await page.getByRole("checkbox", { name: /authorized to contact/ }).check();
       await page.getByRole("button", { name: "Approve and start follow-up" }).click();
       await expect(page).toHaveURL(/\/cases\/case_[^/]+\/result/);
-      await expect(page.getByRole("heading", {
-        name: /Company confirmed the refund instruction|Company confirmed the promised outcome/
-      })).toBeVisible({ timeout: 75_000 });
+      await expect(
+        page.getByRole("heading", {
+          name: /Company confirmed the refund instruction|Company confirmed the promised outcome/
+        })
+      ).toBeVisible({ timeout: 75_000 });
       await expect(page.getByText(/not verified/i).first()).toBeVisible();
     });
   }

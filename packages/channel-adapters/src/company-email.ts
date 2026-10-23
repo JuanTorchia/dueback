@@ -17,9 +17,8 @@ function messageFor(proposal: ProposedAction, caseId: string) {
   const reference = proposal.sharedFields.transactionRef ?? caseId;
   const amount = proposal.sharedFields.amountMinor;
   const currency = proposal.sharedFields.currency;
-  const amountLine = amount && currency
-    ? `Amount: ${currency} ${(Number(amount) / 100).toFixed(2)}\n`
-    : "";
+  const amountLine =
+    amount && currency ? `Amount: ${currency} ${(Number(amount) / 100).toFixed(2)}\n` : "";
   return {
     subject: `Follow-up for ${reference}`,
     text: [
@@ -32,7 +31,9 @@ function messageFor(proposal: ProposedAction, caseId: string) {
       "An acknowledgement that the request was received will not be treated as completion.",
       "",
       `DueBack case: ${caseId}`
-    ].filter(Boolean).join("\n")
+    ]
+      .filter(Boolean)
+      .join("\n")
   };
 }
 
@@ -51,9 +52,10 @@ export class CompanyEmailActionAdapter implements ClosedActionAdapter {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proposal.recipient)) {
       throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
     }
-    const message = proposal.subject && proposal.body
-      ? { subject: proposal.subject, text: proposal.body }
-      : messageFor(proposal, context.caseId);
+    const message =
+      proposal.subject && proposal.body
+        ? { subject: proposal.subject, text: proposal.body }
+        : messageFor(proposal, context.caseId);
     const routeToken = stableHash({
       namespace: "dueback/email-reply-route/v1",
       caseId: context.caseId,

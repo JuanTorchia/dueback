@@ -8,7 +8,14 @@ const basePlan = {
   allowedActions: ["SEND_FOLLOW_UP"],
   allowedRecipient: "merchant@controlled.example",
   sharedFields: ["transactionRef", "amountMinor", "currency"],
-  evidenceRequirements: [{ minimumLevel: "MERCHANT_CONFIRMED", transactionRef: "R-59", amountMinor: 5900, currency: "USD" }],
+  evidenceRequirements: [
+    {
+      minimumLevel: "MERCHANT_CONFIRMED",
+      transactionRef: "R-59",
+      amountMinor: 5900,
+      currency: "USD"
+    }
+  ],
   expiresAt: "2026-09-01T00:00:00.000Z",
   planHash: `sha256:${"a".repeat(64)}`,
   messageBody: "Private approved message body that must not reach the consumer projection"

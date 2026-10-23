@@ -29,7 +29,11 @@ describe("case control isolation", () => {
     const response = await handleCaseControl(
       new Request("https://dueback.test/api/cases/case_victim_1234/control", {
         method: "POST",
-        body: JSON.stringify({ action: "DELETE", expectedVersion: 2, idempotencyKey: "isolation-command-1234" })
+        body: JSON.stringify({
+          action: "DELETE",
+          expectedVersion: 2,
+          idempotencyKey: "isolation-command-1234"
+        })
       }),
       "case_victim_1234",
       {

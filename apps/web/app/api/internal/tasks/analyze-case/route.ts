@@ -31,9 +31,10 @@ function intakeService(
         try {
           const result = await extractPromiseWithMetricsFlow({
             artifactId: artifact.artifactId,
-            source: typeof artifact.content === "string"
-              ? { kind: "text", content: artifact.content }
-              : { kind: "media", ...artifact.content }
+            source:
+              typeof artifact.content === "string"
+                ? { kind: "text", content: artifact.content }
+                : { kind: "media", ...artifact.content }
           });
           await recordModelCallOutcome(firestore, budgetKey, {
             latencyMs: performance.now() - started,

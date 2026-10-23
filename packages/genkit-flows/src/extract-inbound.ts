@@ -25,7 +25,10 @@ export const inboundInterpretationSchema = z.object({
   ]),
   transactionRef: z.string().max(200).optional(),
   amountMinor: z.number().int().nonnegative().optional(),
-  currency: z.string().regex(/^[A-Z]{3}$/).optional(),
+  currency: z
+    .string()
+    .regex(/^[A-Z]{3}$/)
+    .optional(),
   subject: z.string().max(300).optional(),
   billPeriod: z.string().max(100).optional(),
   trackingNumber: z.string().max(200).optional(),
@@ -66,7 +69,9 @@ export async function extractInboundWithGateway(
   return parsed;
 }
 
-const ai = genkit({ plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })] });
+const ai = genkit({
+  plugins: [vertexAI({ location: process.env.GOOGLE_CLOUD_LOCATION ?? "global" })]
+});
 const gateway: InboundModelGateway = {
   async generate(input) {
     const response = await ai.generate({
@@ -81,6 +86,10 @@ const gateway: InboundModelGateway = {
 };
 
 export const extractInboundFlow = ai.defineFlow(
-  { name: "extractInbound", inputSchema: inboundExtractionInputSchema, outputSchema: inboundInterpretationSchema },
+  {
+    name: "extractInbound",
+    inputSchema: inboundExtractionInputSchema,
+    outputSchema: inboundInterpretationSchema
+  },
   async (input) => extractInboundWithGateway(gateway, input)
 );

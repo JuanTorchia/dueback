@@ -246,7 +246,7 @@
   `Proof of Done` y Taskmaster, pero separa explícitamente `Accelerated Demo` de
   `Controlled Real Pilot`. La prioridad P1 es completar durante una sesión el circuito editable y
   durable `intake → aprobación → acción → evidencia insuficiente → retry/dedupe → prueba aceptada →
-  retorno`, con timeline y evidencia técnica visibles.
+retorno`, con timeline y evidencia técnica visibles.
 - Bloqueo de seguridad: antes de habilitar email se elimina cualquier copia de valores esperados
   del plan hacia evidencia inbound ausente. La firma del proveedor, la identidad de contraparte y la
   suficiencia de la prueba se evalúan como propiedades separadas y fail-closed.
@@ -348,7 +348,7 @@
 - Decisión: no ampliar recetas ni canales antes del video. DueBack se presenta como producto
   consumer de seguimiento respaldado por un runtime reusable de Proof of Done. La entrega demuestra
   profundamente una receta, separando el `Accelerated proof demo` reproducible del `Controlled email
-  pilot` real pero restringido; no afirma conectividad universal ni liquidación bancaria.
+pilot` real pero restringido; no afirma conectividad universal ni liquidación bancaria.
 - Seguridad: todos los workers públicos de Cloud Tasks validan firma OIDC, audience y service account
   exacto. El header de nombre de tarea queda reducido a metadata y nunca concede autoridad.
 - Gemini: conserva interpretación multimodal, provenance, incertidumbre y contenido inbound sin

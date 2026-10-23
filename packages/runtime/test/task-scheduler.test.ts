@@ -38,20 +38,24 @@ describe("TaskScheduler", () => {
       inboundWorkerUrl: "https://dueback.test/api/internal/tasks/process-inbound",
       serviceAccountEmail: "tasks@demo.iam.gserviceaccount.com"
     });
-    await expect(scheduler.scheduleInbound({
-      providerEventId: "event_123",
-      providerEmailId: "email_123",
-      eventType: "email.received",
-      wakeAt: "2026-08-16T00:00:00.000Z"
-    })).resolves.toMatchObject({ duplicate: true });
+    await expect(
+      scheduler.scheduleInbound({
+        providerEventId: "event_123",
+        providerEmailId: "email_123",
+        eventType: "email.received",
+        wakeAt: "2026-08-16T00:00:00.000Z"
+      })
+    ).resolves.toMatchObject({ duplicate: true });
   });
 
   it("never schedules a fractional wake before its approved instant", async () => {
     let scheduledSeconds: number | undefined;
-    const createTask = vi.fn((input: { task: { scheduleTime?: { seconds?: number | string | null } } }) => {
-      scheduledSeconds = Number(input.task.scheduleTime?.seconds);
-      return Promise.resolve([{ name: "task" }]);
-    });
+    const createTask = vi.fn(
+      (input: { task: { scheduleTime?: { seconds?: number | string | null } } }) => {
+        scheduledSeconds = Number(input.task.scheduleTime?.seconds);
+        return Promise.resolve([{ name: "task" }]);
+      }
+    );
     const client = {
       queuePath: () => "projects/demo/locations/us-central1/queues/cases",
       createTask
@@ -74,17 +78,19 @@ describe("TaskScheduler", () => {
   it("pins the OIDC audience independently from the worker path", async () => {
     let observedAudience: string | null | undefined;
     let observedServiceAccount: string | null | undefined;
-    const createTask = vi.fn((input: {
-      task: {
-        httpRequest?: {
-          oidcToken?: { audience?: string | null; serviceAccountEmail?: string | null } | null;
-        } | null;
-      };
-    }) => {
-      observedAudience = input.task.httpRequest?.oidcToken?.audience;
-      observedServiceAccount = input.task.httpRequest?.oidcToken?.serviceAccountEmail;
-      return Promise.resolve([{ name: "task" }]);
-    });
+    const createTask = vi.fn(
+      (input: {
+        task: {
+          httpRequest?: {
+            oidcToken?: { audience?: string | null; serviceAccountEmail?: string | null } | null;
+          } | null;
+        };
+      }) => {
+        observedAudience = input.task.httpRequest?.oidcToken?.audience;
+        observedServiceAccount = input.task.httpRequest?.oidcToken?.serviceAccountEmail;
+        return Promise.resolve([{ name: "task" }]);
+      }
+    );
     const client = {
       queuePath: () => "projects/demo/locations/us-central1/queues/cases",
       createTask

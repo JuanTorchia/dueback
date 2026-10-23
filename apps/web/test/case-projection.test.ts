@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { managedEmailProjectionFixture, sandboxProjectionFixture, weakAcknowledgementFixture } from "@dueback/test-fixtures/case-projections";
+import {
+  managedEmailProjectionFixture,
+  sandboxProjectionFixture,
+  weakAcknowledgementFixture
+} from "@dueback/test-fixtures/case-projections";
 import { projectConsumerCase } from "../lib/case-projection";
 import type { FollowThroughCase } from "@dueback/runtime/case-runner";
 import type { EvidenceRecord } from "@dueback/runtime/evidence-service";
@@ -10,7 +14,17 @@ const acknowledgement = weakAcknowledgementFixture as unknown as EvidenceRecord;
 
 describe("consumer case projection", () => {
   it("uses managed-email copy without sandbox claims", () => {
-    const detail = projectConsumerCase({ item: managed, evidence: [acknowledgement], channelEvents: [{ channelType: "MANAGED_EMAIL", transportStatus: "DELIVERED", acceptedAt: "2026-08-17T10:00:00.000Z" }] });
+    const detail = projectConsumerCase({
+      item: managed,
+      evidence: [acknowledgement],
+      channelEvents: [
+        {
+          channelType: "MANAGED_EMAIL",
+          transportStatus: "DELIVERED",
+          acceptedAt: "2026-08-17T10:00:00.000Z"
+        }
+      ]
+    });
     expect(detail.channel.label).toBe("Email");
     expect(JSON.stringify(detail)).not.toMatch(/merchant sandbox|signed callback/i);
     expect(detail.nextAction).toMatch(/Not done/i);
@@ -37,6 +51,9 @@ describe("consumer case projection", () => {
     expect(detail.counterpartyName).toBe("Northstar Store");
     expect(detail.nextAction).toMatch(/Another approved follow-up is scheduled/i);
     expect(detail.conversation.at(-1)?.safeBody).toBe("Reference R-59");
-    expect(detail.comparison.find((row) => row.label === "Amount")).toMatchObject({ observed: "Not stated in the reply", status: "MISSING" });
+    expect(detail.comparison.find((row) => row.label === "Amount")).toMatchObject({
+      observed: "Not stated in the reply",
+      status: "MISSING"
+    });
   });
 });

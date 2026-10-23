@@ -9,7 +9,12 @@ export interface NormalizedInboundEmail {
   readonly messageId?: string;
   readonly inReplyTo?: string;
   readonly contentHash: string;
-  readonly attachments: readonly { id: string; filename: string; contentType: string; size: number }[];
+  readonly attachments: readonly {
+    id: string;
+    filename: string;
+    contentType: string;
+    size: number;
+  }[];
 }
 
 export class ResendInboundEmailAdapter {
@@ -19,7 +24,8 @@ export class ResendInboundEmailAdapter {
   ) {}
 
   async retrieve(providerEmailId: string): Promise<NormalizedInboundEmail> {
-    if (!/^[a-zA-Z0-9_-]{3,200}$/.test(providerEmailId)) throw new Error("INBOUND_EMAIL_ID_INVALID");
+    if (!/^[a-zA-Z0-9_-]{3,200}$/.test(providerEmailId))
+      throw new Error("INBOUND_EMAIL_ID_INVALID");
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       controller.abort();
@@ -30,7 +36,7 @@ export class ResendInboundEmailAdapter {
         { headers: { authorization: `Bearer ${this.apiKey}` }, signal: controller.signal }
       );
       if (!response.ok) throw new Error(`INBOUND_EMAIL_TRANSPORT_${String(response.status)}`);
-      const value = await response.json() as {
+      const value = (await response.json()) as {
         from?: string;
         to?: string[];
         subject?: string;
@@ -52,13 +58,18 @@ export class ResendInboundEmailAdapter {
         to: value.to.slice(0, 10).map((recipient) => recipient.slice(0, 320)),
         subject: (value.subject ?? "(no subject)").slice(0, 300),
         text,
-        ...(value.headers?.["message-id"] ? { messageId: value.headers["message-id"].slice(0, 500) } : {}),
-        ...(value.headers?.["in-reply-to"] ? { inReplyTo: value.headers["in-reply-to"].slice(0, 500) } : {}),
+        ...(value.headers?.["message-id"]
+          ? { messageId: value.headers["message-id"].slice(0, 500) }
+          : {}),
+        ...(value.headers?.["in-reply-to"]
+          ? { inReplyTo: value.headers["in-reply-to"].slice(0, 500) }
+          : {}),
         contentHash: stableHash({ from: value.from, to: value.to, subject: value.subject, text }),
         attachments
       };
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") throw new Error("INBOUND_EMAIL_TIMEOUT");
+      if (error instanceof Error && error.name === "AbortError")
+        throw new Error("INBOUND_EMAIL_TIMEOUT");
       throw error;
     } finally {
       clearTimeout(timeout);

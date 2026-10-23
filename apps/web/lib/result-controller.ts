@@ -10,12 +10,14 @@ export interface CaseResultStore {
   listInterventions?(caseId: string): Promise<readonly InterventionRecord[]>;
   listEvents?(caseId: string): Promise<readonly RuntimeTimelineEvent[]>;
   listNotifications?(caseId: string): Promise<readonly NotificationRecord[]>;
-  listChannelEvents?(caseId: string): Promise<readonly {
-    channelType: string;
-    transportStatus: string;
-    acceptedAt: string;
-    observedAt?: string;
-  }[]>;
+  listChannelEvents?(caseId: string): Promise<
+    readonly {
+      channelType: string;
+      transportStatus: string;
+      acceptedAt: string;
+      observedAt?: string;
+    }[]
+  >;
 }
 
 export async function handleCaseResult(
@@ -30,7 +32,8 @@ export async function handleCaseResult(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(caseId);
-    if (!item) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
+    if (!item)
+      return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     if (item.ownerId !== owner.uid)
       return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
     const [evidence, interventions, events, notifications, channelEvents] = await Promise.all([

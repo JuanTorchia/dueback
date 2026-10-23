@@ -5,12 +5,10 @@ function humanSummary(event: RuntimeTimelineEvent, channel: ActiveCaseChannel): 
   const copy = channelCopy(channel);
   if (event.reasonCodes.includes("CURRENT_PLAN_VERSION_APPROVED"))
     return "You approved this exact version before DueBack acted.";
-  if (event.reasonCodes.includes("ACTION_ACCEPTED"))
-    return copy.actionSummary;
+  if (event.reasonCodes.includes("ACTION_ACCEPTED")) return copy.actionSummary;
   if (event.reasonCodes.includes("INSUFFICIENT_LEVEL"))
     return "Not enough: this reply only acknowledged the request, so the case stayed open.";
-  if (event.reasonCodes.includes("ACCEPTED"))
-    return copy.acceptedEvidence;
+  if (event.reasonCodes.includes("ACCEPTED")) return copy.acceptedEvidence;
   return "DueBack recorded this step without changing the approved limits.";
 }
 

@@ -17,8 +17,12 @@ export async function handleCaseControl(
       reason?: string;
       idempotencyKey?: string;
     };
-    if (!body.action || !Number.isInteger(body.expectedVersion) ||
-      !body.idempotencyKey || !/^[A-Za-z0-9_-]{16,200}$/.test(body.idempotencyKey)) {
+    if (
+      !body.action ||
+      !Number.isInteger(body.expectedVersion) ||
+      !body.idempotencyKey ||
+      !/^[A-Za-z0-9_-]{16,200}$/.test(body.idempotencyKey)
+    ) {
       return Response.json({ error: "INVALID_CONTROL_COMMAND" }, { status: 400 });
     }
     const result = await dependencies.service.command({

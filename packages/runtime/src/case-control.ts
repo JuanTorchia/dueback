@@ -2,7 +2,14 @@ import type { FollowThroughCase } from "./case-runner";
 import { stableHash } from "@dueback/domain";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
-export type CaseControlAction = "STOP" | "REVOKE" | "EXPIRE" | "REOPEN" | "RESUME" | "REVISE" | "DELETE";
+export type CaseControlAction =
+  | "STOP"
+  | "REVOKE"
+  | "EXPIRE"
+  | "REOPEN"
+  | "RESUME"
+  | "REVISE"
+  | "DELETE";
 
 export interface ControlScheduler {
   scheduleCase(input: {
@@ -70,16 +77,21 @@ export class CaseControlService {
     now: string;
     idempotencyKey?: string;
   }): Promise<FollowThroughCase | DeletionReceipt> {
-    const idempotencyKey = input.idempotencyKey ?? stableHash({
-      namespace: "dueback/case-control/v1",
+    const idempotencyKey =
+      input.idempotencyKey ??
+      stableHash({
+        namespace: "dueback/case-control/v1",
+        caseId: input.caseId,
+        ownerId: input.ownerId,
+        expectedVersion: input.expectedVersion,
+        action: input.action,
+        reason: input.reason?.trim() ?? ""
+      });
+    const prior = await this.store.getCommandResult?.({
+      idempotencyKey,
       caseId: input.caseId,
       ownerId: input.ownerId,
-      expectedVersion: input.expectedVersion,
-      action: input.action,
-      reason: input.reason?.trim() ?? ""
-    });
-    const prior = await this.store.getCommandResult?.({
-      idempotencyKey, caseId: input.caseId, ownerId: input.ownerId, action: input.action
+      action: input.action
     });
     if (prior) {
       if (input.action === "RESUME" && "state" in prior) {
@@ -127,13 +139,16 @@ export class CaseControlService {
     }
     if (input.action === "REOPEN" && !input.reason?.trim())
       throw new Error("REOPEN_REASON_REQUIRED");
-    const wake = input.action === "RESUME" ? wakeIntent({
-      caseId: input.caseId,
-      expectedVersion: input.expectedVersion + 1,
-      wakeAt: input.now,
-      createdAt: input.now,
-      ...(item.correlationId ? { correlationId: item.correlationId } : {})
-    }) : undefined;
+    const wake =
+      input.action === "RESUME"
+        ? wakeIntent({
+            caseId: input.caseId,
+            expectedVersion: input.expectedVersion + 1,
+            wakeAt: input.now,
+            createdAt: input.now,
+            ...(item.correlationId ? { correlationId: item.correlationId } : {})
+          })
+        : undefined;
     const next = await this.store.transition({
       caseId: input.caseId,
       ownerId: input.ownerId,

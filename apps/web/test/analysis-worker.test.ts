@@ -70,13 +70,16 @@ describe("analysis worker", () => {
         read: () => Promise.resolve(new TextEncoder().encode("A bounded company promise")),
         delete: remove
       },
-      service: () => ({ intake } as never),
+      service: () => ({ intake }) as never,
       now: () => "2026-08-18T12:00:02.000Z",
       identityVerifier: verified
     });
     expect(response.status).toBe(200);
     expect(markAttemptFailed).not.toHaveBeenCalled();
-    expect(intake).toHaveBeenCalledWith(expect.objectContaining({ caseId: job.caseId }), job.createdAt);
+    expect(intake).toHaveBeenCalledWith(
+      expect.objectContaining({ caseId: job.caseId }),
+      job.createdAt
+    );
     expect(markReady).toHaveBeenCalledWith(job.jobId, "2026-08-18T12:00:02.000Z");
     expect(remove).toHaveBeenCalledWith(job.artifactPath);
   });

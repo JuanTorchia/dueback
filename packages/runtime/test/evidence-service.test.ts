@@ -76,29 +76,24 @@ describe("EvidenceService", () => {
       wakeAt: string;
       correlationId?: string;
     }> = [];
-    const scheduleCase = (input: typeof scheduled[number]): Promise<unknown> => {
+    const scheduleCase = (input: (typeof scheduled)[number]): Promise<unknown> => {
       scheduled.push(input);
       return Promise.resolve({});
     };
-    const result = await new EvidenceService(
-      cases,
-      notifications,
-      undefined,
-      undefined,
-      { scheduleCase }
-    ).reconcile(
-      candidate("REQUEST_ACKNOWLEDGED"),
-      "2026-08-15T12:00:05.000Z"
-    );
+    const result = await new EvidenceService(cases, notifications, undefined, undefined, {
+      scheduleCase
+    }).reconcile(candidate("REQUEST_ACKNOWLEDGED"), "2026-08-15T12:00:05.000Z");
     expect(result.status).toBe("INSUFFICIENT");
     expect(cases.item.state).toBe("WAITING_EXTERNAL");
     expect(cases.item.nextWakeAt).toBe("2026-08-17T12:00:05.000Z");
-    expect(scheduled).toEqual([expect.objectContaining({
-      caseId: draft.caseId,
-      expectedVersion: 3,
-      wakeAt: "2026-08-17T12:00:05.000Z",
-      correlationId: scheduled[0]?.correlationId
-    })]);
+    expect(scheduled).toEqual([
+      expect.objectContaining({
+        caseId: draft.caseId,
+        expectedVersion: 3,
+        wakeAt: "2026-08-17T12:00:05.000Z",
+        correlationId: scheduled[0]?.correlationId
+      })
+    ]);
     expect(scheduled[0]?.correlationId).toMatch(/^corr_/);
     expect(notifications.records.size).toBe(0);
   });

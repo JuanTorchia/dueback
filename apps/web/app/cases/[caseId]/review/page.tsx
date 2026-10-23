@@ -20,7 +20,14 @@ export default async function ReviewPage({
           <p>{copy.reviewText}</p>
         </div>
       </section>
-      {caseId === "demo-review" && process.env.NODE_ENV === "development" ? <PlanReviewPreview /> : <PlanReview caseId={caseId} contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"} />}
+      {caseId === "demo-review" && process.env.NODE_ENV === "development" ? (
+        <PlanReviewPreview />
+      ) : (
+        <PlanReview
+          caseId={caseId}
+          contactMode={process.env.COMPANY_CONTACT_MODE === "email" ? "email" : "sandbox"}
+        />
+      )}
     </main>
   );
 }

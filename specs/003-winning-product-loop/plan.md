@@ -49,15 +49,15 @@ recoverable owner with a compact history, not a general dashboard
 
 _Gate passed before research and re-checked after design._
 
-| Constitutional gate | Design response | Status |
-| --- | --- | --- |
-| Verified outcomes over activity | Explicit-only inbound evidence; deterministic verifier remains sole completion authority | PASS |
-| Human authority and least privilege | All edits version the plan; mode, recipient, data, proof and limits precede approval | PASS |
-| Durable, idempotent execution | Analysis jobs, tasks, case events, actions and callbacks use durable reservations and CAS | PASS |
-| Honest evidence and reproducible claims | Accelerated sandbox, controlled email and future channels are distinct capabilities | PASS |
-| Smallest winning slice | One complete loop precedes email, more recipes or cosmetic redesign | PASS |
-| Required Google technology | Gemini/Genkit, Vertex AI, Cloud Run, Firestore, Cloud Tasks and Firebase are essential and visible | PASS |
-| Reproducible judging | Four examples, reset, Evidence Console and sequential production suite are explicit gates | PASS |
+| Constitutional gate                     | Design response                                                                                    | Status |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------- | ------ |
+| Verified outcomes over activity         | Explicit-only inbound evidence; deterministic verifier remains sole completion authority           | PASS   |
+| Human authority and least privilege     | All edits version the plan; mode, recipient, data, proof and limits precede approval               | PASS   |
+| Durable, idempotent execution           | Analysis jobs, tasks, case events, actions and callbacks use durable reservations and CAS          | PASS   |
+| Honest evidence and reproducible claims | Accelerated sandbox, controlled email and future channels are distinct capabilities                | PASS   |
+| Smallest winning slice                  | One complete loop precedes email, more recipes or cosmetic redesign                                | PASS   |
+| Required Google technology              | Gemini/Genkit, Vertex AI, Cloud Run, Firestore, Cloud Tasks and Firebase are essential and visible | PASS   |
+| Reproducible judging                    | Four examples, reset, Evidence Console and sequential production suite are explicit gates          | PASS   |
 
 No constitutional exception is required.
 

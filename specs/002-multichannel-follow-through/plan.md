@@ -51,15 +51,15 @@ recipe, sandbox fallback, one partner-API fixture, low-volume public evaluation
 
 _GATE: Passed before research and after design._
 
-| Constitutional gate | Design response | Status |
-| --- | --- | --- |
-| Verified outcomes over activity | Transport events remain below evidence; deterministic verifier owns completion | PASS |
-| Human authority and least privilege | Conversation Plan binds channel, recipient, message, cadence, data, proof and expiry | PASS |
-| Durable, idempotent execution | Firestore ledgers, Cloud Tasks, provider event dedupe and reconciliation | PASS |
-| Honest evidence and reproducible claims | Sandbox/email/Gmail/fixtures have distinct capabilities and labels | PASS |
-| Smallest winning slice | Managed email P0; Gmail optional; one reduced partner fixture | PASS |
-| Required Google technology | Gemini/Genkit, Vertex AI, Cloud Run, Firestore, Cloud Tasks remain essential | PASS |
-| Reproducible judging | Sandbox remains default until external-email gates all pass | PASS |
+| Constitutional gate                     | Design response                                                                      | Status |
+| --------------------------------------- | ------------------------------------------------------------------------------------ | ------ |
+| Verified outcomes over activity         | Transport events remain below evidence; deterministic verifier owns completion       | PASS   |
+| Human authority and least privilege     | Conversation Plan binds channel, recipient, message, cadence, data, proof and expiry | PASS   |
+| Durable, idempotent execution           | Firestore ledgers, Cloud Tasks, provider event dedupe and reconciliation             | PASS   |
+| Honest evidence and reproducible claims | Sandbox/email/Gmail/fixtures have distinct capabilities and labels                   | PASS   |
+| Smallest winning slice                  | Managed email P0; Gmail optional; one reduced partner fixture                        | PASS   |
+| Required Google technology              | Gemini/Genkit, Vertex AI, Cloud Run, Firestore, Cloud Tasks remain essential         | PASS   |
+| Reproducible judging                    | Sandbox remains default until external-email gates all pass                          | PASS   |
 
 No constitutional exception is required.
 

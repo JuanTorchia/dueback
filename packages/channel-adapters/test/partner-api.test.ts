@@ -16,18 +16,23 @@ describe("controlled partner API fixture", () => {
     const request = vi.fn((input: string | URL | Request, init?: RequestInit) => {
       void input;
       void init;
-      return Promise.resolve(new Response(JSON.stringify({
-        receiptId: "partner_receipt_1",
-        acceptedAt: "2026-08-16T10:00:00.000Z"
-      })));
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            receiptId: "partner_receipt_1",
+            acceptedAt: "2026-08-16T10:00:00.000Z"
+          })
+        )
+      );
     });
     const adapter = new PartnerApiFixtureAdapter({
       endpoint: "https://fixture.example/v1/dueback/actions",
       signingSecret: "fixture-secret",
       request
     });
-    await expect(adapter.execute(proposal, "action/case/1", { caseId: "case_12345678" }))
-      .resolves.toMatchObject({ channelType: "PARTNER_API", caseId: "case_12345678" });
+    await expect(
+      adapter.execute(proposal, "action/case/1", { caseId: "case_12345678" })
+    ).resolves.toMatchObject({ channelType: "PARTNER_API", caseId: "case_12345678" });
     const [, init] = request.mock.calls[0] ?? [];
     const headers = init?.headers as Record<string, string> | undefined;
     expect(headers?.["idempotency-key"]).toBe("action/case/1");
@@ -35,13 +40,19 @@ describe("controlled partner API fixture", () => {
   });
 
   it("rejects arbitrary paths and insecure remote endpoints", () => {
-    expect(() => new PartnerApiFixtureAdapter({
-      endpoint: "https://fixture.example/arbitrary",
-      signingSecret: "secret"
-    })).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
-    expect(() => new PartnerApiFixtureAdapter({
-      endpoint: "http://fixture.example/v1/dueback/actions",
-      signingSecret: "secret"
-    })).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
+    expect(
+      () =>
+        new PartnerApiFixtureAdapter({
+          endpoint: "https://fixture.example/arbitrary",
+          signingSecret: "secret"
+        })
+    ).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
+    expect(
+      () =>
+        new PartnerApiFixtureAdapter({
+          endpoint: "http://fixture.example/v1/dueback/actions",
+          signingSecret: "secret"
+        })
+    ).toThrow("PARTNER_ENDPOINT_NOT_ALLOWED");
   });
 });

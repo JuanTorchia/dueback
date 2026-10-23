@@ -16,7 +16,11 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
     if (endpoint.pathname !== "/v1/dueback/actions") {
       throw new Error("PARTNER_ENDPOINT_NOT_ALLOWED");
     }
-    if (endpoint.protocol !== "https:" && endpoint.hostname !== "127.0.0.1" && endpoint.hostname !== "localhost") {
+    if (
+      endpoint.protocol !== "https:" &&
+      endpoint.hostname !== "127.0.0.1" &&
+      endpoint.hostname !== "localhost"
+    ) {
       throw new Error("PARTNER_ENDPOINT_NOT_ALLOWED");
     }
     this.request = config.request ?? globalThis.fetch;
@@ -46,7 +50,12 @@ export class PartnerApiFixtureAdapter implements ClosedActionAdapter {
     if (!response.ok) throw new Error(`PARTNER_API_${String(response.status)}`);
     const receipt = (await response.json()) as Partial<ActionReceipt>;
     if (!receipt.receiptId || !receipt.acceptedAt) throw new Error("PARTNER_RECEIPT_INVALID");
-    return { ...receipt, receiptId: receipt.receiptId, acceptedAt: receipt.acceptedAt,
-      caseId: context.caseId, channelType: "PARTNER_API" };
+    return {
+      ...receipt,
+      receiptId: receipt.receiptId,
+      acceptedAt: receipt.acceptedAt,
+      caseId: context.caseId,
+      channelType: "PARTNER_API"
+    };
   }
 }

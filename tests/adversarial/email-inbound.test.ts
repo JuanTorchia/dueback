@@ -23,30 +23,40 @@ describe("hostile inbound email", () => {
       actionOrdinal: 1,
       dueAt: "2026-08-15T00:00:00.000Z"
     };
-    const reconcile = vi.fn(() => Promise.resolve({
-      status: "INSUFFICIENT" as const,
-      verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] }
-    }));
+    const reconcile = vi.fn(() =>
+      Promise.resolve({
+        status: "INSUFFICIENT" as const,
+        verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] }
+      })
+    );
     const service = new InboundService(
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
         caseForReplyRoute: () => Promise.resolve(item.caseId)
       },
-      { interpret: ({ text }) => Promise.resolve({
-        replyType: "ACKNOWLEDGEMENT",
-        evidenceLevel: "REQUEST_ACKNOWLEDGED",
-        transactionRef: text.includes("ORDER-79") ? "ORDER-79" : undefined,
-        changedTerms: [],
-        uncertainty: "NONE"
-      }) },
+      {
+        interpret: ({ text }) =>
+          Promise.resolve({
+            replyType: "ACKNOWLEDGEMENT",
+            evidenceLevel: "REQUEST_ACKNOWLEDGED",
+            transactionRef: text.includes("ORDER-79") ? "ORDER-79" : undefined,
+            changedTerms: [],
+            uncertainty: "NONE"
+          })
+      },
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process(emailEventFixtures.hostileReply, "2026-08-16T12:00:00.000Z"))
-      .resolves.toEqual({ status: "INSUFFICIENT" });
-    expect(reconcile).toHaveBeenCalledWith(expect.objectContaining({
-      level: "REQUEST_ACKNOWLEDGED"
-    }), "2026-08-16T12:00:00.000Z", expect.any(String));
+    await expect(
+      service.process(emailEventFixtures.hostileReply, "2026-08-16T12:00:00.000Z")
+    ).resolves.toEqual({ status: "INSUFFICIENT" });
+    expect(reconcile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        level: "REQUEST_ACKNOWLEDGED"
+      }),
+      "2026-08-16T12:00:00.000Z",
+      expect.any(String)
+    );
   });
 });

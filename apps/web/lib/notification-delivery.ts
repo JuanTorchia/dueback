@@ -1,4 +1,7 @@
-import { OutboundEmailAdapter, ResendEmailTransport } from "@dueback/channel-adapters/outbound-email";
+import {
+  OutboundEmailAdapter,
+  ResendEmailTransport
+} from "@dueback/channel-adapters/outbound-email";
 import type { FirestoreRuntimeStore } from "@dueback/persistence/runtime-store";
 import { NotificationDeliveryService } from "@dueback/runtime/notifications";
 

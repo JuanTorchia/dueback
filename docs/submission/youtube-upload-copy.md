@@ -76,4 +76,3 @@ making an unsupported claim.
 - the generated page shows a copyright or policy restriction;
 - title or description was truncated while pasting;
 - the public playback does not include audio or burned English captions.
-

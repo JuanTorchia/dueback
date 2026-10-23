@@ -21,7 +21,11 @@ export class FirestoreCaseControlStore implements CaseControlStore {
   }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
     const document = await this.commandReference(input.idempotencyKey).get();
     if (!document.exists) return undefined;
-    if (document.get("caseId") !== input.caseId || document.get("ownerId") !== input.ownerId || document.get("action") !== input.action)
+    if (
+      document.get("caseId") !== input.caseId ||
+      document.get("ownerId") !== input.ownerId ||
+      document.get("action") !== input.action
+    )
       throw new Error("IDEMPOTENCY_KEY_REUSED");
     return document.get("result") as FollowThroughCase | DeletionReceipt;
   }
@@ -44,9 +48,16 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     const reference = this.db.collection("caseRuns").doc(input.caseId);
     const commandRef = this.commandReference(input.idempotencyKey);
     return this.db.runTransaction(async (transaction) => {
-      const [snapshot, prior] = await Promise.all([transaction.get(reference), transaction.get(commandRef)]);
+      const [snapshot, prior] = await Promise.all([
+        transaction.get(reference),
+        transaction.get(commandRef)
+      ]);
       if (prior.exists) {
-        if (prior.get("caseId") !== input.caseId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== input.action)
+        if (
+          prior.get("caseId") !== input.caseId ||
+          prior.get("ownerId") !== input.ownerId ||
+          prior.get("action") !== input.action
+        )
           throw new Error("IDEMPOTENCY_KEY_REUSED");
         return prior.get("result") as FollowThroughCase;
       }
@@ -80,9 +91,13 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       });
       persistWakeIntent(transaction, this.db, input.wake);
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
-        ownerId: input.ownerId, action: input.action, result: next,
-        createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
+        idempotencyKeyHash: stableHash(input.idempotencyKey),
+        caseId: input.caseId,
+        ownerId: input.ownerId,
+        action: input.action,
+        result: next,
+        createdAt: input.now,
+        deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.create(reference.collection("events").doc(`control-${String(next.version)}`), {
         eventId: `control-${String(next.version)}`,
@@ -113,10 +128,16 @@ export class FirestoreCaseControlStore implements CaseControlStore {
     const commandRef = this.commandReference(input.idempotencyKey);
     return this.db.runTransaction(async (transaction) => {
       const [runSnapshot, draftSnapshot, prior] = await Promise.all([
-        transaction.get(runRef), transaction.get(draftRef), transaction.get(commandRef)
+        transaction.get(runRef),
+        transaction.get(draftRef),
+        transaction.get(commandRef)
       ]);
       if (prior.exists) {
-        if (prior.get("caseId") !== input.caseId || prior.get("ownerId") !== input.ownerId || prior.get("action") !== "REVISE")
+        if (
+          prior.get("caseId") !== input.caseId ||
+          prior.get("ownerId") !== input.ownerId ||
+          prior.get("action") !== "REVISE"
+        )
           throw new Error("IDEMPOTENCY_KEY_REUSED");
         return prior.get("result") as FollowThroughCase;
       }
@@ -140,9 +161,13 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         approval: FieldValue.delete()
       });
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
-        ownerId: input.ownerId, action: "REVISE", result: next,
-        createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
+        idempotencyKeyHash: stableHash(input.idempotencyKey),
+        caseId: input.caseId,
+        ownerId: input.ownerId,
+        action: "REVISE",
+        result: next,
+        createdAt: input.now,
+        deleteAt: firestoreDeleteAt(input.now)
       });
       const eventId = `control-${String(next.version)}`;
       transaction.create(runRef.collection("events").doc(eventId), {
@@ -183,7 +208,10 @@ export class FirestoreCaseControlStore implements CaseControlStore {
       tombstoneId
     };
     await this.db.runTransaction(async (transaction) => {
-      const [run, prior] = await Promise.all([transaction.get(runRef), transaction.get(commandRef)]);
+      const [run, prior] = await Promise.all([
+        transaction.get(runRef),
+        transaction.get(commandRef)
+      ]);
       if (prior.exists) return;
       if (!run.exists) throw new Error("CASE_NOT_FOUND");
       const current = run.data() as FollowThroughCase;
@@ -198,9 +226,13 @@ export class FirestoreCaseControlStore implements CaseControlStore {
         deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.create(commandRef, {
-        idempotencyKeyHash: stableHash(input.idempotencyKey), caseId: input.caseId,
-        ownerId: input.ownerId, action: "DELETE", result: receipt,
-        createdAt: input.now, deleteAt: firestoreDeleteAt(input.now)
+        idempotencyKeyHash: stableHash(input.idempotencyKey),
+        caseId: input.caseId,
+        ownerId: input.ownerId,
+        action: "DELETE",
+        result: receipt,
+        createdAt: input.now,
+        deleteAt: firestoreDeleteAt(input.now)
       });
       transaction.delete(runRef);
       transaction.delete(draftRef);

@@ -34,9 +34,15 @@ const forbiddenKeys = new Set([
 
 function isSensitiveKey(key: string): boolean {
   const normalized = key.replace(/[^a-z0-9]/gi, "").toLowerCase();
-  return forbiddenKeys.has(normalized) || normalized.includes("authorization") ||
-    normalized.includes("secret") || normalized.includes("token") || normalized.includes("header") ||
-    normalized.endsWith("body") || normalized.endsWith("text");
+  return (
+    forbiddenKeys.has(normalized) ||
+    normalized.includes("authorization") ||
+    normalized.includes("secret") ||
+    normalized.includes("token") ||
+    normalized.includes("header") ||
+    normalized.endsWith("body") ||
+    normalized.endsWith("text")
+  );
 }
 
 export function safeEvent(event: SafeEvent): Readonly<Record<string, string | number>> {

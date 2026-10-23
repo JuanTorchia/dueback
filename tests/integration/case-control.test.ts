@@ -33,15 +33,28 @@ function activeCase(state: FollowThroughCase["state"] = "WAITING_EXTERNAL"): Fol
 class ControlMemory implements CaseControlStore {
   evidence: EvidenceRecord[] = [];
   deleted = false;
-  commands = new Map<string, { caseId: string; ownerId: string; action: string; result: FollowThroughCase | DeletionReceipt }>();
+  commands = new Map<
+    string,
+    { caseId: string; ownerId: string; action: string; result: FollowThroughCase | DeletionReceipt }
+  >();
   wakes: WakeIntent[] = [];
   constructor(public item: FollowThroughCase) {}
   get(caseId: string): Promise<FollowThroughCase | undefined> {
     return Promise.resolve(!this.deleted && caseId === this.item.caseId ? this.item : undefined);
   }
-  getCommandResult(input: { idempotencyKey: string; caseId: string; ownerId: string; action: string }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
+  getCommandResult(input: {
+    idempotencyKey: string;
+    caseId: string;
+    ownerId: string;
+    action: string;
+  }): Promise<FollowThroughCase | DeletionReceipt | undefined> {
     const prior = this.commands.get(input.idempotencyKey);
-    if (prior && (prior.caseId !== input.caseId || prior.ownerId !== input.ownerId || prior.action !== input.action))
+    if (
+      prior &&
+      (prior.caseId !== input.caseId ||
+        prior.ownerId !== input.ownerId ||
+        prior.action !== input.action)
+    )
       throw new Error("IDEMPOTENCY_KEY_REUSED");
     return Promise.resolve(prior?.result);
   }
@@ -75,10 +88,21 @@ class ControlMemory implements CaseControlStore {
       ...(input.action === "RESUME" ? { nextWakeAt: input.now } : {})
     };
     if (input.wake) this.wakes.push(input.wake);
-    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: input.action, result: this.item });
+    this.commands.set(input.idempotencyKey, {
+      caseId: input.caseId,
+      ownerId: input.ownerId,
+      action: input.action,
+      result: this.item
+    });
     return Promise.resolve(this.item);
   }
-  requestDeletion(input: { caseId: string; ownerId: string; action?: string; now: string; idempotencyKey: string }): Promise<DeletionReceipt> {
+  requestDeletion(input: {
+    caseId: string;
+    ownerId: string;
+    action?: string;
+    now: string;
+    idempotencyKey: string;
+  }): Promise<DeletionReceipt> {
     const prior = this.commands.get(input.idempotencyKey);
     if (prior) return Promise.resolve(prior.result as DeletionReceipt);
     this.deleted = true;
@@ -88,10 +112,22 @@ class ControlMemory implements CaseControlStore {
       requestedAt: input.now,
       tombstoneId: "tombstone_12345678"
     } as const;
-    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: "DELETE", result });
+    this.commands.set(input.idempotencyKey, {
+      caseId: input.caseId,
+      ownerId: input.ownerId,
+      action: "DELETE",
+      result
+    });
     return Promise.resolve(result);
   }
-  beginReapproval(input: { caseId: string; ownerId: string; expectedVersion: number; reason: string; now: string; idempotencyKey: string }): Promise<FollowThroughCase> {
+  beginReapproval(input: {
+    caseId: string;
+    ownerId: string;
+    expectedVersion: number;
+    reason: string;
+    now: string;
+    idempotencyKey: string;
+  }): Promise<FollowThroughCase> {
     const prior = this.commands.get(input.idempotencyKey);
     if (prior) return Promise.resolve(prior.result as FollowThroughCase);
     if (this.item.version !== input.expectedVersion) throw new Error("VERSION_CONFLICT");
@@ -104,7 +140,12 @@ class ControlMemory implements CaseControlStore {
       controlledAt: input.now,
       updatedAt: input.now
     };
-    this.commands.set(input.idempotencyKey, { caseId: input.caseId, ownerId: input.ownerId, action: "REVISE", result: this.item });
+    this.commands.set(input.idempotencyKey, {
+      caseId: input.caseId,
+      ownerId: input.ownerId,
+      action: "REVISE",
+      result: this.item
+    });
     return Promise.resolve(this.item);
   }
 }
@@ -183,16 +224,19 @@ describe("case controls", () => {
     expect(scheduleCase).toHaveBeenCalledWith(
       expect.objectContaining({ caseId: store.item.caseId, expectedVersion: 4 })
     );
-    expect(store.wakes).toEqual([expect.objectContaining({
-      caseId: store.item.caseId,
-      expectedVersion: 4,
-      status: "PENDING"
-    })]);
+    expect(store.wakes).toEqual([
+      expect.objectContaining({
+        caseId: store.item.caseId,
+        expectedVersion: 4,
+        status: "PENDING"
+      })
+    ]);
   });
 
   it("re-dispatches an idempotent RESUME after the first enqueue fails", async () => {
     const store = new ControlMemory(activeCase("NEEDS_ATTENTION"));
-    const scheduleCase = vi.fn()
+    const scheduleCase = vi
+      .fn()
       .mockRejectedValueOnce(new Error("QUEUE_UNAVAILABLE"))
       .mockResolvedValueOnce({ taskName: "resume-recovered", duplicate: false });
     const service = new CaseControlService(store, { scheduleCase });
@@ -284,8 +328,12 @@ describe("case controls", () => {
     const store = new ControlMemory(activeCase(initialState));
     const service = new CaseControlService(store, { scheduleCase: () => Promise.resolve({}) });
     const command = {
-      caseId: store.item.caseId, ownerId: store.item.ownerId, expectedVersion: 3,
-      action, now: "2026-08-15T12:00:00.000Z", reason: action === "REOPEN" ? "Not resolved" : undefined,
+      caseId: store.item.caseId,
+      ownerId: store.item.ownerId,
+      expectedVersion: 3,
+      action,
+      now: "2026-08-15T12:00:00.000Z",
+      reason: action === "REOPEN" ? "Not resolved" : undefined,
       idempotencyKey: `same-command-${action.toLowerCase()}-12345678`
     };
     const [first, second] = await Promise.all([service.command(command), service.command(command)]);

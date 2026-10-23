@@ -27,7 +27,8 @@ export async function POST(request: Request) {
       ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
       : {})
   });
-  const result = await new DurableWakeScheduler(tasks, outbox, () => new Date().toISOString())
-    .reconcile(25);
+  const result = await new DurableWakeScheduler(tasks, outbox, () =>
+    new Date().toISOString()
+  ).reconcile(25);
   return Response.json(result, { status: result.failed > 0 ? 503 : 200 });
 }

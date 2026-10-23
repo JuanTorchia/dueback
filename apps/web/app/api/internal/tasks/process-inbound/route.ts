@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const store = new FirestoreRuntimeStore(firestore);
   let providerEventId: string | undefined;
   try {
-    const body = await request.json() as {
+    const body = (await request.json()) as {
       providerEventId?: string;
       providerEmailId?: string;
       eventType?: string;
@@ -37,31 +37,28 @@ export async function POST(request: Request) {
         transportStatus,
         observedAt
       );
-      const notificationStatus = actionStatus === "UNKNOWN"
-        ? await store.recordNotificationTransportEvent(
-            body.providerEmailId,
-            transportStatus,
-            observedAt
-          )
-        : "UNKNOWN";
+      const notificationStatus =
+        actionStatus === "UNKNOWN"
+          ? await store.recordNotificationTransportEvent(
+              body.providerEmailId,
+              transportStatus,
+              observedAt
+            )
+          : "UNKNOWN";
       await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt);
       return Response.json({ actionStatus, notificationStatus, transportStatus });
     }
     if (body.eventType !== "email.received") {
-      await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, ["NON_INBOUND_EVENT"]);
+      await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, [
+        "NON_INBOUND_EVENT"
+      ]);
       return Response.json({ status: "IGNORED", reasonCodes: ["NON_INBOUND_EVENT"] });
     }
     const interventions = new InterventionService(store, store, notificationDelivery(store));
     const service = new InboundService(
       store,
       { interpret: (input) => extractInboundFlow(input) },
-      new EvidenceService(
-        store,
-        store,
-        store,
-        notificationDelivery(store),
-        caseScheduler()
-      ),
+      new EvidenceService(store, store, store, notificationDelivery(store), caseScheduler()),
       interventions
     );
     const email = await new ResendInboundEmailAdapter(apiKey).retrieve(body.providerEmailId);
@@ -75,7 +72,12 @@ export async function POST(request: Request) {
       receivedAt: observedAt
     });
     const result = await service.process(email, observedAt);
-    await store.markProviderEvent(body.providerEventId, "PROCESSED", observedAt, result.reasonCodes);
+    await store.markProviderEvent(
+      body.providerEventId,
+      "PROCESSED",
+      observedAt,
+      result.reasonCodes
+    );
     return Response.json(result);
   } catch (error) {
     if (providerEventId) {
@@ -83,6 +85,9 @@ export async function POST(request: Request) {
         error instanceof Error ? error.message : "INBOUND_PROCESSING_FAILED"
       ]);
     }
-    return Response.json({ error: error instanceof Error ? error.message : "INBOUND_PROCESSING_FAILED" }, { status: 500 });
+    return Response.json(
+      { error: error instanceof Error ? error.message : "INBOUND_PROCESSING_FAILED" },
+      { status: 500 }
+    );
   }
 }

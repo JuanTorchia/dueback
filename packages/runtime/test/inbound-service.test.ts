@@ -33,17 +33,38 @@ const email = {
 
 describe("inbound service", () => {
   it("routes an acknowledgement through deterministic evidence reconciliation", async () => {
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
-      void candidate; void now; void correlationId;
-      return Promise.resolve({ status: "INSUFFICIENT" as const, verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] } });
-    });
+    const reconcile = vi.fn(
+      (candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+        void candidate;
+        void now;
+        void correlationId;
+        return Promise.resolve({
+          status: "INSUFFICIENT" as const,
+          verification: { accepted: false, reasonCodes: ["INSUFFICIENT_LEVEL" as const] }
+        });
+      }
+    );
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
-      { interpret: () => Promise.resolve({ replyType: "ACKNOWLEDGEMENT", evidenceLevel: "REQUEST_ACKNOWLEDGED", changedTerms: [], uncertainty: "NONE" }) },
+      {
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
+      {
+        interpret: () =>
+          Promise.resolve({
+            replyType: "ACKNOWLEDGEMENT",
+            evidenceLevel: "REQUEST_ACKNOWLEDGED",
+            changedTerms: [],
+            uncertainty: "NONE"
+          })
+      },
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toEqual({ status: "INSUFFICIENT" });
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toEqual({
+      status: "INSUFFICIENT"
+    });
     expect(reconcile).toHaveBeenCalledOnce();
     const candidate = reconcile.mock.calls[0]?.[0];
     expect(candidate).not.toHaveProperty("amountMinor");
@@ -52,25 +73,39 @@ describe("inbound service", () => {
   });
 
   it("never copies expected refund values into incomplete inbound evidence", async () => {
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
-      void candidate; void now; void correlationId;
-      return Promise.resolve({
-        status: "INSUFFICIENT" as const,
-        verification: { accepted: false, reasonCodes: ["WRONG_AMOUNT" as const] }
-      });
-    });
+    const reconcile = vi.fn(
+      (candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+        void candidate;
+        void now;
+        void correlationId;
+        return Promise.resolve({
+          status: "INSUFFICIENT" as const,
+          verification: { accepted: false, reasonCodes: ["WRONG_AMOUNT" as const] }
+        });
+      }
+    );
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
-      { interpret: () => Promise.resolve({
-        replyType: "EVIDENCE",
-        evidenceLevel: "MERCHANT_CONFIRMED",
-        changedTerms: [],
-        uncertainty: "NONE"
-      }) },
+      {
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
+      {
+        interpret: () =>
+          Promise.resolve({
+            replyType: "EVIDENCE",
+            evidenceLevel: "MERCHANT_CONFIRMED",
+            changedTerms: [],
+            uncertainty: "NONE"
+          })
+      },
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await service.process({ ...email, text: "The refund was processed." }, "2026-08-16T00:00:00.000Z");
+    await service.process(
+      { ...email, text: "The refund was processed." },
+      "2026-08-16T00:00:00.000Z"
+    );
     const candidate = reconcile.mock.calls[0]?.[0];
     expect(candidate).not.toHaveProperty("amountMinor");
     expect(candidate).not.toHaveProperty("currency");
@@ -84,33 +119,46 @@ describe("inbound service", () => {
         ...item.plan,
         promiseType: "REPLACEMENT",
         sharedFields: ["transactionRef", "subject"],
-        evidenceRequirements: [{
-          minimumLevel: "MERCHANT_CONFIRMED",
-          transactionRef: "ORDER-79",
-          subject: "damaged headphones",
-          requiredEvidenceFields: ["subject", "trackingNumber"],
-          maxAgeSeconds: 3600,
-          trustedIssuer: "merchant-sandbox"
-        }]
+        evidenceRequirements: [
+          {
+            minimumLevel: "MERCHANT_CONFIRMED",
+            transactionRef: "ORDER-79",
+            subject: "damaged headphones",
+            requiredEvidenceFields: ["subject", "trackingNumber"],
+            maxAgeSeconds: 3600,
+            trustedIssuer: "merchant-sandbox"
+          }
+        ]
       }
     };
-    const reconcile = vi.fn((candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
-      void candidate; void now; void correlationId;
-      return Promise.resolve({
-        status: "INSUFFICIENT" as const,
-        verification: { accepted: false, reasonCodes: ["MISSING_TRACKING" as const] }
-      });
-    });
+    const reconcile = vi.fn(
+      (candidate: EvidenceCandidateContract, now: string, correlationId: string) => {
+        void candidate;
+        void now;
+        void correlationId;
+        return Promise.resolve({
+          status: "INSUFFICIENT" as const,
+          verification: { accepted: false, reasonCodes: ["MISSING_TRACKING" as const] }
+        });
+      }
+    );
     const service = new InboundService(
-      { get: () => Promise.resolve(replacement), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
-      { interpret: () => Promise.resolve({
-        replyType: "EVIDENCE",
-        evidenceLevel: "MERCHANT_CONFIRMED",
-        transactionRef: "ORDER-79",
-        subject: "damaged headphones",
-        changedTerms: [],
-        uncertainty: "NONE"
-      }) },
+      {
+        get: () => Promise.resolve(replacement),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
+      {
+        interpret: () =>
+          Promise.resolve({
+            replyType: "EVIDENCE",
+            evidenceLevel: "MERCHANT_CONFIRMED",
+            transactionRef: "ORDER-79",
+            subject: "damaged headphones",
+            changedTerms: [],
+            uncertainty: "NONE"
+          })
+      },
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
@@ -125,12 +173,19 @@ describe("inbound service", () => {
   it("rejects unknown routing without invoking the model", async () => {
     const interpret = vi.fn();
     const service = new InboundService(
-      { get: () => Promise.resolve(undefined), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(undefined) },
+      {
+        get: () => Promise.resolve(undefined),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(undefined)
+      },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] });
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({
+      status: "REJECTED",
+      reasonCodes: ["UNKNOWN_CASE"]
+    });
     expect(interpret).not.toHaveBeenCalled();
   });
 
@@ -138,7 +193,8 @@ describe("inbound service", () => {
     const interpret = vi.fn();
     const service = new InboundService(
       {
-        get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
         caseForReplyRoute: () => Promise.resolve(item.caseId),
         caseForProviderMessageId: () => Promise.resolve("case_other")
       },
@@ -146,22 +202,26 @@ describe("inbound service", () => {
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process({ ...email, inReplyTo: "provider_message_123" }, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] });
+    await expect(
+      service.process({ ...email, inReplyTo: "provider_message_123" }, "2026-08-16T00:00:00.000Z")
+    ).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["THREAD_CORRELATION_MISMATCH"] });
     expect(interpret).not.toHaveBeenCalled();
   });
 
   it("does not confuse an unknown RFC Message-ID with a contradictory case mapping", async () => {
-    const interpret = vi.fn(() => Promise.resolve({
-      replyType: "ACKNOWLEDGEMENT" as const,
-      evidenceLevel: "REQUEST_ACKNOWLEDGED" as const,
-      changedTerms: [],
-      uncertainty: "NONE" as const
-    }));
+    const interpret = vi.fn(() =>
+      Promise.resolve({
+        replyType: "ACKNOWLEDGEMENT" as const,
+        evidenceLevel: "REQUEST_ACKNOWLEDGED" as const,
+        changedTerms: [],
+        uncertainty: "NONE" as const
+      })
+    );
     const reconcile = vi.fn(() => Promise.resolve({ status: "INSUFFICIENT" as const }));
     const service = new InboundService(
       {
-        get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(),
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
         caseForReplyRoute: () => Promise.resolve(item.caseId),
         caseForProviderMessageId: () => Promise.resolve(undefined)
       },
@@ -169,8 +229,12 @@ describe("inbound service", () => {
       { reconcile } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(service.process({ ...email, inReplyTo: "<rfc-message@example.test>" }, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "INSUFFICIENT" });
+    await expect(
+      service.process(
+        { ...email, inReplyTo: "<rfc-message@example.test>" },
+        "2026-08-16T00:00:00.000Z"
+      )
+    ).resolves.toMatchObject({ status: "INSUFFICIENT" });
     expect(interpret).toHaveBeenCalledOnce();
     expect(reconcile).toHaveBeenCalledOnce();
   });
@@ -179,12 +243,18 @@ describe("inbound service", () => {
     const interpret = vi.fn();
     const raise = vi.fn(() => Promise.resolve({}));
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
+      {
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise } as unknown as InterventionService
     );
-    await expect(service.process({ ...email, from: "attacker@example.test" }, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({ status: "NEEDS_ATTENTION" });
+    await expect(
+      service.process({ ...email, from: "attacker@example.test" }, "2026-08-16T00:00:00.000Z")
+    ).resolves.toMatchObject({ status: "NEEDS_ATTENTION" });
     expect(interpret).not.toHaveBeenCalled();
     expect(raise).toHaveBeenCalledOnce();
   });
@@ -195,14 +265,19 @@ describe("inbound service", () => {
       {
         get: () => Promise.resolve(item),
         compareAndSet: () => Promise.resolve(),
-        caseForReplyRoute: (route) => Promise.resolve(route.includes("other") ? "case_other" : item.caseId)
+        caseForReplyRoute: (route) =>
+          Promise.resolve(route.includes("other") ? "case_other" : item.caseId)
       },
       { interpret },
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(ambiguous.process({ ...email, to: [email.to[0] ?? "", "case+other@inbound.example.test"] }, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["AMBIGUOUS_CASE"] });
+    await expect(
+      ambiguous.process(
+        { ...email, to: [email.to[0] ?? "", "case+other@inbound.example.test"] },
+        "2026-08-16T00:00:00.000Z"
+      )
+    ).resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["AMBIGUOUS_CASE"] });
 
     const terminal = new InboundService(
       {
@@ -214,8 +289,10 @@ describe("inbound service", () => {
       { reconcile: vi.fn() } as unknown as EvidenceService,
       { raise: vi.fn() } as unknown as InterventionService
     );
-    await expect(terminal.process(email, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "REJECTED", reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"] });
+    await expect(terminal.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({
+      status: "REJECTED",
+      reasonCodes: ["CASE_NOT_ACCEPTING_INBOUND"]
+    });
     expect(interpret).not.toHaveBeenCalled();
   });
 
@@ -223,18 +300,27 @@ describe("inbound service", () => {
     const raise = vi.fn(() => Promise.resolve({}));
     const reconcile = vi.fn();
     const service = new InboundService(
-      { get: () => Promise.resolve(item), compareAndSet: () => Promise.resolve(), caseForReplyRoute: () => Promise.resolve(item.caseId) },
-      { interpret: () => Promise.resolve({
-        replyType: "PROPOSAL_CHANGE",
-        evidenceLevel: "MERCHANT_COMMITTED",
-        changedTerms: ["amountMinor"],
-        uncertainty: "NONE"
-      }) },
+      {
+        get: () => Promise.resolve(item),
+        compareAndSet: () => Promise.resolve(),
+        caseForReplyRoute: () => Promise.resolve(item.caseId)
+      },
+      {
+        interpret: () =>
+          Promise.resolve({
+            replyType: "PROPOSAL_CHANGE",
+            evidenceLevel: "MERCHANT_COMMITTED",
+            changedTerms: ["amountMinor"],
+            uncertainty: "NONE"
+          })
+      },
       { reconcile } as unknown as EvidenceService,
       { raise } as unknown as InterventionService
     );
-    await expect(service.process(email, "2026-08-16T00:00:00.000Z"))
-      .resolves.toMatchObject({ status: "NEEDS_ATTENTION", reasonCodes: ["PROPOSAL_CHANGE"] });
+    await expect(service.process(email, "2026-08-16T00:00:00.000Z")).resolves.toMatchObject({
+      status: "NEEDS_ATTENTION",
+      reasonCodes: ["PROPOSAL_CHANGE"]
+    });
     expect(reconcile).not.toHaveBeenCalled();
     expect(raise).toHaveBeenCalledOnce();
   });

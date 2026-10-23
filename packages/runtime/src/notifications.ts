@@ -57,7 +57,10 @@ export class NotificationDeliveryService {
     private readonly adapter?: NotificationDeliveryAdapter
   ) {}
 
-  async deliver(record: NotificationRecord, recipient: string | undefined): Promise<NotificationRecord> {
+  async deliver(
+    record: NotificationRecord,
+    recipient: string | undefined
+  ): Promise<NotificationRecord> {
     const attempt = (record.attemptCount ?? 0) + 1;
     const attemptedAt = new Date().toISOString();
     const destinationHint = recipient?.includes("@")
@@ -70,7 +73,13 @@ export class NotificationDeliveryService {
         attemptCount: attempt,
         lastAttemptAt: attemptedAt
       });
-      return { ...record, deliveryChannel: "IN_APP", deliveryStatus: "UNAVAILABLE", attemptCount: attempt, lastAttemptAt: attemptedAt };
+      return {
+        ...record,
+        deliveryChannel: "IN_APP",
+        deliveryStatus: "UNAVAILABLE",
+        attemptCount: attempt,
+        lastAttemptAt: attemptedAt
+      };
     }
     try {
       const result = await this.adapter.deliver(record, recipient);

@@ -17,7 +17,9 @@ function evidenceLabel(level: string | undefined): string | undefined {
 
 function money(amountMinor: number | undefined, currency: string | undefined): string | undefined {
   if (amountMinor === undefined) return undefined;
-  return currency ? `${currency} ${(amountMinor / 100).toFixed(2)}` : (amountMinor / 100).toFixed(2);
+  return currency
+    ? `${currency} ${(amountMinor / 100).toFixed(2)}`
+    : (amountMinor / 100).toFixed(2);
 }
 
 export function outcomeComparison(
@@ -26,9 +28,12 @@ export function outcomeComparison(
 ): OutcomeComparisonRow[] {
   const requirement = item.plan.evidenceRequirements[0];
   if (!requirement) return [];
-  const record = [...evidence].reverse().find((entry) =>
-    entry.verification.accepted || entry.candidate.level !== "REQUEST_ACKNOWLEDGED"
-  ) ?? evidence.at(-1);
+  const record =
+    [...evidence]
+      .reverse()
+      .find(
+        (entry) => entry.verification.accepted || entry.candidate.level !== "REQUEST_ACKNOWLEDGED"
+      ) ?? evidence.at(-1);
   const candidate = record?.candidate;
   const row = (label: string, promised: string | undefined, observed: string | undefined) => {
     if (promised === undefined) return undefined;
@@ -36,16 +41,29 @@ export function outcomeComparison(
       label,
       promised,
       observed: observed ?? "Not stated in the reply",
-      status: observed === undefined ? "MISSING" as const : observed === promised ? "MATCH" as const : "CONFLICT" as const
+      status:
+        observed === undefined
+          ? ("MISSING" as const)
+          : observed === promised
+            ? ("MATCH" as const)
+            : ("CONFLICT" as const)
     };
   };
   return [
     row("Proof level", evidenceLabel(requirement.minimumLevel), evidenceLabel(candidate?.level)),
     row("Reference", requirement.transactionRef, candidate?.transactionRef),
-    row("Amount", money(requirement.amountMinor, requirement.currency), money(candidate?.amountMinor, candidate?.currency)),
+    row(
+      "Amount",
+      money(requirement.amountMinor, requirement.currency),
+      money(candidate?.amountMinor, candidate?.currency)
+    ),
     row("Currency", requirement.currency, candidate?.currency),
     row("Subject", requirement.subject, candidate?.subject),
     row("Bill period", requirement.billPeriod, candidate?.billPeriod),
-    row("Tracking", requirement.requiredEvidenceFields?.includes("trackingNumber") ? "Required" : undefined, candidate?.trackingNumber ? "Required" : undefined)
+    row(
+      "Tracking",
+      requirement.requiredEvidenceFields?.includes("trackingNumber") ? "Required" : undefined,
+      candidate?.trackingNumber ? "Required" : undefined
+    )
   ].filter((value): value is OutcomeComparisonRow => value !== undefined);
 }

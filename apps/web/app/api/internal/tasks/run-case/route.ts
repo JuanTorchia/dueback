@@ -41,29 +41,26 @@ export async function POST(request: Request) {
   if (!projectId || !workerUrl || !serviceAccountEmail)
     return Response.json({ error: "RUNTIME_NOT_CONFIGURED" }, { status: 503 });
   const store = new FirestoreRuntimeStore(firestore);
-  const scheduler = durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-    projectId,
-    location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-    queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
-    workerUrl,
-    serviceAccountEmail,
-    ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-      ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
-      : {})
-  }));
+  const scheduler = durableCaseScheduler(
+    new TaskScheduler(new CloudTasksClient(), {
+      projectId,
+      location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
+      queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+      workerUrl,
+      serviceAccountEmail,
+      ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+        ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+        : {})
+    })
+  );
   const capabilities = publicChannelCapabilities({
     now: new Date().toISOString(),
     sandboxAvailable: Boolean(merchantUrl && actionSecret),
     managedEmailOutbound: Boolean(
-      emailApiKey &&
-      emailFrom &&
-      emailReplyDomain &&
-      allowedRecipientDomains.length > 0
+      emailApiKey && emailFrom && emailReplyDomain && allowedRecipientDomains.length > 0
     ),
     managedEmailInbound: Boolean(
-      emailApiKey &&
-      process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
-      emailReplyDomain
+      emailApiKey && process.env.EMAIL_WEBHOOK_SIGNING_SECRET && emailReplyDomain
     ),
     partnerFixtureAvailable: Boolean(partnerEndpoint && partnerSecret)
   });
@@ -76,35 +73,41 @@ export async function POST(request: Request) {
     {
       capability: sandboxCapability,
       ...(merchantUrl && actionSecret
-        ? { adapter: new MerchantSandboxAdapter({
-            baseUrl: merchantUrl,
-            scenario: process.env.MERCHANT_SCENARIO ?? "signed-completion",
-            actionSecret
-          }) }
+        ? {
+            adapter: new MerchantSandboxAdapter({
+              baseUrl: merchantUrl,
+              scenario: process.env.MERCHANT_SCENARIO ?? "signed-completion",
+              actionSecret
+            })
+          }
         : {})
     },
     {
       capability: emailCapability,
       ...(emailApiKey && emailFrom && emailReplyDomain
-        ? { adapter: {
-            execute(proposal, idempotencyKey, context) {
-              assertControlledRecipient(proposal.recipient, allowedRecipientDomains);
-              return new CompanyEmailActionAdapter({
-                apiKey: emailApiKey,
-                from: emailFrom,
-                replyDomain: emailReplyDomain
-              }).execute(proposal, idempotencyKey, context);
+        ? {
+            adapter: {
+              execute(proposal, idempotencyKey, context) {
+                assertControlledRecipient(proposal.recipient, allowedRecipientDomains);
+                return new CompanyEmailActionAdapter({
+                  apiKey: emailApiKey,
+                  from: emailFrom,
+                  replyDomain: emailReplyDomain
+                }).execute(proposal, idempotencyKey, context);
+              }
             }
-          } }
+          }
         : {})
     },
     {
       capability: partnerCapability,
       ...(partnerEndpoint && partnerSecret
-        ? { adapter: new PartnerApiFixtureAdapter({
-            endpoint: partnerEndpoint,
-            signingSecret: partnerSecret
-          }) }
+        ? {
+            adapter: new PartnerApiFixtureAdapter({
+              endpoint: partnerEndpoint,
+              signingSecret: partnerSecret
+            })
+          }
         : {})
     }
   ]);

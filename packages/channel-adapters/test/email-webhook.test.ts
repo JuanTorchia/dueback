@@ -18,7 +18,9 @@ const body = JSON.stringify({
 describe("email webhook boundary", () => {
   it("verifies the exact raw body and parses the bounded event", () => {
     const signature = `v1,${signEmailWebhook(body, "event_123", timestamp, secret)}`;
-    expect(verifyEmailWebhook({ body, id: "event_123", timestamp, signature, secret, now })).toBe(true);
+    expect(verifyEmailWebhook({ body, id: "event_123", timestamp, signature, secret, now })).toBe(
+      true
+    );
     expect(parseEmailProviderEvent(body).data.email_id).toBe("provider_email_123");
   });
 
@@ -30,8 +32,19 @@ describe("email webhook boundary", () => {
 
   it("rejects changed, stale and malformed events", () => {
     const signature = `v1,${signEmailWebhook(body, "event_123", timestamp, secret)}`;
-    expect(verifyEmailWebhook({ body: `${body} `, id: "event_123", timestamp, signature, secret, now })).toBe(false);
-    expect(verifyEmailWebhook({ body, id: "event_123", timestamp, signature, secret, now: "2026-08-16T13:00:00.000Z" })).toBe(false);
+    expect(
+      verifyEmailWebhook({ body: `${body} `, id: "event_123", timestamp, signature, secret, now })
+    ).toBe(false);
+    expect(
+      verifyEmailWebhook({
+        body,
+        id: "event_123",
+        timestamp,
+        signature,
+        secret,
+        now: "2026-08-16T13:00:00.000Z"
+      })
+    ).toBe(false);
     expect(() => parseEmailProviderEvent("{}")).toThrow("EMAIL_WEBHOOK_PAYLOAD_INVALID");
   });
 });

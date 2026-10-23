@@ -3,20 +3,20 @@
 Target duration: 3:50. Spoken English. Record in one continuous take; accelerated waits must be
 labeled on screen. Never call the Merchant Sandbox a real merchant.
 
-| Time      | Narration / action                                                                                                                          | Evidence visible                                                                    |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| 0:00–0:15 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps the promise open until there is proof.” | Mobile landing and concrete refund example                                          |
-| 0:15–0:30 | Choose Missing refund; submit the synthetic Spanish promise.                                                                                | One-click preset, privacy/retention line, Spanish source                            |
-| 0:30–0:50 | Gemini extracts the cited candidate; quickly show amount, reference, deadline and required proof.                                            | Real asynchronous analysis, provenance, uncertainty                                |
-| 0:50–1:05 | Show the compact approval summary, shared data, limits and sandbox disclosure; approve.                                                       | Exact authority before action                                                       |
-| 1:05–1:15 | Close/reload the tab. Label the accelerated demo clock.                                                                                      | Saved case; browser is not executing the workflow                                   |
-| 1:15–1:30 | Show `REQUEST_ACKNOWLEDGED` rejected.                                                                                                        | `Still working`; promised versus observed; next follow-up scheduled                 |
-| 1:30–1:45 | Show the signed confirmation and reopen from `My follow-ups`.                                                                                | `Company confirmed`, durable return path, bank-settlement limitation                |
-| 1:45–2:05 | Brief controlled-email insert.                                                                                                              | Real allowlisted delivery and signed weak-reply rejection; no arbitrary-company claim |
-| 2:05–2:25 | Show retry/deduplication and hostile/wrong-case checks.                                                                                       | One logical action, zero unauthorized completion                                   |
-| 2:25–3:18 | Open `How DueBack ran` and correlate the case to redacted Cloud evidence.                                                                     | Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks, action and evidence records       |
-| 3:18–3:40 | Show the architecture as an explanation of the completed product journey.                                                                    | Model without authority; deterministic policy/verifier; narrow action boundary      |
-| 3:40–3:50 | End card and exact limitation.                                                                                                                | Taskmaster · Individual/Hobbyist · controlled demo, not bank settlement             |
+| Time      | Narration / action                                                                                                                 | Evidence visible                                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 0:00–0:15 | “Companies call a request received ‘done’. People still carry the follow-up. DueBack keeps the promise open until there is proof.” | Mobile landing and concrete refund example                                            |
+| 0:15–0:30 | Choose Missing refund; submit the synthetic Spanish promise.                                                                       | One-click preset, privacy/retention line, Spanish source                              |
+| 0:30–0:50 | Gemini extracts the cited candidate; quickly show amount, reference, deadline and required proof.                                  | Real asynchronous analysis, provenance, uncertainty                                   |
+| 0:50–1:05 | Show the compact approval summary, shared data, limits and sandbox disclosure; approve.                                            | Exact authority before action                                                         |
+| 1:05–1:15 | Close/reload the tab. Label the accelerated demo clock.                                                                            | Saved case; browser is not executing the workflow                                     |
+| 1:15–1:30 | Show `REQUEST_ACKNOWLEDGED` rejected.                                                                                              | `Still working`; promised versus observed; next follow-up scheduled                   |
+| 1:30–1:45 | Show the signed confirmation and reopen from `My follow-ups`.                                                                      | `Company confirmed`, durable return path, bank-settlement limitation                  |
+| 1:45–2:05 | Brief controlled-email insert.                                                                                                     | Real allowlisted delivery and signed weak-reply rejection; no arbitrary-company claim |
+| 2:05–2:25 | Show retry/deduplication and hostile/wrong-case checks.                                                                            | One logical action, zero unauthorized completion                                      |
+| 2:25–3:18 | Open `How DueBack ran` and correlate the case to redacted Cloud evidence.                                                          | Gemini/Genkit, Cloud Run, Firestore, Cloud Tasks, action and evidence records         |
+| 3:18–3:40 | Show the architecture as an explanation of the completed product journey.                                                          | Model without authority; deterministic policy/verifier; narrow action boundary        |
+| 3:40–3:50 | End card and exact limitation.                                                                                                     | Taskmaster · Individual/Hobbyist · controlled demo, not bank settlement               |
 
 The complete consumer loop must be visible by `1:45`—90 seconds after intake begins. Architecture explains the observed product
 afterward; it must not delay the first visible result.
@@ -38,15 +38,15 @@ afterward; it must not delay the first visible result.
 Do not mark the release task complete from a desk review. Record one unedited rehearsal here after
 the final revision passes the deployed suite:
 
-| Field | Required value |
-|---|---|
-| Date/time UTC | 2026-08-23 |
-| Public revision | `dueback-web-00070-wkz` |
-| Actual duration | `03:30.531` (`≤ 04:00`) |
-| Retakes inside critical run | `0`; approval-to-proof is one uninterrupted source take |
-| Spoken/subtitle language | English narration with burned English subtitles |
-| Visible live evidence | App, Cloud Tasks, Firestore, proof comparison, redacted trace and Cloud Run services |
-| Recording URL | <https://youtu.be/Du5XadyAt1A> |
+| Field                       | Required value                                                                       |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| Date/time UTC               | 2026-08-23                                                                           |
+| Public revision             | `dueback-web-00070-wkz`                                                              |
+| Actual duration             | `03:30.531` (`≤ 04:00`)                                                              |
+| Retakes inside critical run | `0`; approval-to-proof is one uninterrupted source take                              |
+| Spoken/subtitle language    | English narration with burned English subtitles                                      |
+| Visible live evidence       | App, Cloud Tasks, Firestore, proof comparison, redacted trace and Cloud Run services |
+| Recording URL               | <https://youtu.be/Du5XadyAt1A>                                                       |
 
 ## Optional controlled-email insert
 

@@ -181,10 +181,15 @@ export const outcomeContractSchema = z.discriminatedUnion("recipe", [
   })
 ]);
 
-const safeDisplayTextSchema = (maximum: number) => z.string().min(1).max(maximum).refine(
-  (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
-  "Full email addresses are not allowed in consumer projections"
-);
+const safeDisplayTextSchema = (maximum: number) =>
+  z
+    .string()
+    .min(1)
+    .max(maximum)
+    .refine(
+      (value) => !/^[^@\s]+@[^@\s]+$/.test(value) || value.includes("•"),
+      "Full email addresses are not allowed in consumer projections"
+    );
 
 export const resolutionPlanSchema = z
   .object({
@@ -209,7 +214,11 @@ export const resolutionPlanSchema = z
     messageTemplateVersion: z.string().min(1).max(80).optional(),
     messageSubject: z.string().min(1).max(300).optional(),
     messageBody: z.string().min(1).max(10_000).optional(),
-    followUpIntervalSeconds: z.int().positive().max(30 * 24 * 60 * 60).optional(),
+    followUpIntervalSeconds: z
+      .int()
+      .positive()
+      .max(30 * 24 * 60 * 60)
+      .optional(),
     maxLogicalSends: z.int().positive().max(3).optional(),
     recipientConfirmedAt: isoDateSchema.optional(),
     notificationRecipient: z.email().max(320).optional(),
@@ -271,24 +280,32 @@ export const resolutionPlanSchema = z
 // ConversationPlan is the channel-complete name for the backwards-compatible ResolutionPlan.
 export const conversationPlanSchema = resolutionPlanSchema;
 
-export const analysisJobSchema = z.object({
-  jobId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
-  ownerId: opaqueIdSchema,
-  artifactId: opaqueIdSchema,
-  artifactPath: z.string().min(1).max(500),
-  sourceChannel: z.enum(["upload", "paste"]),
-  mediaType: z.enum(["text/plain", "image/jpeg", "image/png", "application/pdf"]),
-  sha256: sha256Schema,
-  contextText: z.string().max(50_000).optional(),
-  status: z.enum(["QUEUED", "ANALYZING", "READY", "FAILED"]),
-  stage: z.enum(["EVIDENCE_SECURED", "GEMINI_EXTRACTION", "VALIDATING", "REVIEW_READY", "FAILED"]),
-  attemptCount: z.int().nonnegative().max(3),
-  createdAt: isoDateSchema,
-  updatedAt: isoDateSchema,
-  leaseUntil: isoDateSchema.optional(),
-  lastError: z.string().min(1).max(120).optional()
-}).strict();
+export const analysisJobSchema = z
+  .object({
+    jobId: opaqueIdSchema,
+    caseId: opaqueIdSchema,
+    ownerId: opaqueIdSchema,
+    artifactId: opaqueIdSchema,
+    artifactPath: z.string().min(1).max(500),
+    sourceChannel: z.enum(["upload", "paste"]),
+    mediaType: z.enum(["text/plain", "image/jpeg", "image/png", "application/pdf"]),
+    sha256: sha256Schema,
+    contextText: z.string().max(50_000).optional(),
+    status: z.enum(["QUEUED", "ANALYZING", "READY", "FAILED"]),
+    stage: z.enum([
+      "EVIDENCE_SECURED",
+      "GEMINI_EXTRACTION",
+      "VALIDATING",
+      "REVIEW_READY",
+      "FAILED"
+    ]),
+    attemptCount: z.int().nonnegative().max(3),
+    createdAt: isoDateSchema,
+    updatedAt: isoDateSchema,
+    leaseUntil: isoDateSchema.optional(),
+    lastError: z.string().min(1).max(120).optional()
+  })
+  .strict();
 
 export const actionEnvelopeSchema = z.object({
   actionId: opaqueIdSchema,
@@ -340,81 +357,104 @@ export const notificationSchema = z.object({
   deepLinkPath: z.string().startsWith("/cases/"),
   createdAt: isoDateSchema,
   deliveryChannel: z.enum(["IN_APP", "EMAIL"]).optional(),
-  deliveryStatus: z.enum([
-    "RECORDED",
-    "ACCEPTED",
-    "DELIVERED",
-    "BOUNCED",
-    "SUPPRESSED",
-    "FAILED",
-    "UNAVAILABLE"
-  ]).optional(),
+  deliveryStatus: z
+    .enum(["RECORDED", "ACCEPTED", "DELIVERED", "BOUNCED", "SUPPRESSED", "FAILED", "UNAVAILABLE"])
+    .optional(),
   destinationHint: safeDisplayTextSchema(320).optional(),
   attemptCount: z.int().nonnegative().max(3).optional(),
   lastAttemptAt: isoDateSchema.optional(),
   deliveredAt: isoDateSchema.optional()
 });
 
-export const identityClaimSchema = z.object({
-  claimId: opaqueIdSchema,
-  caseId: opaqueIdSchema,
-  sourceOwnerFingerprint: sha256Schema,
-  targetOwnerFingerprint: sha256Schema,
-  operation: z.enum(["LINK_CURRENT", "CLAIM_DRAFT"]),
-  status: z.enum(["PENDING", "COMPLETED", "COLLISION", "REJECTED"]),
-  idempotencyKey: sha256Schema,
-  requestedAt: isoDateSchema,
-  completedAt: isoDateSchema.optional(),
-  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
-}).strict();
+export const identityClaimSchema = z
+  .object({
+    claimId: opaqueIdSchema,
+    caseId: opaqueIdSchema,
+    sourceOwnerFingerprint: sha256Schema,
+    targetOwnerFingerprint: sha256Schema,
+    operation: z.enum(["LINK_CURRENT", "CLAIM_DRAFT"]),
+    status: z.enum(["PENDING", "COMPLETED", "COLLISION", "REJECTED"]),
+    idempotencyKey: sha256Schema,
+    requestedAt: isoDateSchema,
+    completedAt: isoDateSchema.optional(),
+    reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+  })
+  .strict();
 
-export const caseSummarySchema = z.object({
-  caseId: opaqueIdSchema,
-  companyName: safeDisplayTextSchema(120),
-  outcomeLabel: safeDisplayTextSchema(300),
-  bucket: z.enum(["NEEDS_YOU", "WORKING", "DONE"]),
-  statusLabel: safeDisplayTextSchema(120),
-  lastActivityAt: isoDateSchema,
-  nextStepLabel: safeDisplayTextSchema(300),
-  attentionRequired: z.boolean(),
-  channelLabel: z.enum(["Email", "Controlled demo"])
-}).strict();
+export const caseSummarySchema = z
+  .object({
+    caseId: opaqueIdSchema,
+    companyName: safeDisplayTextSchema(120),
+    outcomeLabel: safeDisplayTextSchema(300),
+    bucket: z.enum(["NEEDS_YOU", "WORKING", "DONE"]),
+    statusLabel: safeDisplayTextSchema(120),
+    lastActivityAt: isoDateSchema,
+    nextStepLabel: safeDisplayTextSchema(300),
+    attentionRequired: z.boolean(),
+    channelLabel: z.enum(["Email", "Controlled demo"])
+  })
+  .strict();
 
-export const conversationEntrySchema = z.object({
-  entryId: opaqueIdSchema,
-  direction: z.enum(["OUTBOUND", "INBOUND", "SYSTEM"]),
-  occurredAt: isoDateSchema,
-  channelLabel: z.enum(["Email", "Controlled demo"]),
-  partyLabel: safeDisplayTextSchema(120),
-  safeSummary: safeDisplayTextSchema(500),
-  transportStatus: transportStatusSchema.optional(),
-  authenticity: z.enum(["VERIFIED_ROUTE", "UNVERIFIED", "NOT_APPLICABLE"]),
-  evidenceDecision: z.enum(["PENDING", "INSUFFICIENT", "ACCEPTED", "NOT_APPLICABLE"]),
-  reasonSummary: safeDisplayTextSchema(300).optional()
-}).strict();
+export const conversationEntrySchema = z
+  .object({
+    entryId: opaqueIdSchema,
+    direction: z.enum(["OUTBOUND", "INBOUND", "SYSTEM"]),
+    occurredAt: isoDateSchema,
+    channelLabel: z.enum(["Email", "Controlled demo"]),
+    partyLabel: safeDisplayTextSchema(120),
+    safeSummary: safeDisplayTextSchema(500),
+    transportStatus: transportStatusSchema.optional(),
+    authenticity: z.enum(["VERIFIED_ROUTE", "UNVERIFIED", "NOT_APPLICABLE"]),
+    evidenceDecision: z.enum(["PENDING", "INSUFFICIENT", "ACCEPTED", "NOT_APPLICABLE"]),
+    reasonSummary: safeDisplayTextSchema(300).optional()
+  })
+  .strict();
 
-export const outcomeComparisonSchema = z.object({
-  evidenceLevel: evidenceLevelSchema.optional(),
-  accepted: z.boolean(),
-  limitation: safeDisplayTextSchema(500),
-  fields: z.array(z.object({
-    label: safeDisplayTextSchema(80),
-    promised: safeDisplayTextSchema(300),
-    observed: safeDisplayTextSchema(300).optional(),
-    status: z.enum(["MATCH", "MISSING", "MISMATCH", "NOT_REQUIRED"]),
-    sourceLabel: safeDisplayTextSchema(120).optional()
-  }).strict()).min(1).max(12)
-}).strict();
+export const outcomeComparisonSchema = z
+  .object({
+    evidenceLevel: evidenceLevelSchema.optional(),
+    accepted: z.boolean(),
+    limitation: safeDisplayTextSchema(500),
+    fields: z
+      .array(
+        z
+          .object({
+            label: safeDisplayTextSchema(80),
+            promised: safeDisplayTextSchema(300),
+            observed: safeDisplayTextSchema(300).optional(),
+            status: z.enum(["MATCH", "MISSING", "MISMATCH", "NOT_REQUIRED"]),
+            sourceLabel: safeDisplayTextSchema(120).optional()
+          })
+          .strict()
+      )
+      .min(1)
+      .max(12)
+  })
+  .strict();
 
-export const technicalStepSchema = z.object({
-  stepId: opaqueIdSchema,
-  stage: z.enum(["GEMINI", "GENKIT", "CLOUD_TASK", "ACTION", "INBOUND", "VERIFIER", "NOTIFICATION", "FIRESTORE"]),
-  status: z.enum(["PENDING", "SUCCEEDED", "REJECTED", "FAILED", "MISSING"]),
-  systemLabel: safeDisplayTextSchema(120),
-  occurredAt: isoDateSchema.optional(),
-  correlationSuffix: z.string().regex(/^[A-Za-z0-9_-]{4,16}$/).optional(),
-  reasonCodes: z.array(z.string().min(1).max(100)).max(10)
-}).strict();
+export const technicalStepSchema = z
+  .object({
+    stepId: opaqueIdSchema,
+    stage: z.enum([
+      "GEMINI",
+      "GENKIT",
+      "CLOUD_TASK",
+      "ACTION",
+      "INBOUND",
+      "VERIFIER",
+      "NOTIFICATION",
+      "FIRESTORE"
+    ]),
+    status: z.enum(["PENDING", "SUCCEEDED", "REJECTED", "FAILED", "MISSING"]),
+    systemLabel: safeDisplayTextSchema(120),
+    occurredAt: isoDateSchema.optional(),
+    correlationSuffix: z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{4,16}$/)
+      .optional(),
+    reasonCodes: z.array(z.string().min(1).max(100)).max(10)
+  })
+  .strict();
 
 export type PromiseDraft = z.infer<typeof promiseDraftSchema>;
 export type ChannelType = z.infer<typeof channelTypeSchema>;

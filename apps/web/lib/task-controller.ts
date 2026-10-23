@@ -1,8 +1,5 @@
 import type { CaseRunner } from "@dueback/runtime/case-runner";
-import {
-  requireCloudTaskIdentity,
-  type CloudTaskIdentityVerifier
-} from "./cloud-task-identity";
+import { requireCloudTaskIdentity, type CloudTaskIdentityVerifier } from "./cloud-task-identity";
 
 export async function handleRunCaseTask(
   request: Request,
@@ -22,11 +19,11 @@ export async function handleRunCaseTask(
     if (!body.caseId || typeof expectedVersion !== "number" || !Number.isInteger(expectedVersion))
       return Response.json({ error: "INVALID_TASK" }, { status: 400 });
     const result = await runner.run({
-        caseId: body.caseId,
-        expectedVersion,
-        now: now(),
-        ...(body.correlationId ? { correlationId: body.correlationId } : {})
-      });
+      caseId: body.caseId,
+      expectedVersion,
+      now: now(),
+      ...(body.correlationId ? { correlationId: body.correlationId } : {})
+    });
     // A sub-second Cloud Tasks clock boundary or clock skew must never consume
     // the only durable wake. A retryable response preserves the same task until
     // the approved wake time has actually arrived.

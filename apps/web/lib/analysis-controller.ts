@@ -12,16 +12,20 @@ export async function handleAnalysisStatus(
   try {
     const owner = await dependencies.authenticate(request);
     const job = await dependencies.store.getOwnedCase(caseId, owner.uid);
-    if (!job) return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
-    return Response.json({
-      caseId: job.caseId,
-      status: job.status,
-      stage: job.stage,
-      attemptCount: job.attemptCount,
-      createdAt: job.createdAt,
-      updatedAt: job.updatedAt,
-      ...(job.status === "FAILED" ? { error: job.lastError ?? "ANALYSIS_FAILED" } : {})
-    }, { headers: privateHeaders });
+    if (!job)
+      return Response.json({ error: "CASE_NOT_FOUND" }, { status: 404, headers: privateHeaders });
+    return Response.json(
+      {
+        caseId: job.caseId,
+        status: job.status,
+        stage: job.stage,
+        attemptCount: job.attemptCount,
+        createdAt: job.createdAt,
+        updatedAt: job.updatedAt,
+        ...(job.status === "FAILED" ? { error: job.lastError ?? "ANALYSIS_FAILED" } : {})
+      },
+      { headers: privateHeaders }
+    );
   } catch (error) {
     const code = error instanceof Error ? error.message : "ANALYSIS_STATUS_FAILED";
     const authenticationError = ["AUTHENTICATION_REQUIRED", "INVALID_ID_TOKEN"].includes(code);

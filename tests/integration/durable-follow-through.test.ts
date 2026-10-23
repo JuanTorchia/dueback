@@ -94,40 +94,49 @@ describe("durable follow-through", () => {
       }
     });
     const execute = vi.fn(() =>
-      Promise.resolve({ receiptId: `receipt_${execute.mock.calls.length}`, acceptedAt: "2026-08-15T12:00:00.000Z" })
+      Promise.resolve({
+        receiptId: `receipt_${execute.mock.calls.length}`,
+        acceptedAt: "2026-08-15T12:00:00.000Z"
+      })
     );
     const scheduleCase = vi.fn(() => Promise.resolve({}));
-    const runner = new CaseRunner(
-      cases,
-      new ActionBroker(new Records(), { execute }),
-      { scheduleCase }
-    );
+    const runner = new CaseRunner(cases, new ActionBroker(new Records(), { execute }), {
+      scheduleCase
+    });
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 1,
-      now: "2026-08-15T12:00:00.000Z"
-    })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 1,
+        now: "2026-08-15T12:00:00.000Z"
+      })
+    ).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
     expect(cases.value).toMatchObject({
       state: "WAITING_EXTERNAL",
       version: 2,
       actionOrdinal: 2,
       nextWakeAt: "2026-08-15T12:01:00.000Z"
     });
-    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
-      caseId: cases.value.caseId,
-      expectedVersion: 2,
-      wakeAt: "2026-08-15T12:01:00.000Z"
-    }));
+    expect(scheduleCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        caseId: cases.value.caseId,
+        expectedVersion: 2,
+        wakeAt: "2026-08-15T12:01:00.000Z"
+      })
+    );
     const firstIdempotencyKey = cases.value.lastActionIdempotencyKey;
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 2,
-      now: "2026-08-15T12:01:00.000Z"
-    })).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 2,
+        now: "2026-08-15T12:01:00.000Z"
+      })
+    ).resolves.toMatchObject({ status: "WAITING_EXTERNAL" });
     expect(execute).toHaveBeenCalledTimes(2);
-    expect(execute.mock.calls[1]?.[0]).toMatchObject({ body: expect.stringContaining("follow-up 2") });
+    expect(execute.mock.calls[1]?.[0]).toMatchObject({
+      body: expect.stringContaining("follow-up 2")
+    });
     expect(cases.value.actionOrdinal).toBe(3);
     expect(cases.value.lastActionIdempotencyKey).not.toBe(firstIdempotencyKey);
   });
@@ -236,7 +245,12 @@ describe("durable follow-through", () => {
     // second Cloud Task that arrives while the first worker owns the send.
     let releaseAction: ((receipt: ActionReceipt) => void) | undefined;
     const blockingAdapter = {
-      execute: vi.fn(() => new Promise<ActionReceipt>((resolve) => { releaseAction = resolve; }))
+      execute: vi.fn(
+        () =>
+          new Promise<ActionReceipt>((resolve) => {
+            releaseAction = resolve;
+          })
+      )
     };
     const broker = new ActionBroker(records, blockingAdapter);
     const first = broker.execute({
@@ -266,11 +280,13 @@ describe("durable follow-through", () => {
     const scheduleCase = vi.fn();
     const runner = new CaseRunner(cases, broker, { scheduleCase });
 
-    await expect(runner.run({
-      caseId: initial.caseId,
-      expectedVersion: initial.version,
-      now: "2026-08-15T12:00:00.100Z"
-    })).resolves.toEqual({ status: "ACTION_IN_FLIGHT" });
+    await expect(
+      runner.run({
+        caseId: initial.caseId,
+        expectedVersion: initial.version,
+        now: "2026-08-15T12:00:00.100Z"
+      })
+    ).resolves.toEqual({ status: "ACTION_IN_FLIGHT" });
     expect(cases.value).toEqual(initial);
     expect(scheduleCase).not.toHaveBeenCalled();
     releaseAction?.({ receiptId: "receipt_owner", acceptedAt: "2026-08-15T12:00:00.200Z" });
@@ -283,40 +299,47 @@ describe("durable follow-through", () => {
       receiptId: "receipt_wake_1",
       acceptedAt: "2026-08-15T12:00:00.000Z"
     });
-    const scheduleCase = vi.fn()
+    const scheduleCase = vi
+      .fn()
       .mockRejectedValueOnce(new Error("INJECTED_QUEUE_UNAVAILABLE"))
       .mockResolvedValue({ taskName: "recovered-task", duplicate: false });
-    const runner = new CaseRunner(
-      cases,
-      new ActionBroker(new Records(), { execute }),
-      { scheduleCase }
-    );
+    const runner = new CaseRunner(cases, new ActionBroker(new Records(), { execute }), {
+      scheduleCase
+    });
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 1,
-      now: "2026-08-15T12:00:00.000Z"
-    })).rejects.toThrow("WAKE_DISPATCH_FAILED");
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 1,
+        now: "2026-08-15T12:00:00.000Z"
+      })
+    ).rejects.toThrow("WAKE_DISPATCH_FAILED");
 
     expect(cases.value).toMatchObject({ state: "WAITING_EXTERNAL", version: 2 });
-    expect(cases.wakes).toEqual([expect.objectContaining({
-      caseId: cases.value.caseId,
-      expectedVersion: 2,
-      status: "PENDING"
-    })]);
+    expect(cases.wakes).toEqual([
+      expect.objectContaining({
+        caseId: cases.value.caseId,
+        expectedVersion: 2,
+        status: "PENDING"
+      })
+    ]);
     expect(execute).toHaveBeenCalledOnce();
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 1,
-      now: "2026-08-15T12:00:01.000Z"
-    })).resolves.toEqual({ status: "STALE_TASK" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 1,
+        now: "2026-08-15T12:00:01.000Z"
+      })
+    ).resolves.toEqual({ status: "STALE_TASK" });
 
     expect(scheduleCase).toHaveBeenCalledTimes(2);
-    expect(scheduleCase).toHaveBeenLastCalledWith(expect.objectContaining({
-      caseId: cases.value.caseId,
-      expectedVersion: 2
-    }));
+    expect(scheduleCase).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        caseId: cases.value.caseId,
+        expectedVersion: 2
+      })
+    );
     expect(execute).toHaveBeenCalledOnce();
   });
 
@@ -361,11 +384,13 @@ describe("durable follow-through", () => {
       interventions
     );
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 2,
-      now: "2026-08-15T12:00:00.000Z"
-    })).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 2,
+        now: "2026-08-15T12:00:00.000Z"
+      })
+    ).resolves.toEqual({ status: "NEEDS_ATTENTION", reason: "ACTION_BUDGET_EXHAUSTED" });
     expect(cases.value).toMatchObject({
       state: "NEEDS_ATTENTION",
       version: 3,
@@ -374,15 +399,20 @@ describe("durable follow-through", () => {
     expect(cases.value.nextWakeAt).toBeUndefined();
     expect(execute).not.toHaveBeenCalled();
     expect([...interventionRecords.values()]).toEqual([
-      expect.objectContaining({ kind: "ACTION_BUDGET_EXHAUSTED", allowedDecisions: ["REVISE", "STOP"] })
+      expect.objectContaining({
+        kind: "ACTION_BUDGET_EXHAUSTED",
+        allowedDecisions: ["REVISE", "STOP"]
+      })
     ]);
     expect(notificationRecords.size).toBe(1);
 
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 2,
-      now: "2026-08-15T12:00:01.000Z"
-    })).resolves.toEqual({ status: "STALE_TASK" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 2,
+        now: "2026-08-15T12:00:01.000Z"
+      })
+    ).resolves.toEqual({ status: "STALE_TASK" });
     expect(interventionRecords.size).toBe(1);
     expect(notificationRecords.size).toBe(1);
   });
@@ -457,12 +487,14 @@ describe("durable follow-through", () => {
       undefined,
       notify
     );
-    await expect(runner.run({
-      caseId: cases.value.caseId,
-      expectedVersion: 1,
-      now: "2026-08-15T12:00:00.000Z",
-      correlationId: "corr_denied_12345678"
-    })).resolves.toEqual({ status: "FAILED", reason: "ACTION_DENIED" });
+    await expect(
+      runner.run({
+        caseId: cases.value.caseId,
+        expectedVersion: 1,
+        now: "2026-08-15T12:00:00.000Z",
+        correlationId: "corr_denied_12345678"
+      })
+    ).resolves.toEqual({ status: "FAILED", reason: "ACTION_DENIED" });
     expect(cases.value).toMatchObject({ state: "FAILED", updatedAt: "2026-08-15T12:00:00.000Z" });
     expect(scheduleCase).not.toHaveBeenCalled();
     expect(notifications.size).toBe(1);

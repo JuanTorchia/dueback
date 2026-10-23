@@ -57,21 +57,24 @@ export function interventionRecord(input: {
     kind: input.kind,
     reasonCodes: input.reasonCodes,
     ...(input.requestedField ? { requestedField: input.requestedField } : {}),
-    question: input.kind === "EVIDENCE_CONFLICT"
-      ? `Does the approved ${input.requestedField ?? "evidence"} need correction?`
-      : input.kind === "ACTION_BUDGET_EXHAUSTED"
-        ? "Should DueBack stop or prepare a newly approved follow-up plan?"
-      : "Should DueBack retry within the existing approved limits?",
-    consequence: input.kind === "EVIDENCE_CONFLICT"
-      ? "Correcting an approved fact stops the current authority and requires a new plan approval."
-      : input.kind === "ACTION_BUDGET_EXHAUSTED"
-        ? "The approved follow-up budget is exhausted. No more messages can be sent without a new approval."
-      : "Retry continues only the already-approved action; changing any authority requires revision.",
-    allowedDecisions: input.kind === "EVIDENCE_CONFLICT"
-      ? ["REVISE", "STOP"]
-      : input.kind === "ACTION_BUDGET_EXHAUSTED"
+    question:
+      input.kind === "EVIDENCE_CONFLICT"
+        ? `Does the approved ${input.requestedField ?? "evidence"} need correction?`
+        : input.kind === "ACTION_BUDGET_EXHAUSTED"
+          ? "Should DueBack stop or prepare a newly approved follow-up plan?"
+          : "Should DueBack retry within the existing approved limits?",
+    consequence:
+      input.kind === "EVIDENCE_CONFLICT"
+        ? "Correcting an approved fact stops the current authority and requires a new plan approval."
+        : input.kind === "ACTION_BUDGET_EXHAUSTED"
+          ? "The approved follow-up budget is exhausted. No more messages can be sent without a new approval."
+          : "Retry continues only the already-approved action; changing any authority requires revision.",
+    allowedDecisions:
+      input.kind === "EVIDENCE_CONFLICT"
         ? ["REVISE", "STOP"]
-      : ["RESUME", "STOP"],
+        : input.kind === "ACTION_BUDGET_EXHAUSTED"
+          ? ["REVISE", "STOP"]
+          : ["RESUME", "STOP"],
     status: "OPEN",
     createdAt: input.createdAt
   };

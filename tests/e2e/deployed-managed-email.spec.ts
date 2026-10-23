@@ -14,10 +14,12 @@ test.describe("deployed managed email pilot", () => {
     const context = await browser.newContext({ storageState: ownerState });
     const page = await context.newPage();
     await page.goto(`${deployedUrl}/intake`);
-    await page.getByRole("textbox", { name: "What happened, and what are you waiting for?" }).fill(
-      "On August 10, 2026, Northstar Test Store promised a USD 1.00 refund for order TEST-RESEND-817. " +
-      "The refund was due by August 16, 2026. This is an authorized controlled email test."
-    );
+    await page
+      .getByRole("textbox", { name: "What happened, and what are you waiting for?" })
+      .fill(
+        "On August 10, 2026, Northstar Test Store promised a USD 1.00 refund for order TEST-RESEND-817. " +
+          "The refund was due by August 16, 2026. This is an authorized controlled email test."
+      );
     await page.getByRole("button", { name: "Build my plan" }).click();
     await expect(page).toHaveURL(/\/cases\/case_[^/]+\/review/, { timeout: 45_000 });
     await page.getByRole("button", { name: /Managed email Available/ }).click();

@@ -146,7 +146,14 @@ export function assertLogicalActionBudget(actionOrdinal: number): void {
 
 export function parseAllowedRecipientDomains(value: string | undefined): readonly string[] {
   if (!value) return [];
-  return [...new Set(value.split(",").map((domain) => domain.trim().toLowerCase()).filter(Boolean))];
+  return [
+    ...new Set(
+      value
+        .split(",")
+        .map((domain) => domain.trim().toLowerCase())
+        .filter(Boolean)
+    )
+  ];
 }
 
 export function assertControlledRecipient(
@@ -159,9 +166,10 @@ export function assertControlledRecipient(
     throw new Error("COMPANY_EMAIL_RECIPIENT_INVALID");
   }
   const domain = normalized.slice(separator + 1);
-  if (allowedDomains.length === 0 || !allowedDomains.some((allowed) =>
-    domain === allowed || domain.endsWith(`.${allowed}`)
-  )) {
+  if (
+    allowedDomains.length === 0 ||
+    !allowedDomains.some((allowed) => domain === allowed || domain.endsWith(`.${allowed}`))
+  ) {
     throw new Error("COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED");
   }
 }

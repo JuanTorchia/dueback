@@ -45,8 +45,18 @@ components:
   schemas:
     ChannelCapability:
       type: object
-      required: [channelType, status, canSend, canReceive, supportsThreading,
-        supportsDeliveryReceipt, supportsAuthenticatedReply, requiresUserOAuth, reasonCodes]
+      required:
+        [
+          channelType,
+          status,
+          canSend,
+          canReceive,
+          supportsThreading,
+          supportsDeliveryReceipt,
+          supportsAuthenticatedReply,
+          requiresUserOAuth,
+          reasonCodes
+        ]
       properties:
         channelType: { enum: [CONTROLLED_SANDBOX, MANAGED_EMAIL, GMAIL_CONNECTED, PARTNER_API] }
         status: { enum: [AVAILABLE, DEGRADED, UNAVAILABLE, FUTURE] }

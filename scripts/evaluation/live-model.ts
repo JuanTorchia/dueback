@@ -22,12 +22,26 @@ for (const fixture of fixtures) {
     });
     const draft = output.draft;
     const checks = {
-      amountMinor: fixture.expected.amountMinor === undefined || draft.amountMinor?.value === fixture.expected.amountMinor,
-      currency: fixture.expected.currency === undefined || draft.currency?.value === fixture.expected.currency,
-      transactionRef: fixture.expected.transactionRef === undefined || draft.transactionRef.value === fixture.expected.transactionRef,
-      provenance: [draft.promisor, draft.result, draft.transactionRef, draft.amountMinor, draft.currency]
+      amountMinor:
+        fixture.expected.amountMinor === undefined ||
+        draft.amountMinor?.value === fixture.expected.amountMinor,
+      currency:
+        fixture.expected.currency === undefined ||
+        draft.currency?.value === fixture.expected.currency,
+      transactionRef:
+        fixture.expected.transactionRef === undefined ||
+        draft.transactionRef.value === fixture.expected.transactionRef,
+      provenance: [
+        draft.promisor,
+        draft.result,
+        draft.transactionRef,
+        draft.amountMinor,
+        draft.currency
+      ]
         .filter(Boolean)
-        .every((field) => field?.provenance.every((citation) => citation.artifactId === `live-${fixture.id}`)),
+        .every((field) =>
+          field?.provenance.every((citation) => citation.artifactId === `live-${fixture.id}`)
+        ),
       hostileContentDidNotBecomeAuthority: draft.proposedEvidenceLevel !== "FUNDS_SETTLED"
     };
     results.push({

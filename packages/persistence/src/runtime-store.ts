@@ -40,14 +40,33 @@ export class FirestoreRuntimeStore
     const day = input.requestedAt.slice(0, 10);
     const ownerHash = stableHash(input.ownerId).slice(7, 31);
     const recipientHash = stableHash(input.recipient.toLowerCase()).slice(7, 31);
-    const domain = input.recipient.includes("@") ? input.recipient.split("@").at(-1)?.toLowerCase() ?? "none" : "none";
+    const domain = input.recipient.includes("@")
+      ? (input.recipient.split("@").at(-1)?.toLowerCase() ?? "none")
+      : "none";
     const domainHash = stableHash(domain).slice(7, 31);
     const references = [
-      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-recipient-${recipientHash}`), limit: 3 },
-      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-domain-${domainHash}`), limit: 10 },
-      { ref: this.db.collection("externalSendBudgets").doc(`${ownerHash}-${day}-channel-${input.channelType}`), limit: 10 }
+      {
+        ref: this.db
+          .collection("externalSendBudgets")
+          .doc(`${ownerHash}-${day}-recipient-${recipientHash}`),
+        limit: 3
+      },
+      {
+        ref: this.db
+          .collection("externalSendBudgets")
+          .doc(`${ownerHash}-${day}-domain-${domainHash}`),
+        limit: 10
+      },
+      {
+        ref: this.db
+          .collection("externalSendBudgets")
+          .doc(`${ownerHash}-${day}-channel-${input.channelType}`),
+        limit: 10
+      }
     ];
-    const reservation = this.db.collection("externalSendReservations").doc(stableHash(input.idempotencyKey).slice(7, 39));
+    const reservation = this.db
+      .collection("externalSendReservations")
+      .doc(stableHash(input.idempotencyKey).slice(7, 39));
     await this.db.runTransaction(async (transaction) => {
       const prior = await transaction.get(reservation);
       if (prior.exists) return;
@@ -58,13 +77,17 @@ export class FirestoreRuntimeStore
         }
       }
       for (const { ref } of references) {
-        transaction.set(ref, {
-          ownerHash,
-          day,
-          count: FieldValue.increment(1),
-          updatedAt: input.requestedAt,
-          deleteAt: firestoreDeleteAt(input.requestedAt, 2 * 86_400_000)
-        }, { merge: true });
+        transaction.set(
+          ref,
+          {
+            ownerHash,
+            day,
+            count: FieldValue.increment(1),
+            updatedAt: input.requestedAt,
+            deleteAt: firestoreDeleteAt(input.requestedAt, 2 * 86_400_000)
+          },
+          { merge: true }
+        );
       }
       transaction.create(reservation, {
         idempotencyKey: input.idempotencyKey,
@@ -110,12 +133,14 @@ export class FirestoreRuntimeStore
     return snapshot.docs.map((document) => document.data() as RuntimeTimelineEvent);
   }
 
-  async listChannelEvents(caseId: string): Promise<readonly {
-    channelType: string;
-    transportStatus: string;
-    acceptedAt: string;
-    observedAt?: string;
-  }[]> {
+  async listChannelEvents(caseId: string): Promise<
+    readonly {
+      channelType: string;
+      transportStatus: string;
+      acceptedAt: string;
+      observedAt?: string;
+    }[]
+  > {
     const snapshot = await this.db
       .collection("actionRecords")
       .where("receipt.caseId", "==", caseId)
@@ -192,11 +217,11 @@ export class FirestoreRuntimeStore
     const actionReference = this.db.collection("actionRecords").doc(idempotencyKey.slice(7));
     const batch = this.db.batch();
     batch.set(actionReference, {
-        status: "SUCCEEDED",
-        idempotencyKey,
-        receipt,
-        deleteAt: firestoreDeleteAt(new Date().toISOString())
-      });
+      status: "SUCCEEDED",
+      idempotencyKey,
+      receipt,
+      deleteAt: firestoreDeleteAt(new Date().toISOString())
+    });
     if (receipt.replyRoute && receipt.caseId) {
       const routeKey = stableHash({
         namespace: "dueback/reply-route/v1",
@@ -221,11 +246,12 @@ export class FirestoreRuntimeStore
       replyRoute: replyRoute.toLowerCase()
     });
     const document = await this.db.collection("messageThreads").doc(routeKey.slice(7)).get();
-    return document.exists ? document.get("caseId") as string : undefined;
+    return document.exists ? (document.get("caseId") as string) : undefined;
   }
 
   async caseForProviderMessageId(providerMessageId: string): Promise<string | undefined> {
-    const snapshot = await this.db.collection("messageThreads")
+    const snapshot = await this.db
+      .collection("messageThreads")
       .where("providerMessageId", "==", providerMessageId)
       .limit(2)
       .get();
@@ -248,10 +274,13 @@ export class FirestoreRuntimeStore
     const actionDocument = snapshot.docs[0];
     if (!actionDocument) return "UNKNOWN";
     const receipt = actionDocument.get("receipt") as ActionReceipt;
-    await actionDocument.ref.set({
-      receipt: { ...receipt, transportStatus, observedAt },
-      deleteAt: firestoreDeleteAt(observedAt)
-    }, { merge: true });
+    await actionDocument.ref.set(
+      {
+        receipt: { ...receipt, transportStatus, observedAt },
+        deleteAt: firestoreDeleteAt(observedAt)
+      },
+      { merge: true }
+    );
     const caseId = receipt.caseId;
     if (caseId && ["BOUNCED", "COMPLAINED", "SUPPRESSED"].includes(transportStatus)) {
       const caseReference = this.db.collection("caseRuns").doc(caseId);
@@ -271,8 +300,12 @@ export class FirestoreRuntimeStore
           correlationId,
           kind: "NEEDS_ATTENTION"
         });
-        const interventionReference = this.db.collection("interventions").doc(interventionKey.slice(7));
-        const notificationReference = this.db.collection("notifications").doc(notificationKey.slice(7));
+        const interventionReference = this.db
+          .collection("interventions")
+          .doc(interventionKey.slice(7));
+        const notificationReference = this.db
+          .collection("notifications")
+          .doc(notificationKey.slice(7));
         const [intervention, notification] = await Promise.all([
           transaction.get(interventionReference),
           transaction.get(notificationReference)
@@ -324,7 +357,8 @@ export class FirestoreRuntimeStore
     transportStatus: "DELIVERED" | "BOUNCED" | "COMPLAINED" | "SUPPRESSED",
     observedAt: string
   ): Promise<"RECORDED" | "UNKNOWN" | "AMBIGUOUS"> {
-    const snapshot = await this.db.collection("notifications")
+    const snapshot = await this.db
+      .collection("notifications")
       .where("deliveryId", "==", providerMessageId)
       .limit(2)
       .get();
@@ -333,11 +367,14 @@ export class FirestoreRuntimeStore
     const document = snapshot.docs[0];
     if (!document) return "UNKNOWN";
     const deliveryStatus = transportStatus === "COMPLAINED" ? "SUPPRESSED" : transportStatus;
-    await document.ref.set({
-      deliveryStatus,
-      deliveredAt: observedAt,
-      deleteAt: firestoreDeleteAt(observedAt)
-    }, { merge: true });
+    await document.ref.set(
+      {
+        deliveryStatus,
+        deliveredAt: observedAt,
+        deleteAt: firestoreDeleteAt(observedAt)
+      },
+      { merge: true }
+    );
     return "RECORDED";
   }
 
@@ -361,11 +398,17 @@ export class FirestoreRuntimeStore
     reasonCode: string;
     observedAt: string;
   }): Promise<void> {
-    await this.db.collection("actionRecords").doc(input.idempotencyKey.slice(7)).set({
-      status: "UNKNOWN",
-      ...input,
-      deleteAt: firestoreDeleteAt(input.observedAt)
-    }, { merge: true });
+    await this.db
+      .collection("actionRecords")
+      .doc(input.idempotencyKey.slice(7))
+      .set(
+        {
+          status: "UNKNOWN",
+          ...input,
+          deleteAt: firestoreDeleteAt(input.observedAt)
+        },
+        { merge: true }
+      );
   }
 
   async record(input: {
@@ -473,7 +516,10 @@ export class FirestoreRuntimeStore
     if (run && draft.exists) {
       const typedDraft = draft.data() as DraftCase;
       const budgetKey = `${run.ownerId}:${typedDraft.artifactId}`;
-      const usage = await this.db.collection("modelUsage").doc(stableHash(budgetKey).slice(7, 39)).get();
+      const usage = await this.db
+        .collection("modelUsage")
+        .doc(stableHash(budgetKey).slice(7, 39))
+        .get();
       if (usage.exists) {
         const usageData = usage.data() as {
           lastStatus?: unknown;
@@ -490,7 +536,9 @@ export class FirestoreRuntimeStore
           ...(typeof usageData.totalLatencyMs === "number"
             ? { totalLatencyMs: usageData.totalLatencyMs }
             : {}),
-          ...(typeof usageData.totalTokens === "number" ? { totalTokens: usageData.totalTokens } : {}),
+          ...(typeof usageData.totalTokens === "number"
+            ? { totalTokens: usageData.totalTokens }
+            : {}),
           ...(typeof usageData.estimatedCostUsd === "number"
             ? { estimatedCostUsd: usageData.estimatedCostUsd }
             : {})
@@ -567,7 +615,8 @@ export class FirestoreRuntimeStore
     payloadHash: string;
     receivedAt: string;
   }): Promise<"RESERVED" | "IN_FLIGHT" | "COMPLETED"> {
-    const reference = this.db.collection("providerEvents")
+    const reference = this.db
+      .collection("providerEvents")
       .doc(stableHash(input.providerEventId).slice(7, 39));
     return this.db.runTransaction(async (transaction) => {
       const current = await transaction.get(reference);
@@ -593,15 +642,19 @@ export class FirestoreRuntimeStore
     observedAt: string,
     reasonCodes: readonly string[] = []
   ): Promise<void> {
-    await this.db.collection("providerEvents")
+    await this.db
+      .collection("providerEvents")
       .doc(stableHash(providerEventId).slice(7, 39))
-      .set({
-        status,
-        processedAt: status === "PROCESSED" ? observedAt : null,
-        lastObservedAt: observedAt,
-        reasonCodes: [...reasonCodes].slice(0, 10),
-        deleteAt: firestoreDeleteAt(observedAt)
-      }, { merge: true });
+      .set(
+        {
+          status,
+          processedAt: status === "PROCESSED" ? observedAt : null,
+          lastObservedAt: observedAt,
+          reasonCodes: [...reasonCodes].slice(0, 10),
+          deleteAt: firestoreDeleteAt(observedAt)
+        },
+        { merge: true }
+      );
   }
 
   async recordInboundEnvelope(input: {
@@ -618,21 +671,26 @@ export class FirestoreRuntimeStore
       providerEventId: input.providerEventId,
       providerEmailId: input.providerEmailId
     });
-    await this.db.collection("inboundEnvelopes").doc(inboundId.slice(7, 39)).set({
-      inboundId: `inbound_${inboundId.slice(7, 31)}`,
-      providerEventId: input.providerEventId,
-      providerEmailId: input.providerEmailId,
-      channelType: "MANAGED_EMAIL",
-      correlationStatus: "UNKNOWN",
-      senderFingerprint: stableHash(input.from.toLowerCase()),
-      recipientRouteFingerprints: input.to.map((recipient) => stableHash(recipient.toLowerCase())),
-      subject: input.subject,
-      text: input.text,
-      contentHash: stableHash(input.text),
-      providerSignatureValid: true,
-      receivedAt: input.receivedAt,
-      deleteAt: firestoreDeleteAt(input.receivedAt, 86_400_000)
-    });
+    await this.db
+      .collection("inboundEnvelopes")
+      .doc(inboundId.slice(7, 39))
+      .set({
+        inboundId: `inbound_${inboundId.slice(7, 31)}`,
+        providerEventId: input.providerEventId,
+        providerEmailId: input.providerEmailId,
+        channelType: "MANAGED_EMAIL",
+        correlationStatus: "UNKNOWN",
+        senderFingerprint: stableHash(input.from.toLowerCase()),
+        recipientRouteFingerprints: input.to.map((recipient) =>
+          stableHash(recipient.toLowerCase())
+        ),
+        subject: input.subject,
+        text: input.text,
+        contentHash: stableHash(input.text),
+        providerSignatureValid: true,
+        receivedAt: input.receivedAt,
+        deleteAt: firestoreDeleteAt(input.receivedAt, 86_400_000)
+      });
   }
 
   async reserveCallback(

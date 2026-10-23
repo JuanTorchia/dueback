@@ -14,15 +14,17 @@ export function GET() {
     process.env.EMAIL_WEBHOOK_SIGNING_SECRET &&
     process.env.COMPANY_EMAIL_REPLY_DOMAIN
   );
-  return Response.json(publicChannelCapabilities({
-    now: new Date().toISOString(),
-    sandboxAvailable: Boolean(
-      process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
-    ),
-    managedEmailOutbound,
-    managedEmailInbound,
-    partnerFixtureAvailable: Boolean(
-      process.env.PARTNER_FIXTURE_ENDPOINT && process.env.PARTNER_FIXTURE_SIGNING_SECRET
-    )
-  }));
+  return Response.json(
+    publicChannelCapabilities({
+      now: new Date().toISOString(),
+      sandboxAvailable: Boolean(
+        process.env.MERCHANT_SANDBOX_URL && process.env.MERCHANT_CALLBACK_SECRET
+      ),
+      managedEmailOutbound,
+      managedEmailInbound,
+      partnerFixtureAvailable: Boolean(
+        process.env.PARTNER_FIXTURE_ENDPOINT && process.env.PARTNER_FIXTURE_SIGNING_SECRET
+      )
+    })
+  );
 }

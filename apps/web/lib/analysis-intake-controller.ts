@@ -42,14 +42,16 @@ export async function handleAnalysisIntake(
         : undefined;
     if (!input) return Response.json({ error: "PROMISE_SOURCE_REQUIRED" }, { status: 400 });
     const accepted = acceptUpload(input);
-    const sourceIdentity = contextText && hasFile
-      ? stableHash({ file: accepted.sha256, contextText })
-      : `sha256:${accepted.sha256}`;
-    const artifactId = contextText && hasFile
-      ? `artifact_${sourceIdentity.slice(7, 31)}`
-      : accepted.artifactId;
-    const ownerPath = stableHash({ namespace: "dueback/artifact-owner/v1", ownerId: owner.uid })
-      .slice(7, 31);
+    const sourceIdentity =
+      contextText && hasFile
+        ? stableHash({ file: accepted.sha256, contextText })
+        : `sha256:${accepted.sha256}`;
+    const artifactId =
+      contextText && hasFile ? `artifact_${sourceIdentity.slice(7, 31)}` : accepted.artifactId;
+    const ownerPath = stableHash({
+      namespace: "dueback/artifact-owner/v1",
+      ownerId: owner.uid
+    }).slice(7, 31);
     const artifactPath = `analysis/${ownerPath}/${sourceIdentity.slice(7)}`;
     const job = analysisJobSchema.parse({
       jobId: `analysis_${randomUUID()}`,
@@ -90,19 +92,22 @@ export async function handleAnalysisIntake(
     if (persisted.job.status !== "READY") {
       await dependencies.schedule(persisted.job.jobId, receivedAt);
     }
-    return Response.json({
-      caseId: persisted.job.caseId,
-      status: persisted.job.status,
-      duplicate: persisted.duplicate
-    }, { status: persisted.job.status === "READY" || persisted.duplicate ? 200 : 202 });
+    return Response.json(
+      {
+        caseId: persisted.job.caseId,
+        status: persisted.job.status,
+        duplicate: persisted.duplicate
+      },
+      { status: persisted.job.status === "READY" || persisted.duplicate ? 200 : 202 }
+    );
   } catch (cause) {
     const error = redactedPublicError(cause);
-    const candidateStatus = "status" in Object(cause)
-      ? (cause as { status?: unknown }).status
-      : undefined;
-    const status = typeof candidateStatus === "number" && candidateStatus >= 400 && candidateStatus <= 599
-      ? candidateStatus
-      : 422;
+    const candidateStatus =
+      "status" in Object(cause) ? (cause as { status?: unknown }).status : undefined;
+    const status =
+      typeof candidateStatus === "number" && candidateStatus >= 400 && candidateStatus <= 599
+        ? candidateStatus
+        : 422;
     return Response.json({ error }, { status });
   }
 }

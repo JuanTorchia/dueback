@@ -32,7 +32,7 @@ Public video URL: <https://youtu.be/Du5XadyAt1A>
 - [ ] Repository: `https://github.com/JuanTorchia/dueback`.
 - [ ] Video: paste the verified public YouTube URL.
 - [ ] Confirm technologies include Gemini 3.5 Flash, Vertex AI, Genkit, Cloud Run, Cloud Tasks,
-  Firestore, Firebase Authentication and Firebase Hosting.
+      Firestore, Firebase Authentication and Firebase Hosting.
 - [ ] Preserve the controlled-sandbox and bank-settlement disclosures.
 - [ ] Save the draft, preview every section and test every link.
 - [ ] Submit before `2026-08-31 17:00 PT` (`2026-09-01 00:00 UTC`).
@@ -41,7 +41,7 @@ Public video URL: <https://youtu.be/Du5XadyAt1A>
 ## 4. Optional bonus
 
 - [x] Use the public YouTube video as the public-content contribution only if Devpost provides the
-  corresponding field; its description contains the required hackathon-purpose declaration.
+      corresponding field; its description contains the required hackathon-purpose declaration.
 - [ ] Publish a separate X or LinkedIn post with the exact hashtag `#AllThingsAgenticHackathon`.
 - [ ] Record both public URLs in the Devpost bonus fields and verify them signed out.
 
@@ -49,4 +49,4 @@ Public video URL: <https://youtu.be/Du5XadyAt1A>
 
 - [ ] Keep the submitted video, repository and live app available and unchanged through judging.
 - [ ] If development continues, use a separate branch or fork rather than changing the submitted
-  evidence unexpectedly.
+      evidence unexpectedly.

@@ -89,16 +89,21 @@ export class EvidenceService {
       `corr_${stableHash({ namespace: "dueback/correlation/v1", caseId: item.caseId }).slice(7, 31)}`;
     const accepted = verification.accepted;
     const conflict = !accepted && !verification.reasonCodes.includes("INSUFFICIENT_LEVEL");
-    const nextWakeAt = !accepted && !conflict
-      ? new Date(Date.parse(now) + (item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60) * 1000).toISOString()
+    const nextWakeAt =
+      !accepted && !conflict
+        ? new Date(
+            Date.parse(now) + (item.plan.followUpIntervalSeconds ?? 2 * 24 * 60 * 60) * 1000
+          ).toISOString()
+        : undefined;
+    const wake = nextWakeAt
+      ? wakeIntent({
+          caseId: item.caseId,
+          expectedVersion: item.version + 1,
+          wakeAt: nextWakeAt,
+          correlationId,
+          createdAt: now
+        })
       : undefined;
-    const wake = nextWakeAt ? wakeIntent({
-        caseId: item.caseId,
-        expectedVersion: item.version + 1,
-        wakeAt: nextWakeAt,
-        correlationId,
-        createdAt: now
-      }) : undefined;
     const recorded = await this.cases.record({
       caseId: item.caseId,
       expectedVersion: item.version,

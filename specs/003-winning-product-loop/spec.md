@@ -29,18 +29,18 @@ hard-coded UI animation. The controlled pilot is not a claim that DueBack can co
 
 ## Ten Audited Workstreams
 
-| # | Gap to close | Required product outcome |
-| --- | --- | --- |
-| 1 | Examples stop at future `SCHEDULED` states | Every visible demo example reaches an inspectable result during one session |
-| 2 | Demo and real capability are mixed | The person chooses an honestly labeled execution mode before approval |
-| 3 | Extracted facts cannot be corrected | All action-authorizing facts are editable and versioned |
-| 4 | No real contact boundary is demonstrated | One allowlisted bidirectional email route passes explicit readiness gates |
-| 5 | Review is a long technical console | Approval answers five consumer questions with progressive disclosure |
-| 6 | Autonomy and Google Cloud are hidden | A user-safe timeline and judge evidence console expose real durable events |
-| 7 | Intake blocks for 15–25 seconds | Analysis becomes durable, resumable and cancellable |
-| 8 | Return path is fragile and browser-bound | Recoverable identity, case history and truthful notification state exist |
-| 9 | Inbound email can manufacture matching evidence | Missing facts remain missing; authentication and deterministic proof are fail-closed |
-| 10 | Gemini value and submission readiness are weak | Live-model evaluation and every mandatory submission artifact have evidence gates |
+| #   | Gap to close                                    | Required product outcome                                                             |
+| --- | ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | Examples stop at future `SCHEDULED` states      | Every visible demo example reaches an inspectable result during one session          |
+| 2   | Demo and real capability are mixed              | The person chooses an honestly labeled execution mode before approval                |
+| 3   | Extracted facts cannot be corrected             | All action-authorizing facts are editable and versioned                              |
+| 4   | No real contact boundary is demonstrated        | One allowlisted bidirectional email route passes explicit readiness gates            |
+| 5   | Review is a long technical console              | Approval answers five consumer questions with progressive disclosure                 |
+| 6   | Autonomy and Google Cloud are hidden            | A user-safe timeline and judge evidence console expose real durable events           |
+| 7   | Intake blocks for 15–25 seconds                 | Analysis becomes durable, resumable and cancellable                                  |
+| 8   | Return path is fragile and browser-bound        | Recoverable identity, case history and truthful notification state exist             |
+| 9   | Inbound email can manufacture matching evidence | Missing facts remain missing; authentication and deterministic proof are fail-closed |
+| 10  | Gemini value and submission readiness are weak  | Live-model evaluation and every mandatory submission artifact have evidence gates    |
 
 ## User Scenarios & Testing
 
@@ -173,7 +173,7 @@ the page, then reopen from case history and verify the same ordered event ledger
 2. **Given** a weak reply, **When** it is rejected, **Then** the timeline states why and what DueBack
    will do next rather than exposing only a reason code.
 3. **Given** a terminal result, **When** it is displayed, **Then** `what was verified`, `what was not
-   verified`, evidence source and `This is not resolved` control are visible.
+verified`, evidence source and `This is not resolved` control are visible.
 4. **Given** the person stops or disputes a case, **When** a late task or callback arrives, **Then**
    it cannot silently resume external action or restore `DONE`.
 

@@ -20,7 +20,13 @@ export interface NormalizedInboundEmail {
 }
 
 export interface InboundInterpretation {
-  readonly replyType: "ACKNOWLEDGEMENT" | "STATUS" | "PROPOSAL_CHANGE" | "EVIDENCE" | "AUTO_REPLY" | "UNKNOWN";
+  readonly replyType:
+    | "ACKNOWLEDGEMENT"
+    | "STATUS"
+    | "PROPOSAL_CHANGE"
+    | "EVIDENCE"
+    | "AUTO_REPLY"
+    | "UNKNOWN";
   readonly evidenceLevel: EvidenceCandidateContract["level"];
   readonly transactionRef?: string | undefined;
   readonly amountMinor?: number | undefined;
@@ -52,16 +58,24 @@ export class InboundService {
     private readonly interventions: InterventionService
   ) {}
 
-  async process(email: NormalizedInboundEmail, now: string): Promise<{
+  async process(
+    email: NormalizedInboundEmail,
+    now: string
+  ): Promise<{
     status: "REJECTED" | "INSUFFICIENT" | "NEEDS_ATTENTION" | "VERIFIED";
     reasonCodes?: readonly string[];
   }> {
-    const correlations = (await Promise.all(email.to.map((recipient) =>
-      this.cases.caseForReplyRoute(address(recipient))
-    ))).filter((caseId): caseId is string => Boolean(caseId));
+    const correlations = (
+      await Promise.all(
+        email.to.map((recipient) => this.cases.caseForReplyRoute(address(recipient)))
+      )
+    ).filter((caseId): caseId is string => Boolean(caseId));
     const uniqueCases = [...new Set(correlations)];
     if (uniqueCases.length !== 1) {
-      return { status: "REJECTED", reasonCodes: [uniqueCases.length ? "AMBIGUOUS_CASE" : "UNKNOWN_CASE"] };
+      return {
+        status: "REJECTED",
+        reasonCodes: [uniqueCases.length ? "AMBIGUOUS_CASE" : "UNKNOWN_CASE"]
+      };
     }
     const caseId = uniqueCases[0];
     if (!caseId) return { status: "REJECTED", reasonCodes: ["UNKNOWN_CASE"] };
@@ -124,7 +138,9 @@ export class InboundService {
       evidenceId: `evidence_${stableHash({ namespace: "dueback/inbound-evidence/v1", id: email.providerEmailId }).slice(7, 31)}`,
       caseId,
       level: interpretation.evidenceLevel,
-      ...(interpretation.amountMinor === undefined ? {} : { amountMinor: interpretation.amountMinor }),
+      ...(interpretation.amountMinor === undefined
+        ? {}
+        : { amountMinor: interpretation.amountMinor }),
       ...(interpretation.currency === undefined ? {} : { currency: interpretation.currency }),
       ...(interpretation.transactionRef === undefined
         ? {}

@@ -36,17 +36,19 @@ describe("privacy-safe observability", () => {
   });
 
   it("drops channel addresses, message content, headers and credentials regardless of casing", () => {
-    expect(redactUnknownFields({
-      channelType: "MANAGED_EMAIL",
-      deliveryStatus: "ACCEPTED",
-      Recipient: "person@example.test",
-      reply_route: "case+secret@example.test",
-      subject: "private order",
-      messageText: "private body",
-      authorizationHeader: "Bearer secret",
-      webhookToken: "secret",
-      providerMessageIdHash: "sha256:safe"
-    })).toEqual({
+    expect(
+      redactUnknownFields({
+        channelType: "MANAGED_EMAIL",
+        deliveryStatus: "ACCEPTED",
+        Recipient: "person@example.test",
+        reply_route: "case+secret@example.test",
+        subject: "private order",
+        messageText: "private body",
+        authorizationHeader: "Bearer secret",
+        webhookToken: "secret",
+        providerMessageIdHash: "sha256:safe"
+      })
+    ).toEqual({
       channelType: "MANAGED_EMAIL",
       deliveryStatus: "ACCEPTED",
       providerMessageIdHash: "sha256:safe"

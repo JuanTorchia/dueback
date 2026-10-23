@@ -16,14 +16,14 @@ automated test before remediation.
 
 ## High-impact findings and disposition
 
-| Finding | Validation | Disposition |
-| --- | --- | --- |
-| The model-call key used only the content-derived artifact ID, so repeated fixture text shared one global budget. | Confirmed in `apps/web/app/api/intake/route.ts`. | Fixed: key now combines owner and artifact; regression test proves cross-owner isolation. |
-| Anonymous auth could create a new owner before persisted auth hydration completed after navigation. | Confirmed in the client auth sequence and consistent with the observed transient 403. | Fixed: await `authStateReady()` before anonymous sign-in. |
-| Intake could block company, result, amount, currency, reference, or due date while review exposed only amount correction. | Confirmed by comparing `blockingCriticalFields` with `PlanReview`. | Fixed: every blockable field has a labeled confirmation control; runtime regression test resolves all six. |
-| Contradictory/ambiguous fields were rendered as certain values. | Confirmed in `PlanReview`. | Fixed: uncertainty, provenance locator, and confidence are visible beside the candidate. |
-| Internal field names and completion constants appeared as consumer copy. | Confirmed in `PlanReview`. | Fixed for blocking, shared-data, and proof language. |
-| `/privacy` did not exist and pre-activation deletion was unavailable. | Confirmed by routes and service interfaces. | Fixed: privacy page and owner-checked transactional draft deletion. |
+| Finding                                                                                                                   | Validation                                                                            | Disposition                                                                                                |
+| ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| The model-call key used only the content-derived artifact ID, so repeated fixture text shared one global budget.          | Confirmed in `apps/web/app/api/intake/route.ts`.                                      | Fixed: key now combines owner and artifact; regression test proves cross-owner isolation.                  |
+| Anonymous auth could create a new owner before persisted auth hydration completed after navigation.                       | Confirmed in the client auth sequence and consistent with the observed transient 403. | Fixed: await `authStateReady()` before anonymous sign-in.                                                  |
+| Intake could block company, result, amount, currency, reference, or due date while review exposed only amount correction. | Confirmed by comparing `blockingCriticalFields` with `PlanReview`.                    | Fixed: every blockable field has a labeled confirmation control; runtime regression test resolves all six. |
+| Contradictory/ambiguous fields were rendered as certain values.                                                           | Confirmed in `PlanReview`.                                                            | Fixed: uncertainty, provenance locator, and confidence are visible beside the candidate.                   |
+| Internal field names and completion constants appeared as consumer copy.                                                  | Confirmed in `PlanReview`.                                                            | Fixed for blocking, shared-data, and proof language.                                                       |
+| `/privacy` did not exist and pre-activation deletion was unavailable.                                                     | Confirmed by routes and service interfaces.                                           | Fixed: privacy page and owner-checked transactional draft deletion.                                        |
 
 ## Required caveat
 

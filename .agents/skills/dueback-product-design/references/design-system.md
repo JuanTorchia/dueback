@@ -30,8 +30,8 @@ visual motif is a proof trail connecting promise, approved action, and verified 
   --border-strong: #b9c6be;
   --font-sans: "Geist Sans", Inter, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
-  --text-xs: .75rem;
-  --text-sm: .875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: 1.25rem;
   --title-sm: 1.75rem;

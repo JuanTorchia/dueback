@@ -101,7 +101,11 @@ export function buildExtractionPrompt(input: ExtractionInput) {
         instruction,
         { media: { url: input.source.dataUrl, contentType: input.source.contentType } },
         ...(input.source.contextText
-          ? [{ text: `<untrusted-user-context>\n${input.source.contextText}\n</untrusted-user-context>` }]
+          ? [
+              {
+                text: `<untrusted-user-context>\n${input.source.contextText}\n</untrusted-user-context>`
+              }
+            ]
           : [])
       ];
 }

@@ -1,6 +1,15 @@
 import { randomUUID } from "node:crypto";
-import { outcomeContractSchema, promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
-import type { ChannelType, OutcomeContract, PromiseDraft, ResolutionPlan } from "@dueback/contracts";
+import {
+  outcomeContractSchema,
+  promiseDraftSchema,
+  resolutionPlanSchema
+} from "@dueback/contracts";
+import type {
+  ChannelType,
+  OutcomeContract,
+  PromiseDraft,
+  ResolutionPlan
+} from "@dueback/contracts";
 import { caseDedupeKey, stableHash } from "@dueback/domain";
 
 export interface IntakeArtifact {
@@ -12,9 +21,9 @@ export interface IntakeArtifact {
   readonly content:
     | string
     | {
-      readonly dataUrl: string;
-      readonly contentType: "image/jpeg" | "image/png" | "application/pdf";
-      readonly contextText?: string;
+        readonly dataUrl: string;
+        readonly contentType: "image/jpeg" | "image/png" | "application/pdf";
+        readonly contextText?: string;
       };
 }
 
@@ -87,7 +96,12 @@ export function blockingCriticalFields(
     ["result", draft.result],
     ["transactionRef", draft.transactionRef]
   ];
-  if (draft.promiseType === "REFUND" || draft.promiseType === "BILL_CREDIT" || draft.amountMinor || draft.currency) {
+  if (
+    draft.promiseType === "REFUND" ||
+    draft.promiseType === "BILL_CREDIT" ||
+    draft.amountMinor ||
+    draft.currency
+  ) {
     fields.push(["amountMinor", draft.amountMinor], ["currency", draft.currency]);
   }
   const blocked = fields
@@ -100,9 +114,10 @@ export function blockingCriticalFields(
 }
 
 export function followUpMessage(draft: PromiseDraft): { subject: string; body: string } {
-  const amountLine = draft.amountMinor && draft.currency
-    ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
-    : undefined;
+  const amountLine =
+    draft.amountMinor && draft.currency
+      ? `Amount: ${draft.currency.value} ${(draft.amountMinor.value / 100).toFixed(2)}`
+      : undefined;
   return {
     subject: `Follow-up for ${draft.transactionRef.value}`,
     body: [
@@ -114,7 +129,9 @@ export function followUpMessage(draft: PromiseDraft): { subject: string; body: s
       amountLine,
       "Please reply with the current status and verifiable confirmation when the outcome is complete.",
       "An acknowledgement that the request was received will not be treated as completion."
-    ].filter((line): line is string => Boolean(line)).join("\n")
+    ]
+      .filter((line): line is string => Boolean(line))
+      .join("\n")
   };
 }
 
@@ -135,8 +152,8 @@ function buildPlan(input: {
   // extract. Keep the promise usable as a general follow-up instead of creating
   // a plan that can never satisfy its evidence schema.
   const extractedPromiseType = draft.promiseType === "BILL_CREDIT" ? "GENERAL" : draft.promiseType;
-  const promiseType = extractedPromiseType ??
-    (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
+  const promiseType =
+    extractedPromiseType ?? (draft.amountMinor || draft.currency ? "REFUND" : "GENERAL");
   const message = followUpMessage(draft);
   const unsigned = {
     planId: `plan_${randomUUID()}`,
@@ -148,12 +165,14 @@ function buildPlan(input: {
       ? "Company"
       : draft.promisor.value,
     promiseType,
-    executionMode: input.channel.channelType === "CONTROLLED_SANDBOX"
-      ? "ACCELERATED_DEMO" as const
-      : "CONTROLLED_REAL_PILOT" as const,
-    timingPolicyVersion: input.channel.channelType === "CONTROLLED_SANDBOX"
-      ? "accelerated-demo/v1"
-      : "controlled-real-pilot/v1",
+    executionMode:
+      input.channel.channelType === "CONTROLLED_SANDBOX"
+        ? ("ACCELERATED_DEMO" as const)
+        : ("CONTROLLED_REAL_PILOT" as const),
+    timingPolicyVersion:
+      input.channel.channelType === "CONTROLLED_SANDBOX"
+        ? "accelerated-demo/v1"
+        : "controlled-real-pilot/v1",
     allowedActions: ["SEND_FOLLOW_UP"] as const,
     allowedRecipient: input.recipient,
     channelType: input.channel.channelType,
@@ -162,9 +181,8 @@ function buildPlan(input: {
     messageTemplateVersion: "company-follow-up/v1",
     messageSubject: message.subject,
     messageBody: message.body,
-    followUpIntervalSeconds: input.channel.channelType === "CONTROLLED_SANDBOX"
-      ? 8
-      : 2 * 24 * 60 * 60,
+    followUpIntervalSeconds:
+      input.channel.channelType === "CONTROLLED_SANDBOX" ? 8 : 2 * 24 * 60 * 60,
     maxLogicalSends: 3,
     sharedFields: [
       "transactionRef",
@@ -190,12 +208,13 @@ function buildPlan(input: {
           : {}),
         transactionRef: draft.transactionRef.value,
         maxAgeSeconds: 30 * 24 * 60 * 60,
-        trustedIssuer: input.channel.channelType === "MANAGED_EMAIL"
-          ? `managed-email:${stableHash({
-              namespace: "dueback/recipient/v1",
-              recipient: input.recipient.toLowerCase()
-            }).slice(7, 31)}`
-          : "merchant-sandbox"
+        trustedIssuer:
+          input.channel.channelType === "MANAGED_EMAIL"
+            ? `managed-email:${stableHash({
+                namespace: "dueback/recipient/v1",
+                recipient: input.recipient.toLowerCase()
+              }).slice(7, 31)}`
+            : "merchant-sandbox"
       }
     ],
     expiresAt: new Date(Date.parse(input.now) + 7 * 24 * 60 * 60 * 1000).toISOString()

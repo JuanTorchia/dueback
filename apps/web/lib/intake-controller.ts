@@ -22,14 +22,18 @@ export async function handleIntake(
     const contextText = typeof text === "string" ? text.trim() : "";
     const hasFile = file instanceof File && file.size > 0;
     const input = hasFile
-          ? {
-              declaredMediaType: file.type,
-              bytes: new Uint8Array(await file.arrayBuffer()),
-              receivedAt
-            }
-          : contextText
-            ? { declaredMediaType: "text/plain", bytes: new TextEncoder().encode(contextText), receivedAt }
-            : undefined;
+      ? {
+          declaredMediaType: file.type,
+          bytes: new Uint8Array(await file.arrayBuffer()),
+          receivedAt
+        }
+      : contextText
+        ? {
+            declaredMediaType: "text/plain",
+            bytes: new TextEncoder().encode(contextText),
+            receivedAt
+          }
+        : undefined;
     if (!input) return Response.json({ error: "PROMISE_SOURCE_REQUIRED" }, { status: 400 });
     const accepted = acceptUpload(input);
     const content =
@@ -40,12 +44,12 @@ export async function handleIntake(
             contentType: accepted.mediaType,
             ...(contextText ? { contextText } : {})
           };
-    const sourceIdentity = contextText && hasFile
-      ? stableHash({ file: accepted.sha256, contextText })
-      : accepted.sha256;
+    const sourceIdentity =
+      contextText && hasFile ? stableHash({ file: accepted.sha256, contextText }) : accepted.sha256;
     const result = await dependencies.service.intake(
       {
-        artifactId: contextText && hasFile ? `artifact_${sourceIdentity.slice(7, 31)}` : accepted.artifactId,
+        artifactId:
+          contextText && hasFile ? `artifact_${sourceIdentity.slice(7, 31)}` : accepted.artifactId,
         ownerId: owner.uid,
         sourceChannel: hasFile ? "upload" : "paste",
         sha256: sourceIdentity,
@@ -64,11 +68,12 @@ export async function handleIntake(
     );
   } catch (cause) {
     const error = redactedPublicError(cause);
-    const diagnostic = cause instanceof Error && /^[A-Z0-9_:,-]{1,200}$/.test(cause.message)
-      ? cause.message
-      : cause instanceof Error
-        ? cause.name
-        : "UNKNOWN_ERROR";
+    const diagnostic =
+      cause instanceof Error && /^[A-Z0-9_:,-]{1,200}$/.test(cause.message)
+        ? cause.message
+        : cause instanceof Error
+          ? cause.name
+          : "UNKNOWN_ERROR";
     console.error("[intake] failed", { publicCode: error, diagnostic });
     const candidateStatus =
       "status" in Object(cause) ? (cause as { status?: unknown }).status : undefined;

@@ -17,19 +17,17 @@ export class RoutingChannelAdapter implements ClosedActionAdapter {
     context: { readonly caseId: string; readonly correlationId?: string }
   ): Promise<ActionReceipt> {
     const channelType = proposal.channelType;
-    if (!channelType || ![
-      "CONTROLLED_SANDBOX",
-      "MANAGED_EMAIL",
-      "GMAIL_CONNECTED",
-      "PARTNER_API"
-    ].includes(channelType)) {
+    if (
+      !channelType ||
+      !["CONTROLLED_SANDBOX", "MANAGED_EMAIL", "GMAIL_CONNECTED", "PARTNER_API"].includes(
+        channelType
+      )
+    ) {
       throw new Error("CONTACT_CHANNEL_INVALID");
     }
-    return this.registry.requireAvailable(channelType as ChannelType).execute(
-      proposal,
-      idempotencyKey,
-      context
-    );
+    return this.registry
+      .requireAvailable(channelType as ChannelType)
+      .execute(proposal, idempotencyKey, context);
   }
 }
 
@@ -72,7 +70,9 @@ export function publicChannelCapabilities(input: {
       supportsDeliveryReceipt: input.sandboxAvailable,
       supportsAuthenticatedReply: input.sandboxAvailable,
       requiresUserOAuth: false,
-      reasonCodes: [input.sandboxAvailable ? "CONTROLLED_DEMO_CONFIGURED" : "SANDBOX_NOT_CONFIGURED"],
+      reasonCodes: [
+        input.sandboxAvailable ? "CONTROLLED_DEMO_CONFIGURED" : "SANDBOX_NOT_CONFIGURED"
+      ],
       checkedAt: input.now
     },
     {
@@ -108,7 +108,11 @@ export function publicChannelCapabilities(input: {
       supportsDeliveryReceipt: true,
       supportsAuthenticatedReply: true,
       requiresUserOAuth: false,
-      reasonCodes: [input.partnerFixtureAvailable ? "CONTROLLED_PARTNER_FIXTURE" : "PARTNER_FIXTURE_NOT_CONFIGURED"],
+      reasonCodes: [
+        input.partnerFixtureAvailable
+          ? "CONTROLLED_PARTNER_FIXTURE"
+          : "PARTNER_FIXTURE_NOT_CONFIGURED"
+      ],
       checkedAt: input.now
     }
   ];

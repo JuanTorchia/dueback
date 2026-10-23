@@ -39,7 +39,8 @@ describe("merchant scenarios", () => {
   });
 
   it("retries transient callback conflicts and eventually delivers", async () => {
-    const send = vi.fn()
+    const send = vi
+      .fn()
       .mockResolvedValueOnce(new Response(null, { status: 409 }))
       .mockResolvedValueOnce(new Response(null, { status: 503 }))
       .mockResolvedValueOnce(new Response(null, { status: 202 }));

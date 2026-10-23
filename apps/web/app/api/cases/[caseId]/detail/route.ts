@@ -7,5 +7,8 @@ export const runtime = "nodejs";
 type Context = { params: Promise<{ caseId: string }> };
 export async function GET(request: Request, context: Context) {
   const { caseId } = await context.params;
-  return handleCaseDetail(request, caseId, { authenticate: authenticatedOwner, store: new FirestoreRuntimeStore(firestore) });
+  return handleCaseDetail(request, caseId, {
+    authenticate: authenticatedOwner,
+    store: new FirestoreRuntimeStore(firestore)
+  });
 }

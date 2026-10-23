@@ -6,8 +6,13 @@ const otherState = process.env.DUEBACK_OTHER_STORAGE_STATE;
 const caseId = process.env.DUEBACK_CROSS_DEVICE_CASE_ID;
 
 test.describe("real cross-device ownership", () => {
-  test.skip(!deployedUrl || !ownerState || !caseId, "Provide a real Firebase owner state and owned case; this claim gate cannot use mocked identity");
-  test("the linked Google owner recovers the case and another owner sees no facts", async ({ browser }) => {
+  test.skip(
+    !deployedUrl || !ownerState || !caseId,
+    "Provide a real Firebase owner state and owned case; this claim gate cannot use mocked identity"
+  );
+  test("the linked Google owner recovers the case and another owner sees no facts", async ({
+    browser
+  }) => {
     const owner = await browser.newContext({ storageState: ownerState });
     const ownerPage = await owner.newPage();
     await ownerPage.goto(`${deployedUrl}/cases/${caseId}/result`);
@@ -18,7 +23,9 @@ test.describe("real cross-device ownership", () => {
     const other = await browser.newContext(otherState ? { storageState: otherState } : undefined);
     const otherPage = await other.newPage();
     await otherPage.goto(`${deployedUrl}/cases/${caseId}/result`);
-    await expect(otherPage.getByRole("heading", { name: "Sign in to open this private case" })).toBeVisible();
+    await expect(
+      otherPage.getByRole("heading", { name: "Sign in to open this private case" })
+    ).toBeVisible();
     await expect(otherPage.getByText(/What happens next/i)).toHaveCount(0);
     await other.close();
   });

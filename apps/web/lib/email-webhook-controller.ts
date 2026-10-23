@@ -58,7 +58,10 @@ export async function handleEmailWebhook(
       receivedAt: now
     });
     if (reservation !== "RESERVED") {
-      return Response.json({ providerEventId: id, status: reservation, duplicate: true }, { status: 202 });
+      return Response.json(
+        { providerEventId: id, status: reservation, duplicate: true },
+        { status: 202 }
+      );
     }
     try {
       await dependencies.scheduler.scheduleInbound({
@@ -68,7 +71,10 @@ export async function handleEmailWebhook(
         wakeAt: now
       });
       await dependencies.events.markProviderEvent(id, "ENQUEUED", now);
-      return Response.json({ providerEventId: id, status: "ENQUEUED", duplicate: false }, { status: 202 });
+      return Response.json(
+        { providerEventId: id, status: "ENQUEUED", duplicate: false },
+        { status: 202 }
+      );
     } catch (error) {
       await dependencies.events.markProviderEvent(id, "FAILED", now, [
         error instanceof Error ? error.message : "EMAIL_TASK_SCHEDULE_FAILED"
@@ -76,6 +82,9 @@ export async function handleEmailWebhook(
       throw error;
     }
   } catch (error) {
-    return Response.json({ error: error instanceof Error ? error.message : "EMAIL_WEBHOOK_FAILED" }, { status: 400 });
+    return Response.json(
+      { error: error instanceof Error ? error.message : "EMAIL_WEBHOOK_FAILED" },
+      { status: 400 }
+    );
   }
 }

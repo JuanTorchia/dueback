@@ -53,7 +53,11 @@ export function IntakeForm() {
         headers: { Authorization: `Bearer ${token}` },
         body
       });
-      const result = (await response.json()) as { caseId?: string; status?: string; error?: string };
+      const result = (await response.json()) as {
+        caseId?: string;
+        status?: string;
+        error?: string;
+      };
       if (!response.ok || !result.caseId) throw new Error(result.error ?? "INTAKE_FAILED");
       router.push(
         result.status === "READY"
@@ -68,16 +72,26 @@ export function IntakeForm() {
 
   const ready = text.trim().length > 0 || file !== undefined;
   return (
-    <div className="card intake-composer-card" data-testid="intake-form" data-hydrated={hydrated} aria-busy={busy}>
-      {deletionConfirmed ? <p className="success" role="status">{copy.deleted}</p> : null}
+    <div
+      className="card intake-composer-card"
+      data-testid="intake-form"
+      data-hydrated={hydrated}
+      aria-busy={busy}
+    >
+      {deletionConfirmed ? (
+        <p className="success" role="status">
+          {copy.deleted}
+        </p>
+      ) : null}
       <div className="form-heading">
-        <span>{copy.recipe}</span><strong>{copy.title}</strong>
+        <span>{copy.recipe}</span>
+        <strong>{copy.title}</strong>
       </div>
-      <p className="recipe-scope">
-        {copy.scope}
-      </p>
+      <p className="recipe-scope">{copy.scope}</p>
       <div className="smart-composer">
-        <label className="composer-label" htmlFor="promise">{copy.prompt}</label>
+        <label className="composer-label" htmlFor="promise">
+          {copy.prompt}
+        </label>
         <textarea
           id="promise"
           value={text}
@@ -115,15 +129,38 @@ export function IntakeForm() {
         {copy.ai} <a href={localize("/privacy")}>{copy.data}</a>.
       </p>
       {file ? (
-        <div className="attachment-status"><span>{(file.size / 1024 / 1024).toFixed(1)} MB · {copy.ready}</span><button className="remove-file" type="button" disabled={busy} onClick={() => { setFile(undefined); }}>{copy.remove}</button></div>
+        <div className="attachment-status">
+          <span>
+            {(file.size / 1024 / 1024).toFixed(1)} MB · {copy.ready}
+          </span>
+          <button
+            className="remove-file"
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setFile(undefined);
+            }}
+          >
+            {copy.remove}
+          </button>
+        </div>
       ) : null}
       {text.trim() && file ? <p className="combined-source">{copy.combined}</p> : null}
       <div className="example-picker">
         <span>{copy.common}</span>
         <div>
           {examples.map((example) => (
-            <button key={example.label} type="button" disabled={busy} onClick={() => { setText(example.text); setError(undefined); }}>
-              {example.label}<span aria-hidden="true">→</span>
+            <button
+              key={example.label}
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setText(example.text);
+                setError(undefined);
+              }}
+            >
+              {example.label}
+              <span aria-hidden="true">→</span>
             </button>
           ))}
         </div>
@@ -131,13 +168,17 @@ export function IntakeForm() {
       <details className="mobile-after">
         <summary>{copy.after}</summary>
         <ol>
-          <li>{copy.after1}</li><li>{copy.after2}</li><li>{copy.after3}</li>
+          <li>{copy.after1}</li>
+          <li>{copy.after2}</li>
+          <li>{copy.after3}</li>
         </ol>
         <p>{copy.adapter}</p>
       </details>
       {busy ? (
         <div className="analysis-progress">
-          <div className="progress-orbit" aria-hidden="true"><span /></div>
+          <div className="progress-orbit" aria-hidden="true">
+            <span />
+          </div>
           <div>
             <strong>{copy.reading}</strong>
             <p>
@@ -147,7 +188,9 @@ export function IntakeForm() {
                   ? copy.complex
                   : copy.slow}
             </p>
-            <small aria-hidden="true">{elapsedSeconds}s {copy.elapsed}</small>
+            <small aria-hidden="true">
+              {elapsedSeconds}s {copy.elapsed}
+            </small>
           </div>
         </div>
       ) : null}

@@ -43,10 +43,12 @@ Return only observed fields; deterministic code will authenticate and verify the
 export async function reconcileEvidenceWithGateway(
   gateway: EvidenceModelGateway,
   raw: unknown
-): Promise<EvidenceCandidateContract & {
-  readonly transactionRef: string;
-  readonly signatureValid: false;
-}> {
+): Promise<
+  EvidenceCandidateContract & {
+    readonly transactionRef: string;
+    readonly signatureValid: false;
+  }
+> {
   const input = reconciliationInputSchema.parse(raw);
   const output = await gateway.generate({
     system: reconciliationInstruction,

@@ -16,16 +16,18 @@ function controlService() {
   const serviceAccountEmail = process.env.CLOUD_TASKS_SERVICE_ACCOUNT;
   const scheduler =
     projectId && workerUrl && serviceAccountEmail
-      ? durableCaseScheduler(new TaskScheduler(new CloudTasksClient(), {
-          projectId,
-          location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
-          queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
-          workerUrl,
-          serviceAccountEmail,
-          ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
-            ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
-            : {})
-        }))
+      ? durableCaseScheduler(
+          new TaskScheduler(new CloudTasksClient(), {
+            projectId,
+            location: process.env.CLOUD_TASKS_LOCATION ?? "us-central1",
+            queue: process.env.CLOUD_TASKS_QUEUE ?? "dueback-cases",
+            workerUrl,
+            serviceAccountEmail,
+            ...(process.env.DUEBACK_TASKS_OIDC_AUDIENCE
+              ? { oidcAudience: process.env.DUEBACK_TASKS_OIDC_AUDIENCE }
+              : {})
+          })
+        )
       : undefined;
   return new CaseControlService(new FirestoreCaseControlStore(firestore), scheduler);
 }

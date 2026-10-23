@@ -16,10 +16,16 @@ describe("durable analysis intake", () => {
     const response = await handleAnalysisIntake(request(), {
       authenticate: () => Promise.resolve({ uid: "owner_12345678" }),
       storage: {
-        save: (input) => { savedPath = input.path; return Promise.resolve(); }
+        save: (input) => {
+          savedPath = input.path;
+          return Promise.resolve();
+        }
       },
       store: {
-        createOrGet: (job) => { created = job; return Promise.resolve({ job, duplicate: false }); },
+        createOrGet: (job) => {
+          created = job;
+          return Promise.resolve({ job, duplicate: false });
+        },
         markTerminalFailure: vi.fn()
       },
       consumeBudget: vi.fn(),

@@ -96,10 +96,12 @@ describe("PlanService", () => {
 
   it("lets a person correct certain fields and remove an inapplicable amount or deadline", async () => {
     const initial = caseDraft();
-    const service = new PlanService(new MemoryPlanStore({
-      ...initial,
-      plan: { ...initial.plan, promiseType: "GENERAL" }
-    }));
+    const service = new PlanService(
+      new MemoryPlanStore({
+        ...initial,
+        plan: { ...initial.plan, promiseType: "GENERAL" }
+      })
+    );
     const revised = await service.revise("case_12345678", "person_12345678", 1, {
       promisor: "Northstar Argentina",
       result: "Replacement delivered",
@@ -152,8 +154,9 @@ describe("PlanService", () => {
       senderIdentity: "DueBack <followup@dueback.example>",
       replyRoute: "case+opaque@reply.dueback.example"
     });
-    expect(revised.plan.evidenceRequirements[0]?.trustedIssuer)
-      .toBe("managed-email:recipient-hash");
+    expect(revised.plan.evidenceRequirements[0]?.trustedIssuer).toBe(
+      "managed-email:recipient-hash"
+    );
     expect(revised.plan.planHash).not.toBe(hash);
   });
 
@@ -193,22 +196,26 @@ describe("PlanService", () => {
 
   it("does not allow an activated plan to be silently revised", async () => {
     const initial = caseDraft();
-    const service = new PlanService(new MemoryPlanStore({
-      ...initial,
-      state: "READY",
-      approval: {
-        approvalId: "approval_12345678",
-        ownerId: initial.ownerId,
-        caseId: initial.caseId,
-        planVersion: 1,
-        planHash: hash,
-        approvedAt: "2026-08-15T12:00:00.000Z",
-        expiresAt: initial.plan.expiresAt
-      }
-    }));
-    await expect(service.revise(initial.caseId, initial.ownerId, 1, {
-      allowedRecipient: "other@example.test"
-    })).rejects.toThrow("PLAN_NOT_EDITABLE");
+    const service = new PlanService(
+      new MemoryPlanStore({
+        ...initial,
+        state: "READY",
+        approval: {
+          approvalId: "approval_12345678",
+          ownerId: initial.ownerId,
+          caseId: initial.caseId,
+          planVersion: 1,
+          planHash: hash,
+          approvedAt: "2026-08-15T12:00:00.000Z",
+          expiresAt: initial.plan.expiresAt
+        }
+      })
+    );
+    await expect(
+      service.revise(initial.caseId, initial.ownerId, 1, {
+        allowedRecipient: "other@example.test"
+      })
+    ).rejects.toThrow("PLAN_NOT_EDITABLE");
   });
 
   it("lets a person resolve every critical field exposed by intake", async () => {
@@ -228,7 +235,14 @@ describe("PlanService", () => {
         transactionRef: { ...initial.promiseDraft.transactionRef, uncertainty: "AMBIGUOUS" },
         dueAt: undefined
       },
-      blockingFields: ["promisor", "result", "amountMinor", "currency", "transactionRef", "followUpAt"],
+      blockingFields: [
+        "promisor",
+        "result",
+        "amountMinor",
+        "currency",
+        "transactionRef",
+        "followUpAt"
+      ],
       activationBlocked: true
     };
     const service = new PlanService(new MemoryPlanStore(blocked));
@@ -269,11 +283,13 @@ describe("PlanService", () => {
       planVersion: 1,
       planHash: hash
     });
-    expect(scheduleCase).toHaveBeenCalledWith(expect.objectContaining({
-      caseId: "case_12345678",
-      expectedVersion: 1,
-      wakeAt: "2026-08-20T00:00:00.000Z"
-    }));
+    expect(scheduleCase).toHaveBeenCalledWith(
+      expect.objectContaining({
+        caseId: "case_12345678",
+        expectedVersion: 1,
+        wakeAt: "2026-08-20T00:00:00.000Z"
+      })
+    );
   });
 
   it("rejects approval of a stale plan hash", async () => {

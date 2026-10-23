@@ -13,7 +13,8 @@ export default async function ExceptionPage({
     <main className="shell">
       <AppHeader />
       <section className="hero compact">
-        <div className="eyebrow">{copy.exceptionEye}</div><h1>{copy.exceptionTitle}</h1>
+        <div className="eyebrow">{copy.exceptionEye}</div>
+        <h1>{copy.exceptionTitle}</h1>
       </section>
       <CaseException caseId={caseId} />
     </main>

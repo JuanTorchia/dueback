@@ -19,7 +19,10 @@ interface FirebasePublicConfig {
 let configRequest: Promise<FirebasePublicConfig> | undefined;
 
 export function recoverableAuthError(code: string, linking: boolean): string {
-  if (linking && (code.includes("credential-already-in-use") || code.includes("email-already-in-use")))
+  if (
+    linking &&
+    (code.includes("credential-already-in-use") || code.includes("email-already-in-use"))
+  )
     return "RECOVERABLE_ACCOUNT_ALREADY_EXISTS";
   if (code.includes("popup-closed") || code.includes("cancelled-popup"))
     return "RECOVERABLE_SIGN_IN_CANCELLED";

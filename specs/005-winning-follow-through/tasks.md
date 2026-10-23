@@ -34,6 +34,6 @@
 - [x] T021 Run package/root tests, typecheck, lint, build, evaluation, emulator and diff checks
 - [x] T022 Deploy and pin Firebase Hosting to the new Cloud Run revision
 - [x] T023 Run sequential public silence/ACK/follow-up/proof, inbox and accessibility paths with
-  one worker and zero retries
+      one worker and zero retries
 - [x] T024 Record redacted Cloud Task/action/evidence evidence and update final audit
 - [x] T025 Re-audit the public product before reopening the video gate

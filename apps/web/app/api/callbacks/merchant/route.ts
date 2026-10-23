@@ -15,12 +15,6 @@ export async function POST(request: Request) {
     secret,
     now: () => new Date().toISOString(),
     callbacks: store,
-    evidence: new EvidenceService(
-      store,
-      store,
-      store,
-      notificationDelivery(store),
-      caseScheduler()
-    )
+    evidence: new EvidenceService(store, store, store, notificationDelivery(store), caseScheduler())
   });
 }

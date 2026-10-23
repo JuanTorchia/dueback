@@ -7,8 +7,11 @@ import type { WakeIntent } from "@dueback/runtime/wake-outbox";
 import { persistWakeIntent } from "./wake-outbox-store";
 
 export function firstRunDueAt(draft: DraftCase): string {
-  return draft.plan.followUpAt ?? draft.promiseDraft.dueAt?.value ??
-    new Date(Date.parse(draft.createdAt) + 1000).toISOString();
+  return (
+    draft.plan.followUpAt ??
+    draft.promiseDraft.dueAt?.value ??
+    new Date(Date.parse(draft.createdAt) + 1000).toISOString()
+  );
 }
 
 export class FirestoreIntakeStore implements IntakeStore, PlanStore {

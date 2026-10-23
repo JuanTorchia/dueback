@@ -69,9 +69,10 @@ export async function deliverCallbackWithRetry(
 }
 
 function reportCallbackFailure(error: unknown): void {
-  const reason = error instanceof Error && /^CALLBACK_[0-9]{3}$/.test(error.message)
-    ? error.message
-    : "CALLBACK_DELIVERY_FAILED";
+  const reason =
+    error instanceof Error && /^CALLBACK_[0-9]{3}$/.test(error.message)
+      ? error.message
+      : "CALLBACK_DELIVERY_FAILED";
   console.error(JSON.stringify({ event: "sandbox_callback_delivery_exhausted", reason }));
 }
 
@@ -191,7 +192,8 @@ export function createMerchantServer(input: {
           const followupOutcome = step.followupOutcome;
           if (followupOutcome)
             setTimeout(
-              () => void deliverCallbackWithRetry(send(followupOutcome)).catch(reportCallbackFailure),
+              () =>
+                void deliverCallbackWithRetry(send(followupOutcome)).catch(reportCallbackFailure),
               callbackDelay + (step.followupDelayMs ?? 1_500)
             );
         }

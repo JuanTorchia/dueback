@@ -13,11 +13,12 @@ export interface ConversationEntry {
 
 function explicitFacts(record: EvidenceRecord): string {
   const candidate = record.candidate;
-  const amount = candidate.amountMinor === undefined
-    ? undefined
-    : candidate.currency
-      ? `${candidate.currency} ${(candidate.amountMinor / 100).toFixed(2)}`
-      : (candidate.amountMinor / 100).toFixed(2);
+  const amount =
+    candidate.amountMinor === undefined
+      ? undefined
+      : candidate.currency
+        ? `${candidate.currency} ${(candidate.amountMinor / 100).toFixed(2)}`
+        : (candidate.amountMinor / 100).toFixed(2);
   const facts = [
     candidate.transactionRef ? `Reference ${candidate.transactionRef}` : undefined,
     amount ? `Amount ${amount}` : undefined,
@@ -36,7 +37,8 @@ export function caseConversation(
   const outbound = channelEvents.map((event, index) => ({
     id: `outbound-${String(index)}-${event.acceptedAt}`,
     direction: "OUTBOUND" as const,
-    title: index === 0 ? "DueBack sent the approved follow-up" : "DueBack sent an approved follow-up",
+    title:
+      index === 0 ? "DueBack sent the approved follow-up" : "DueBack sent an approved follow-up",
     occurredAt: event.acceptedAt,
     safeBody: `Requested outcome: ${item.plan.goal}`,
     status: event.transportStatus,
@@ -45,9 +47,10 @@ export function caseConversation(
   const inbound = evidence.map((record) => ({
     id: `inbound-${record.candidate.evidenceId}`,
     direction: "INBOUND" as const,
-    title: record.candidate.level === "REQUEST_ACKNOWLEDGED"
-      ? "The company acknowledged the request"
-      : "DueBack checked a company reply",
+    title:
+      record.candidate.level === "REQUEST_ACKNOWLEDGED"
+        ? "The company acknowledged the request"
+        : "DueBack checked a company reply",
     occurredAt: record.recordedAt,
     safeBody: explicitFacts(record),
     status: record.verification.accepted ? "PROOF_ACCEPTED" : "NOT_RESOLVED",

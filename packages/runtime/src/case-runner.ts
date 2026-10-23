@@ -54,7 +54,10 @@ export type RunResult =
   | { readonly status: "WAITING_EXTERNAL"; readonly broker: BrokerResult }
   | { readonly status: "WAITING_RETRY"; readonly wakeAt: string }
   | { readonly status: "FAILED"; readonly reason: "ACTION_DENIED" }
-  | { readonly status: "NEEDS_ATTENTION"; readonly reason: "RECOVERY_EXHAUSTED" | "ACTION_BUDGET_EXHAUSTED" };
+  | {
+      readonly status: "NEEDS_ATTENTION";
+      readonly reason: "RECOVERY_EXHAUSTED" | "ACTION_BUDGET_EXHAUSTED";
+    };
 
 function actionProposal(item: FollowThroughCase): ProposedAction {
   const requirement = item.plan.evidenceRequirements[0];
@@ -65,9 +68,10 @@ function actionProposal(item: FollowThroughCase): ProposedAction {
   if (requirement.currency !== undefined) sharedFields.currency = requirement.currency;
   if (requirement.subject !== undefined) sharedFields.subject = requirement.subject;
   if (requirement.billPeriod !== undefined) sharedFields.billPeriod = requirement.billPeriod;
-  const laterFollowUp = item.actionOrdinal > 1
-    ? `\n\nThis is follow-up ${String(item.actionOrdinal)}. A prior response did not include the explicit proof required to close this case. Please include the approved reference and outcome facts.`
-    : "";
+  const laterFollowUp =
+    item.actionOrdinal > 1
+      ? `\n\nThis is follow-up ${String(item.actionOrdinal)}. A prior response did not include the explicit proof required to close this case. Please include the approved reference and outcome facts.`
+      : "";
   return {
     ownerId: item.ownerId,
     planVersion: item.plan.version,
@@ -104,10 +108,7 @@ export class CaseRunner {
       item.version !== input.expectedVersion ||
       !["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state)
     ) {
-      if (
-        ["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) &&
-        item.nextWakeAt
-      ) {
+      if (["READY", "WAITING_RETRY", "WAITING_EXTERNAL"].includes(item.state) && item.nextWakeAt) {
         await this.scheduler.scheduleCase({
           caseId: item.caseId,
           expectedVersion: item.version,
@@ -132,7 +133,8 @@ export class CaseRunner {
         updatedAt: input.now
       };
       await this.store.compareAndSet(item.caseId, item.version, exhausted);
-      const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+      const correlationId =
+        input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
       await this.interventions?.raise({
         caseId: item.caseId,
         ownerId: item.ownerId,
@@ -225,7 +227,8 @@ export class CaseRunner {
           updatedAt: input.now
         };
         await this.store.compareAndSet(item.caseId, item.version, failed);
-        const correlationId = input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
+        const correlationId =
+          input.correlationId ?? item.correlationId ?? `corr_${item.caseId.slice(-24)}`;
         await this.terminalNotifications?.notify({
           caseId: item.caseId,
           ownerId: item.ownerId,

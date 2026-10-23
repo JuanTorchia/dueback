@@ -35,7 +35,12 @@ class ExceptionStore implements CaseControlStore {
     return Promise.resolve(this.item);
   }
   requestDeletion(): Promise<DeletionReceipt> {
-    return Promise.resolve({ caseId: this.item.caseId, status: "DELETION_ACCEPTED", requestedAt: "2026-08-15T12:05:00.000Z", tombstoneId: "deletion_exception_12345678" });
+    return Promise.resolve({
+      caseId: this.item.caseId,
+      status: "DELETION_ACCEPTED",
+      requestedAt: "2026-08-15T12:05:00.000Z",
+      tombstoneId: "deletion_exception_12345678"
+    });
   }
 }
 
@@ -43,7 +48,12 @@ function request(caseId: string, action: string, expectedVersion: number, reason
   return new Request(`https://dueback.test/api/cases/${caseId}/control`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action, expectedVersion, reason, idempotencyKey: `command-${action.toLowerCase()}-12345678` })
+    body: JSON.stringify({
+      action,
+      expectedVersion,
+      reason,
+      idempotencyKey: `command-${action.toLowerCase()}-12345678`
+    })
   });
 }
 
@@ -105,9 +115,20 @@ describe("exception and reopen journey", () => {
   it("returns an observable deletion receipt", async () => {
     const draft = makeDraftCase();
     const store = new ExceptionStore({
-      caseId: draft.caseId, ownerId: draft.ownerId, state: "READY", version: 2,
-      plan: draft.plan, approval: { ownerId: draft.ownerId, planVersion: draft.plan.version, planHash: draft.plan.planHash, expiresAt: draft.plan.expiresAt },
-      actionOrdinal: 1, dueAt: "2026-08-15T12:00:00.000Z", correlationId: "corr_delete_1234567890"
+      caseId: draft.caseId,
+      ownerId: draft.ownerId,
+      state: "READY",
+      version: 2,
+      plan: draft.plan,
+      approval: {
+        ownerId: draft.ownerId,
+        planVersion: draft.plan.version,
+        planHash: draft.plan.planHash,
+        expiresAt: draft.plan.expiresAt
+      },
+      actionOrdinal: 1,
+      dueAt: "2026-08-15T12:00:00.000Z",
+      correlationId: "corr_delete_1234567890"
     });
     const response = await handleCaseControl(request(draft.caseId, "DELETE", 2), draft.caseId, {
       authenticate: vi.fn(() => Promise.resolve({ uid: draft.ownerId })),
@@ -115,6 +136,9 @@ describe("exception and reopen journey", () => {
       now: () => "2026-08-15T12:05:00.000Z"
     });
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({ status: "DELETION_ACCEPTED", caseId: draft.caseId });
+    await expect(response.json()).resolves.toMatchObject({
+      status: "DELETION_ACCEPTED",
+      caseId: draft.caseId
+    });
   });
 });

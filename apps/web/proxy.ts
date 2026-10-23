@@ -25,7 +25,11 @@ export function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-dueback-locale", locale);
   const response = NextResponse.rewrite(target, { request: { headers: requestHeaders } });
-  response.cookies.set("dueback-locale", locale, { maxAge: 60 * 60 * 24 * 365, sameSite: "lax", path: "/" });
+  response.cookies.set("dueback-locale", locale, {
+    maxAge: 60 * 60 * 24 * 365,
+    sameSite: "lax",
+    path: "/"
+  });
   return response;
 }
 

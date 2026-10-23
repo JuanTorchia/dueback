@@ -51,13 +51,17 @@ describe("public evaluation budgets and model cost evidence", () => {
   it("permits only explicit controlled recipient domains", () => {
     const domains = parseAllowedRecipientDomains("example.com, DEMO.test,example.com");
     expect(domains).toEqual(["example.com", "demo.test"]);
-    expect(() => { assertControlledRecipient("support@example.com", domains); }).not.toThrow();
-    expect(() => { assertControlledRecipient("support@eu.example.com", domains); }).not.toThrow();
-    expect(() => { assertControlledRecipient("support@evil-example.com", domains); }).toThrow(
-      "COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED"
-    );
-    expect(() => { assertControlledRecipient("support@example.com", []); }).toThrow(
-      "COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED"
-    );
+    expect(() => {
+      assertControlledRecipient("support@example.com", domains);
+    }).not.toThrow();
+    expect(() => {
+      assertControlledRecipient("support@eu.example.com", domains);
+    }).not.toThrow();
+    expect(() => {
+      assertControlledRecipient("support@evil-example.com", domains);
+    }).toThrow("COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED");
+    expect(() => {
+      assertControlledRecipient("support@example.com", []);
+    }).toThrow("COMPANY_EMAIL_RECIPIENT_NOT_ALLOWED");
   });
 });

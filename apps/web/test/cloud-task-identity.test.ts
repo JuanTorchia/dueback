@@ -6,21 +6,36 @@ import {
 
 describe("Cloud Tasks OIDC boundary", () => {
   it("rejects an unverified or different service account", () => {
-    expect(() => assertExpectedCloudTaskClaims({
-      email: "attacker@example.test",
-      email_verified: true
-    }, "dueback-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
-    expect(() => assertExpectedCloudTaskClaims({
-      email: "dueback-tasks@example.test",
-      email_verified: false
-    }, "dueback-tasks@example.test")).toThrow("CLOUD_TASK_IDENTITY_INVALID");
+    expect(() =>
+      assertExpectedCloudTaskClaims(
+        {
+          email: "attacker@example.test",
+          email_verified: true
+        },
+        "dueback-tasks@example.test"
+      )
+    ).toThrow("CLOUD_TASK_IDENTITY_INVALID");
+    expect(() =>
+      assertExpectedCloudTaskClaims(
+        {
+          email: "dueback-tasks@example.test",
+          email_verified: false
+        },
+        "dueback-tasks@example.test"
+      )
+    ).toThrow("CLOUD_TASK_IDENTITY_INVALID");
   });
 
   it("accepts only the configured verified service account claim", () => {
-    expect(assertExpectedCloudTaskClaims({
-      email: "dueback-tasks@example.test",
-      email_verified: true
-    }, "dueback-tasks@example.test")).toBe("dueback-tasks@example.test");
+    expect(
+      assertExpectedCloudTaskClaims(
+        {
+          email: "dueback-tasks@example.test",
+          email_verified: true
+        },
+        "dueback-tasks@example.test"
+      )
+    ).toBe("dueback-tasks@example.test");
   });
 
   it("fails closed when cryptographic verification fails", async () => {

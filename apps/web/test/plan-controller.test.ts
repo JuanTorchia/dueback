@@ -23,10 +23,11 @@ describe("plan API contract", () => {
 
   it("refuses approval when the persisted channel is unavailable", async () => {
     const service = new PlanService({
-      get: () => Promise.resolve({
-        ownerId: "person_12345678",
-        plan: { channelType: "MANAGED_EMAIL" }
-      } as DraftCase),
+      get: () =>
+        Promise.resolve({
+          ownerId: "person_12345678",
+          plan: { channelType: "MANAGED_EMAIL" }
+        } as DraftCase),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -53,10 +54,11 @@ describe("plan API contract", () => {
 
   it("refuses real email activation for an anonymous browser owner", async () => {
     const service = new PlanService({
-      get: () => Promise.resolve({
-        ownerId: "person_12345678",
-        plan: { channelType: "MANAGED_EMAIL" }
-      } as DraftCase),
+      get: () =>
+        Promise.resolve({
+          ownerId: "person_12345678",
+          plan: { channelType: "MANAGED_EMAIL" }
+        } as DraftCase),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -71,10 +73,11 @@ describe("plan API contract", () => {
       }),
       "case_12345678",
       {
-        authenticate: () => Promise.resolve({
-          uid: "person_12345678",
-          firebase: { sign_in_provider: "anonymous" }
-        }),
+        authenticate: () =>
+          Promise.resolve({
+            uid: "person_12345678",
+            firebase: { sign_in_provider: "anonymous" }
+          }),
         service,
         now: () => "2026-08-16T12:00:00.000Z",
         isChannelAvailable: () => true,
@@ -87,13 +90,14 @@ describe("plan API contract", () => {
 
   it("refuses sending owner notifications to an unverified third-party email", async () => {
     const service = new PlanService({
-      get: () => Promise.resolve({
-        ownerId: "person_12345678",
-        plan: {
-          channelType: "MANAGED_EMAIL",
-          notificationRecipient: "third-party@example.test"
-        }
-      } as DraftCase),
+      get: () =>
+        Promise.resolve({
+          ownerId: "person_12345678",
+          plan: {
+            channelType: "MANAGED_EMAIL",
+            notificationRecipient: "third-party@example.test"
+          }
+        } as DraftCase),
       replace: () => Promise.resolve()
     });
     const response = await handlePlanRequest(
@@ -101,16 +105,20 @@ describe("plan API contract", () => {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          action: "approve", expectedPlanVersion: 1,
+          action: "approve",
+          expectedPlanVersion: 1,
           expectedPlanHash: `sha256:${"a".repeat(64)}`
         })
       }),
       "case_12345678",
       {
-        authenticate: () => Promise.resolve({
-          uid: "person_12345678", email: "owner@example.test", email_verified: true,
-          firebase: { sign_in_provider: "google.com" }
-        }),
+        authenticate: () =>
+          Promise.resolve({
+            uid: "person_12345678",
+            email: "owner@example.test",
+            email_verified: true,
+            firebase: { sign_in_provider: "google.com" }
+          }),
         service,
         now: () => "2026-08-16T12:00:00.000Z",
         isChannelAvailable: () => true,
@@ -125,13 +133,20 @@ describe("plan API contract", () => {
 
   it("approves and schedules a supported current channel", async () => {
     const hash = `sha256:${"a".repeat(64)}`;
-    const provenance = [{
-      artifactId: "artifact_12345678", locator: "text:0-100", excerptHash: hash,
-      confidence: "HIGH" as const
-    }];
+    const provenance = [
+      {
+        artifactId: "artifact_12345678",
+        locator: "text:0-100",
+        excerptHash: hash,
+        confidence: "HIGH" as const
+      }
+    ];
     let draft: DraftCase = {
-      caseId: "case_12345678", ownerId: "person_12345678", artifactId: "artifact_12345678",
-      dedupeKey: hash, state: "AWAITING_APPROVAL" as const,
+      caseId: "case_12345678",
+      ownerId: "person_12345678",
+      artifactId: "artifact_12345678",
+      dedupeKey: hash,
+      state: "AWAITING_APPROVAL" as const,
       promiseDraft: {
         promisor: { value: "Northstar", provenance, uncertainty: "NONE" as const },
         result: { value: "USD 79 refund", provenance, uncertainty: "NONE" as const },
@@ -142,35 +157,61 @@ describe("plan API contract", () => {
         proposedEvidenceLevel: "MERCHANT_CONFIRMED" as const
       },
       plan: {
-        planId: "plan_12345678", caseId: "case_12345678", ownerId: "person_12345678",
-        version: 1, planHash: hash, goal: "USD 79 refund",
-        allowedActions: ["SEND_FOLLOW_UP" as const], allowedRecipient: "merchant@controlled.test",
+        planId: "plan_12345678",
+        caseId: "case_12345678",
+        ownerId: "person_12345678",
+        version: 1,
+        planHash: hash,
+        goal: "USD 79 refund",
+        allowedActions: ["SEND_FOLLOW_UP" as const],
+        allowedRecipient: "merchant@controlled.test",
         channelType: "CONTROLLED_SANDBOX" as const,
         sharedFields: ["transactionRef", "amountMinor", "currency"],
-        evidenceRequirements: [{
-          minimumLevel: "MERCHANT_CONFIRMED" as const, amountMinor: 7900, currency: "USD",
-          transactionRef: "ORDER-79", maxAgeSeconds: 3600, trustedIssuer: "merchant-sandbox"
-        }],
+        evidenceRequirements: [
+          {
+            minimumLevel: "MERCHANT_CONFIRMED" as const,
+            amountMinor: 7900,
+            currency: "USD",
+            transactionRef: "ORDER-79",
+            maxAgeSeconds: 3600,
+            trustedIssuer: "merchant-sandbox"
+          }
+        ],
         expiresAt: "2026-08-22T00:00:00.000Z"
       },
-      activationBlocked: false, blockingFields: [], createdAt: "2026-08-15T00:00:00.000Z"
+      activationBlocked: false,
+      blockingFields: [],
+      createdAt: "2026-08-15T00:00:00.000Z"
     };
     const scheduleCase = () => Promise.resolve({});
-    const service = new PlanService({
-      get: () => Promise.resolve(draft),
-      replace: (_caseId, _version, next) => { draft = next; return Promise.resolve(); }
-    }, { scheduleCase });
-    const response = await handlePlanRequest(new Request(
-      "https://dueback.test/api/cases/case_12345678/plan",
-      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
-        action: "approve", expectedPlanVersion: 1, expectedPlanHash: hash
-      }) }
-    ), "case_12345678", {
-      authenticate: () => Promise.resolve({ uid: "person_12345678" }),
-      service,
-      now: () => "2026-08-16T12:00:00.000Z",
-      isChannelAvailable: (channel) => channel === "CONTROLLED_SANDBOX"
-    });
+    const service = new PlanService(
+      {
+        get: () => Promise.resolve(draft),
+        replace: (_caseId, _version, next) => {
+          draft = next;
+          return Promise.resolve();
+        }
+      },
+      { scheduleCase }
+    );
+    const response = await handlePlanRequest(
+      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "approve",
+          expectedPlanVersion: 1,
+          expectedPlanHash: hash
+        })
+      }),
+      "case_12345678",
+      {
+        authenticate: () => Promise.resolve({ uid: "person_12345678" }),
+        service,
+        now: () => "2026-08-16T12:00:00.000Z",
+        isChannelAvailable: (channel) => channel === "CONTROLLED_SANDBOX"
+      }
+    );
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({ state: "READY" });
   });
@@ -180,19 +221,25 @@ describe("plan API contract", () => {
       get: () => Promise.resolve({ ownerId: "person_12345678" } as DraftCase),
       replace: () => Promise.resolve()
     });
-    const response = await handlePlanRequest(new Request(
-      "https://dueback.test/api/cases/case_12345678/plan",
-      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
-        action: "select-channel", expectedPlanVersion: 1,
-        revision: { channelType: "MANAGED_EMAIL", senderIdentity: "attacker@example.test" }
-      }) }
-    ), "case_12345678", {
-      authenticate: () => Promise.resolve({ uid: "person_12345678" }),
-      service,
-      now: () => "2026-08-16T12:00:00.000Z",
-      isChannelAvailable: () => false,
-      resolveChannel: () => undefined
-    });
+    const response = await handlePlanRequest(
+      new Request("https://dueback.test/api/cases/case_12345678/plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "select-channel",
+          expectedPlanVersion: 1,
+          revision: { channelType: "MANAGED_EMAIL", senderIdentity: "attacker@example.test" }
+        })
+      }),
+      "case_12345678",
+      {
+        authenticate: () => Promise.resolve({ uid: "person_12345678" }),
+        service,
+        now: () => "2026-08-16T12:00:00.000Z",
+        isChannelAvailable: () => false,
+        resolveChannel: () => undefined
+      }
+    );
     expect(response.status).toBe(409);
     await expect(response.json()).resolves.toEqual({ error: "CONTACT_CHANNEL_UNAVAILABLE" });
   });

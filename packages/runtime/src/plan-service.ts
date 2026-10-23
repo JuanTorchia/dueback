@@ -2,7 +2,11 @@ import { randomUUID } from "node:crypto";
 import { promiseDraftSchema, resolutionPlanSchema } from "@dueback/contracts";
 import type { PromiseDraft, ResolutionPlan } from "@dueback/contracts";
 import { stableHash } from "@dueback/domain";
-import { blockingCriticalFields, commercialOutcomeContract, followUpMessage } from "./intake-service";
+import {
+  blockingCriticalFields,
+  commercialOutcomeContract,
+  followUpMessage
+} from "./intake-service";
 import type { DraftCase, PlanApproval } from "./intake-service";
 import { wakeIntent, type WakeIntent } from "./wake-outbox";
 
@@ -88,15 +92,29 @@ function revisedDraft(current: PromiseDraft, revision: PlanRevision): PromiseDra
   return promiseDraftSchema.parse({
     ...stable,
     ...(revision.amountMinor === undefined
-      ? current.amountMinor ? { amountMinor: current.amountMinor } : {}
-      : revision.amountMinor === null ? {} : { amountMinor: correction(revision.amountMinor, "amountMinor") }),
+      ? current.amountMinor
+        ? { amountMinor: current.amountMinor }
+        : {}
+      : revision.amountMinor === null
+        ? {}
+        : { amountMinor: correction(revision.amountMinor, "amountMinor") }),
     ...(revision.currency === undefined
-      ? current.currency ? { currency: current.currency } : {}
-      : revision.currency === null ? {} : { currency: correction(revision.currency, "currency") }),
+      ? current.currency
+        ? { currency: current.currency }
+        : {}
+      : revision.currency === null
+        ? {}
+        : { currency: correction(revision.currency, "currency") }),
     ...(revision.dueAt === undefined
-      ? current.dueAt ? { dueAt: current.dueAt } : {}
-      : revision.dueAt === null ? {} : { dueAt: correction(revision.dueAt, "dueAt") }),
-    ...(revision.promisor === undefined ? {} : { promisor: correction(revision.promisor, "promisor") }),
+      ? current.dueAt
+        ? { dueAt: current.dueAt }
+        : {}
+      : revision.dueAt === null
+        ? {}
+        : { dueAt: correction(revision.dueAt, "dueAt") }),
+    ...(revision.promisor === undefined
+      ? {}
+      : { promisor: correction(revision.promisor, "promisor") }),
     ...(revision.result === undefined ? {} : { result: correction(revision.result, "result") }),
     ...(revision.transactionRef === undefined
       ? {}
@@ -127,7 +145,8 @@ function revisedPlan(
     ...(current.executionMode ? { executionMode: current.executionMode } : {}),
     ...(current.timingPolicyVersion ? { timingPolicyVersion: current.timingPolicyVersion } : {}),
     allowedActions: current.allowedActions,
-    allowedRecipient: selectedChannel?.allowedRecipient ?? revision.allowedRecipient ?? current.allowedRecipient,
+    allowedRecipient:
+      selectedChannel?.allowedRecipient ?? revision.allowedRecipient ?? current.allowedRecipient,
     channelType: selectedChannel?.channelType ?? current.channelType,
     senderIdentity: selectedChannel?.senderIdentity ?? current.senderIdentity,
     replyRoute: selectedChannel?.replyRoute ?? current.replyRoute,
@@ -143,10 +162,10 @@ function revisedPlan(
     ...(selectedChannel
       ? {}
       : revision.allowedRecipient
-      ? { recipientConfirmedAt: new Date().toISOString() }
-      : current.recipientConfirmedAt
-        ? { recipientConfirmedAt: current.recipientConfirmedAt }
-        : {}),
+        ? { recipientConfirmedAt: new Date().toISOString() }
+        : current.recipientConfirmedAt
+          ? { recipientConfirmedAt: current.recipientConfirmedAt }
+          : {}),
     ...(revision.notificationRecipient
       ? { notificationRecipient: revision.notificationRecipient.trim().toLowerCase() }
       : current.notificationRecipient

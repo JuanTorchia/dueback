@@ -24,7 +24,8 @@ export async function handleCaseExport(
   try {
     const owner = await dependencies.authenticate(request);
     const item = await dependencies.store.get(caseId);
-    if (!item || item.ownerId !== owner.uid) return new Response("CASE_NOT_FOUND", { status: 404, headers });
+    if (!item || item.ownerId !== owner.uid)
+      return new Response("CASE_NOT_FOUND", { status: 404, headers });
     const evidence = await dependencies.store.listEvidence(caseId);
     return new Response(caseExportText(item, evidence, dependencies.now()), { headers });
   } catch (error) {

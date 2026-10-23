@@ -7,7 +7,9 @@ export type AnalysisStartResult =
   | { status: "STARTED"; job: AnalysisJob }
   | { status: "BUSY" | "READY" | "FAILED"; job: AnalysisJob };
 
-export function parseAnalysisDocument(data: FirebaseFirestore.DocumentData | undefined): AnalysisJob {
+export function parseAnalysisDocument(
+  data: FirebaseFirestore.DocumentData | undefined
+): AnalysisJob {
   if (!data) throw new Error("ANALYSIS_JOB_NOT_FOUND");
   // `deleteAt` is Firestore-only TTL metadata and deliberately not part of the
   // domain contract exposed to workers or owners.
@@ -21,11 +23,13 @@ export class FirestoreAnalysisStore {
 
   async createOrGet(job: AnalysisJob): Promise<{ job: AnalysisJob; duplicate: boolean }> {
     const jobRef = this.db.collection("analysisJobs").doc(job.jobId);
-    const dedupeRef = this.db.collection("analysisDedupe").doc(stableHash({
-      namespace: "dueback/analysis-dedupe/v1",
-      ownerId: job.ownerId,
-      sha256: job.sha256
-    }).slice(7));
+    const dedupeRef = this.db.collection("analysisDedupe").doc(
+      stableHash({
+        namespace: "dueback/analysis-dedupe/v1",
+        ownerId: job.ownerId,
+        sha256: job.sha256
+      }).slice(7)
+    );
     return this.db.runTransaction(async (transaction) => {
       const dedupe = await transaction.get(dedupeRef);
       if (dedupe.exists && dedupe.get("ownerId") === job.ownerId) {
@@ -56,7 +60,8 @@ export class FirestoreAnalysisStore {
   }
 
   async getOwnedCase(caseId: string, ownerId: string): Promise<AnalysisJob | undefined> {
-    const snapshot = await this.db.collection("analysisJobs")
+    const snapshot = await this.db
+      .collection("analysisJobs")
       .where("caseId", "==", caseId)
       .limit(1)
       .get();
@@ -67,7 +72,8 @@ export class FirestoreAnalysisStore {
   }
 
   async listByOwner(ownerId: string, limit: number): Promise<readonly AnalysisJob[]> {
-    const snapshot = await this.db.collection("analysisJobs")
+    const snapshot = await this.db
+      .collection("analysisJobs")
       .where("ownerId", "==", ownerId)
       .limit(Math.min(Math.max(limit, 1), 50))
       .get();
@@ -115,20 +121,26 @@ export class FirestoreAnalysisStore {
   }
 
   async markValidating(jobId: string, now: string): Promise<void> {
-    await this.db.collection("analysisJobs").doc(jobId).set({
-      stage: "VALIDATING",
-      updatedAt: now
-    }, { merge: true });
+    await this.db.collection("analysisJobs").doc(jobId).set(
+      {
+        stage: "VALIDATING",
+        updatedAt: now
+      },
+      { merge: true }
+    );
   }
 
   async markReady(jobId: string, now: string): Promise<void> {
-    await this.db.collection("analysisJobs").doc(jobId).set({
-      status: "READY",
-      stage: "REVIEW_READY",
-      updatedAt: now,
-      leaseUntil: FieldValue.delete(),
-      lastError: FieldValue.delete()
-    }, { merge: true });
+    await this.db.collection("analysisJobs").doc(jobId).set(
+      {
+        status: "READY",
+        stage: "REVIEW_READY",
+        updatedAt: now,
+        leaseUntil: FieldValue.delete(),
+        lastError: FieldValue.delete()
+      },
+      { merge: true }
+    );
   }
 
   async markAttemptFailed(jobId: string, reason: string, now: string): Promise<AnalysisJob> {
@@ -152,13 +164,19 @@ export class FirestoreAnalysisStore {
   }
 
   async markTerminalFailure(jobId: string, reason: string, now: string): Promise<void> {
-    await this.db.collection("analysisJobs").doc(jobId).set({
-      status: "FAILED",
-      stage: "FAILED",
-      updatedAt: now,
-      lastError: reason.slice(0, 120),
-      leaseUntil: FieldValue.delete()
-    }, { merge: true });
+    await this.db
+      .collection("analysisJobs")
+      .doc(jobId)
+      .set(
+        {
+          status: "FAILED",
+          stage: "FAILED",
+          updatedAt: now,
+          lastError: reason.slice(0, 120),
+          leaseUntil: FieldValue.delete()
+        },
+        { merge: true }
+      );
   }
 
   async retryOwned(caseId: string, ownerId: string, now: string): Promise<AnalysisJob> {
@@ -174,11 +192,17 @@ export class FirestoreAnalysisStore {
       leaseUntil: undefined,
       lastError: undefined
     });
-    await this.db.collection("analysisJobs").doc(existing.jobId).set({
-      ...next,
-      leaseUntil: FieldValue.delete(),
-      lastError: FieldValue.delete()
-    }, { merge: true });
+    await this.db
+      .collection("analysisJobs")
+      .doc(existing.jobId)
+      .set(
+        {
+          ...next,
+          leaseUntil: FieldValue.delete(),
+          lastError: FieldValue.delete()
+        },
+        { merge: true }
+      );
     return next;
   }
 }

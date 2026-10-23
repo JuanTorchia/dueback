@@ -38,18 +38,19 @@ export async function handlePlanRequest(
     }
     if (body.action === "select-channel" && body.expectedPlanVersion !== undefined) {
       const channelType = body.revision?.channelType;
-      const selected = typeof channelType === "string"
-        ? dependencies.resolveChannel?.(channelType)
-        : undefined;
+      const selected =
+        typeof channelType === "string" ? dependencies.resolveChannel?.(channelType) : undefined;
       if (!selected || !dependencies.isChannelAvailable?.(selected.channelType)) {
         return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
       }
-      return Response.json(await dependencies.service.selectChannel(
-        caseId,
-        owner.uid,
-        body.expectedPlanVersion,
-        selected
-      ));
+      return Response.json(
+        await dependencies.service.selectChannel(
+          caseId,
+          owner.uid,
+          body.expectedPlanVersion,
+          selected
+        )
+      );
     }
     if (body.action === "revise" && body.expectedPlanVersion !== undefined) {
       return Response.json(
@@ -67,7 +68,10 @@ export async function handlePlanRequest(
       body.expectedPlanHash
     ) {
       const draft = await dependencies.service.inspect(caseId, owner.uid);
-      if (dependencies.isChannelAvailable && !dependencies.isChannelAvailable(draft.plan.channelType)) {
+      if (
+        dependencies.isChannelAvailable &&
+        !dependencies.isChannelAvailable(draft.plan.channelType)
+      ) {
         return Response.json({ error: "CONTACT_CHANNEL_UNAVAILABLE" }, { status: 409 });
       }
       if (
@@ -78,11 +82,12 @@ export async function handlePlanRequest(
         return Response.json({ error: "RECOVERABLE_IDENTITY_REQUIRED" }, { status: 409 });
       }
       if (draft.plan.channelType === "MANAGED_EMAIL" && draft.plan.notificationRecipient) {
-        const verifiedEmail = owner.firebase?.sign_in_provider === "anonymous"
-          ? undefined
-          : "email" in owner && typeof owner.email === "string" && owner.email_verified === true
-            ? owner.email.toLowerCase()
-            : undefined;
+        const verifiedEmail =
+          owner.firebase?.sign_in_provider === "anonymous"
+            ? undefined
+            : "email" in owner && typeof owner.email === "string" && owner.email_verified === true
+              ? owner.email.toLowerCase()
+              : undefined;
         if (!verifiedEmail || verifiedEmail !== draft.plan.notificationRecipient.toLowerCase()) {
           return Response.json({ error: "VERIFIED_NOTIFICATION_EMAIL_REQUIRED" }, { status: 409 });
         }

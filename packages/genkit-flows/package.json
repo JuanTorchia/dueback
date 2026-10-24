@@ -17,8 +17,8 @@
   "dependencies": {
     "@dueback/contracts": "workspace:*",
     "@dueback/domain": "workspace:*",
-    "@genkit-ai/google-genai": "1.41.0",
-    "genkit": "1.41.0"
+    "@genkit-ai/google-genai": "1.43.0",
+    "genkit": "1.43.0"
   },
   "devDependencies": {
     "@dueback/test-fixtures": "workspace:*"
